@@ -90,6 +90,11 @@ def run_loop( config: loop_config ) -> loop_result:
     last_verdict: verdict | None = None
     for iteration in range( 1, config.max_iterations + 1 ):
         _log( config, { "event": "iteration_start", "iteration": iteration } )
+        if config.flg_dry_run:
+            _run_programmer( config, iteration, programmer_session_id, feedback )
+            _run_police( config, iteration )
+            print( f"[loop] dry-run completed (1 iteration preview)" )
+            return  loop_result( success = False, iterations = 1, log_path = config.log_file )
         prog_result = _run_programmer( config, iteration, programmer_session_id, feedback )
         if prog_result is None:
             feedback = "previous programmer iteration timed out (hangout) check for infinite loops or blocking operations and avoid them"
