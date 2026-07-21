@@ -11,21 +11,48 @@ For style guidelines, see the [Python Style Guide](style-guide/python.md). For i
 The system is built around a central `tool_manager` object (in `tools/tool_manager.py`) that holds the shared tool registry and handles all three transports:
 
 ```
-                         main.py
-                            |
-                    tools/tool_manager
-                    /     |      \
-              run_cli()  run_api()  run_mcp()
-             (argparse) (FastAPI)  (FastMCP)
-                    \     |      /
-              run_in_subprocess()
-                     |
-               (subprocess)
-                     |
-             actual tool function
+                          main.py
+                             |
+                     tools/tool_manager
+                     /     |      \
+               run_cli()  run_api()  run_mcp()
+              (argparse) (FastAPI)  (FastMCP)
+                     \     |      /
+               run_in_subprocess()
+                      |
+                (subprocess)
+                      |
+              actual tool function
 ```
 
 All three transports (CLI, API, MCP) share the same tool registry, guaranteeing identical behavior across protocols.
+
+### Loop Mode (Fourth Mode)
+
+The loop mode is an **orchestrator**, not a transport. It does not expose the tool registry — instead, it drives opencode programmatically via `opencode run --auto` subprocesses. It has its own package (`loop/`) and entry point (`main_loop`), but reuses `path_manager` and `sak.common` helpers.
+
+```
+main.py (main_loop)
+    |
+    v
+loop/loop_engine.py  (argparse, config)
+    |
+    v
+loop/loop_lib/engine_core.py  (run_loop)
+    |
+    +---> opencode_runner.py  (opencode run --auto, --format json)
+    |         |
+    |         v
+    |     process_guard.py  (subprocess timeout + kill)
+    |
+    +---> verdict.py  (parse police JSON verdict)
+    |
+    +---> session_monitor.py  (query opencode.db for diagnostics)
+```
+
+The loop alternates between a **programmer** agent (build mode, continuing session) and a **police** agent (custom read-only agent, fresh session each time). The police evaluates the project against the specification and returns a structured JSON verdict. If not satisfied, feedback is fed back to the programmer and the loop repeats.
+
+See `docs/agent/development/loop-engine.md` (in host project: `docs/agent/loop-engine-design.md`) for the full design.
 
 ---
 

@@ -1,6 +1,6 @@
 # project-mcp-tools
 
-A Python framework that exposes developer tools simultaneously through three protocols: **MCP** (Model Context Protocol), **REST API**, and **CLI** — all from a single, shared tool registry.
+A Python framework that exposes developer tools simultaneously through three protocols: **MCP** (Model Context Protocol), **REST API**, and **CLI** — all from a single, shared tool registry. A fourth mode, **Loop**, orchestrates opencode in a programmer/police evaluation cycle.
 
 ## Overview
 
@@ -80,6 +80,34 @@ uv run cli --target-project ../my-host-project git_quick_upload --message "your 
 
 `--target-project` must come before the tool name. Tools that don't reference the host project (e.g., `get_random_number`) can be called without `--target-project`.
 
+### Loop Engine
+
+Runs opencode in a continuous programmer/police loop until the target project's specification is satisfied. The programmer agent (build mode) implements features; the police agent (a custom read-only agent) independently evaluates the result against the specification using Playwright and compliance rules. If the police is not satisfied, feedback is fed back to the programmer and the loop continues.
+
+```bash
+uv run loop --target-project ../my-host-project [options]
+```
+
+Key options:
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--task` | (reads from spec) | Initial task prompt for the programmer |
+| `--max-iterations` | 20 | Safety limit to prevent infinite loops |
+| `--programmer-timeout` | 600 | Programmer subprocess timeout in seconds |
+| `--police-timeout` | 300 | Police subprocess timeout in seconds |
+| `--programmer-model` | (opencode default) | Model for programmer agent |
+| `--police-model` | (opencode default) | Model for police agent |
+| `--spec-dir` | `docs/agent` | Directory with specification docs |
+| `--log-file` | `loop-engine.log` | Iteration log path (JSON lines) |
+| `--dry-run` | false | Print planned commands without executing |
+
+**Hangout protection:** Every subprocess is wrapped with a hard timeout. On timeout, the process is killed and partial output is captured. The environment variable `OPENCODE_EXPERIMENTAL_BASH_DEFAULT_TIMEOUT_MS` is set to limit bash commands inside opencode. A max-iterations safety limit prevents infinite loops.
+
+**Two-context isolation:** The programmer session continues across iterations (preserving context). The police session is fresh every time — it has no access to the programmer's chat history, ensuring independent evaluation.
+
+The police agent must be defined as a markdown file in the host project's `.opencode/agents/police.md`. See the [Loop Engine Design](docs/agent/development/loop-engine.md) for details.
+
 ## Tool Catalog
 
 ### General
@@ -156,6 +184,14 @@ project-mcp-tools/
 ├── git/
 │   ├── discard_changes.py     # Git reset + clean tool
 │   └── quick_upload.py        # Git pull/add/commit/push tool
+├── loop/                       # Loop mode (orchestrator, not a transport)
+│   ├── loop_engine.py          # Entry point — argparse, config, delegates to engine_core
+│   └── loop_lib/               # Domain library
+│       ├── engine_core.py      # Core loop logic (programmer → police → feedback → repeat)
+│       ├── opencode_runner.py  # Builds and runs `opencode run --auto` commands
+│       ├── process_guard.py    # Subprocess watchdog (timeout + kill = hangout defense)
+│       ├── session_monitor.py  # Queries opencode.db for session diagnostics
+│       └── verdict.py          # Parses police agent JSON verdict
 ├── resources/
 │   └── images/               # Generated images (from create_image tool)
 ├── .agents/
