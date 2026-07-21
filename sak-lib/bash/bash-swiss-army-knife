@@ -1,0 +1,194 @@
+#!/bin/bash
+
+
+bsak::pushd( )
+{
+	pushd "$@" > /dev/null 2>&1 || return 127
+}
+
+
+bsak::popd( )
+{
+	popd > /dev/null 2>&1 || return 127 
+}
+
+
+bsak::string::index( )
+{ 
+	local x
+	#	shellcheck disable=SC2295
+	x="${1%%"${2}"*}"
+	[[ "$x" = "$1" ]] && echo -1 || echo "${#x}"
+}
+
+
+
+bsak::options( )
+{
+	local key value
+	local -A args
+	while [[ "$#" -ge 1 ]]; do
+		key="${1#-}"
+		key="${key#-}"
+		shift
+		if [[ "$1" == "-"* || -z "$1" ]]; then
+			value=1
+		else
+			value="$1"
+			shift
+		fi
+		args["$key"]="$value"
+	done
+	echo "${args[@]}"
+}
+
+
+bsak::function::remove-by-prefix( )
+{
+	if [[ "${1}" != "__"* ]] && [[ "${1}" != "-f" ]]; then
+		printf "it is very dangerous not to use a prefix \"__\", use -f to force!"
+		return 127
+	fi
+	[[ "${1}" == "-f" ]] && shift
+
+	while IFS= read -r function_name;
+	do
+		unset -f "${function_name}"
+	done <<< "$( declare -f | grep -oP "(${1}[^ ]+)" )"
+}
+
+
+
+
+bsak::string::common-prefix( )
+{
+	local str1="$1"
+	local str2="$2"
+	local prefix=""
+	local len1=${#str1}
+	local len2=${#str2}
+	local min_len=$((len1 < len2 ? len1 : len2))
+
+	for ((i=0; i<min_len; i++)); do
+		if [[ "${str1:$i:1}" == "${str2:$i:1}" ]]; then
+			prefix+="${str1:$i:1}"
+		else
+			break
+		fi
+	done
+	
+	echo "$prefix"
+}
+
+
+bsak::string::common-suffix( )
+{
+	str1="$1"
+	str2="$2"
+
+	len1=${#str1}
+	len2=${#str2}
+
+	min_len=$((len1 < len2 ? len1 : len2))
+
+	suffix=""
+	for ((i=1; i<=min_len; i++)); do
+		char1="${str1:$((len1-i)):1}"
+		char2="${str2:$((len2-i)):1}"
+
+		if [[ "$char1" == "$char2" ]]; then
+			suffix="$char1$suffix"
+		else
+			break
+		fi
+	done
+
+	echo "$suffix"
+}
+
+
+bsak::line( )
+{
+	printf "%*s\n" "${1:-50}" " " | sed "s| |${2:--}|g"
+}
+
+
+bsak::use( )
+{
+	while read -r fn_name; do
+		eval "alias ${fn_name#"${1}::"}='${fn_name}'"
+	done <<< "$( declare -f | grep -oE "^${1}[^ ]+" )"
+}
+
+
+
+declare -A ANSI
+ANSI[reset]="\\e[0m"
+ANSI[b]="\\e[1m"
+ANSI[bold]="\\e[1m"
+ANSI[faint]="\\e[2m"
+ANSI[i]="\\e[3m"
+ANSI[italic]="\\e[3m"
+ANSI[u]="\\e[4m"
+ANSI[underline]="\\e[4m"
+ANSI[blink]="\\e[5m"
+ANSI[fast-blink]="\\e[6m"
+ANSI[negative]="\\e[7m"
+ANSI[inverse]="\\e[7m"
+ANSI[invert]="\\e[7m"
+ANSI[hidden]="\\e[8m"
+ANSI[strike]="\\e[9m"
+ANSI[primary-font]="\\e[10m"
+ANSI[default-font]="\\e[10m"
+ANSI[font-1]="\\e[11m"
+ANSI[font-2]="\\e[12m"
+ANSI[font-3]="\\e[13m"
+ANSI[font-4]="\\e[14m"
+ANSI[font-5]="\\e[15m"
+ANSI[font-6]="\\e[16m"
+ANSI[font-7]="\\e[17m"
+ANSI[font-8]="\\e[18m"
+ANSI[font-9]="\\e[19m"
+ANSI[fraktur]="\\e[20m"
+ANSI[double-underline]="\\e[21m"
+ANSI[/b]="\\e[22m"
+ANSI[/bold]="\\e[22m"
+ANSI[/faint]="\\e[22m"
+ANSI[/i]="\\e[23m"
+ANSI[/italic]="\\e[23m"
+ANSI[/fraktur]="\\e[23m"
+ANSI[/u]="\\e[24m"
+ANSI[/underline]="\\e[24m"
+ANSI[/double-underline]="\\e[24m"
+ANSI[/blink]="\\e[25m"
+ANSI[/negative]="\\e[27m"
+ANSI[/hidden]="\\e[28m"
+ANSI[/strike]="\\e[29m"
+ANSI[black]="\\e[30m"
+ANSI[red]="\\e[31m"
+ANSI[green]="\\e[32m"
+ANSI[yellow]="\\e[33m"
+ANSI[blue]="\\e[34m"
+ANSI[magenta]="\\e[35m"
+ANSI[cyan]="\\e[36m"
+ANSI[white]="\\e[37m"
+#	ANSI[custom-color]="\\e[38m"
+ANSI[default-color]="\\e[39m"
+ANSI[bg-black]="\\e[40m"
+ANSI[bg-red]="\\e[41m"
+ANSI[bg-green]="\\e[42m"
+ANSI[bg-yellow]="\\e[43m"
+ANSI[bg-blue]="\\e[44m"
+ANSI[bg-magenta]="\\e[45m"
+ANSI[bg-cyan]="\\e[46m"
+ANSI[bg-white]="\\e[47m"
+#	ANSI[bg-custom-color]="\\e[48m"
+ANSI[bg-default-color]="\\e[49m"
+ANSI[br]="\\n"
+declare -a __ANSI_KEY_LIST=( "${!ANSI[@]}" )
+for key in "${__ANSI_KEY_LIST[@]}"; do
+  ANSI["${key^^}"]="${ANSI[$key]}"
+done
+export ANSI
+
+
