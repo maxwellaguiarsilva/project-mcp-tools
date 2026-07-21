@@ -16,6 +16,7 @@ dependencies = [
 mcp-server = "main:main_mcp"
 api = "main:main_api"
 cli = "main:main_cli"
+loop = "main:main_loop"
 
 [build-system]
 requires = ["hatchling"]

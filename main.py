@@ -30,6 +30,7 @@ import sys
 from tools.path_manager import path_manager
 from tools.tool_manager import tool_manager
 from sak.common import to_json, from_json, value_or
+from loop.loop_engine import main as loop_main
 
 _parser = argparse.ArgumentParser( add_help = False )
 _parser.add_argument( "--target-project", default = None, dest = "target_project" )
@@ -66,6 +67,11 @@ def main_cli( ):
     _setup_manager( ).run_cli( _parse_args( ) )
 
 
+def main_loop( ):
+    remaining = _parse_args( )
+    loop_main( _path_manager.target_root or ".", remaining )
+
+
 if __name__ == "__main__":
     remaining = _parse_args( )
     if remaining:
@@ -77,6 +83,7 @@ if __name__ == "__main__":
         print( "  uv run mcp-server" )
         print( "  uv run api" )
         print( "  uv run cli" )
+        print( "  uv run loop" )
         sys.exit( 1 )
 
 
