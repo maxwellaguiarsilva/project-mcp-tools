@@ -229,8 +229,8 @@ class cpp_project_model:
         
         ids = {
             int( p.name.split( "_" )[ 0 ] )
-            for p in path.iterdir( )
-            if p.is_file( ) and p.suffix == f".{self.source_ext}" and p.name.split( "_" )[ 0 ].isdigit( )
+            for p in path.rglob( f"*.{self.source_ext}" )
+            if p.is_file( ) and p.name.split( "_" )[ 0 ].isdigit( )
         }
         
         next_counter = 1
