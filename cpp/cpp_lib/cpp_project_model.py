@@ -215,7 +215,7 @@ class cpp_project_model:
         if file_type == "test":
             if flg_adhoc:
                 prefix = self._get_next_adhoc_prefix( )
-                return  f"{self.adhoc_dir}/{prefix}_{hierarchy}/{prefix}_{hierarchy}.{self.source_ext}"
+                return  f"{self.adhoc_dir}/{prefix}_{hierarchy}.{self.source_ext}"
             
             test_file_name = f"""test_{"_".join( hierarchy_list )}.{self.source_ext}"""
             return  f"""{self.tests_dir}/{ "/".join( hierarchy_list[ :-1 ] + [ test_file_name ] ) }"""
@@ -230,7 +230,7 @@ class cpp_project_model:
         ids = {
             int( p.name.split( "_" )[ 0 ] )
             for p in path.iterdir( )
-            if p.is_dir( ) and p.name.split( "_" )[ 0 ].isdigit( )
+            if p.is_file( ) and p.suffix == f".{self.source_ext}" and p.name.split( "_" )[ 0 ].isdigit( )
         }
         
         next_counter = 1

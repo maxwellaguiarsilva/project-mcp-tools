@@ -44,7 +44,7 @@ def create_test(
     ,include_list: list[ str ] = [ ]
 ) -> str:
     """creates a new c++ test file
-if flg_adhoc is true, creates an adhoc test in tests/adhoc/nnnn_hierarchy/
+if flg_adhoc is true, creates an adhoc test in tests/adhoc/nnnn_hierarchy.cpp
 in adhoc mode, "hierarchy" must be a simple name (no slashes or paths)
 if flg_adhoc is false, creates a structured test in tests/path/test_path_hierarchy.cpp"""
     ensure( not re.match( r"^\d+_", hierarchy ), "numeric prefix is managed by the system, do not provide it manually" )

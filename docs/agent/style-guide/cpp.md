@@ -449,8 +449,8 @@ const g2f::point size{ static_cast< float >( width ), static_cast< float >( heig
 - Use `ensure( bool expression, const string& message )` from `sak/ensure.hpp`
   instead of `cassert`.
 - Create tests with `cpp_create_test`: structured tests mirror the source hierarchy
-  (`tests/path/test_path_hierarchy.cpp`); adhoc experiments live in
-  `tests/adhoc/nnnn_name/`.
+  (`tests/path/test_path_hierarchy.cpp`); adhoc experiments live directly in
+  `tests/adhoc/nnnn_name.cpp` (or categorized subfolders).
 - The generated test skeleton (main with `{ }`, try/catch reporting,
   `exit_success`/`exit_failure`) must be kept as-is and filled in.
 
