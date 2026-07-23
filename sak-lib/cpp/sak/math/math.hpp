@@ -135,7 +135,11 @@ __935812590_unary( log )
 __935812590_unary( log2 )
 __935812590_unary( round )
 __935812590_unary( sin )
-__935812590_unary( sqrt )
+struct __square_root
+{
+	constexpr auto operator ( ) ( auto a_value ) const noexcept { return ::std::sqrt( a_value ); }
+};
+inline constexpr auto square_root = __square_root{ };
 __935812590_unary( tan )
 __935812590_unary( trunc )
 __935812590_binary( atan2 )

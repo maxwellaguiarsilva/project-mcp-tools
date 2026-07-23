@@ -65,7 +65,7 @@ __using( ::sak::math::
 	,modulus
 	,sum
 	,square
-	,sqrt
+	,square_root
 	,equal_to
 	,less_equal
 	,greater_equal
@@ -220,7 +220,7 @@ public:
 	}
 	constexpr auto operator == ( const point& other ) const noexcept -> bool { return is_all( other, equal_to ); }
 	constexpr auto is_inside( const point& other ) const noexcept -> bool { return is_all( other, less_equal ); }
-	constexpr auto get_length( ) const noexcept -> t_scalar { return sqrt( sum( *this | square ) ); }
+	constexpr auto get_length( ) const noexcept -> t_scalar { return square_root( sum( *this | square ) ); }
 	constexpr auto get_product( ) const noexcept -> t_scalar { return fold_left( *this, 1, multiplies ); }
 
 };
