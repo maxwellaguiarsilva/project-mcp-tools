@@ -1,0 +1,3 @@
+#!/bin/bash
+tool_name="$(basename "$0")"
+uv --directory "project-mcp-tools" run cli --target-project "../" "$tool_name" "$@" | jq -r '.data | fromjson'

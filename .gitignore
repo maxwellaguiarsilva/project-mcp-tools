@@ -9,7 +9,6 @@ __pycache__/
 build/
 dist/
 wheels/
-scripts/
 *.egg-info
 *.egg
 .Python
