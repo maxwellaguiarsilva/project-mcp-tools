@@ -1,0 +1,3 @@
+#!/bin/bash
+tool_name="$(basename "$0")"
+uv --quiet --directory "../project-mcp-tools" run cli --target-project "$( pwd )" "$tool_name" "$@" | jq -r '(. as $in | try (.data | fromjson) catch $in.data)'
