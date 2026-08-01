@@ -37,7 +37,7 @@ cpp_project_config = {
     #   compiler information
     "compiler": {
          "executable": "g++"            #   options: "g++", "clang++" or full path
-        ,"standard": "c++23"            #   examples: "c++17", "c++20", "c++23"
+        ,"standard": "c++26"            #   examples: "c++17", "c++20", "c++23", "c++26"
         ,"use_64_bits": True            #   abstraction for -m64 (64-bit)
     }
 

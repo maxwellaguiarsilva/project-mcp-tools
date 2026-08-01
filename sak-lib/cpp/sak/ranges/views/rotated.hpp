@@ -36,7 +36,6 @@ namespace sak::ranges::views {
 
 //	--------------------------------------------------
 __using( ::std::
-	,array
 	,size_t
 )
 __using( ::std::ranges::
@@ -44,10 +43,9 @@ __using( ::std::ranges::
 	,size
 )
 __using( ::std::views::
-	,all
+	,concat
 	,drop
 	,take
-	,join
 )
 //	--------------------------------------------------
 
@@ -57,11 +55,8 @@ struct __rotated
 	template< viewable_range t_range >
 	constexpr auto operator ( ) ( t_range&& range, const size_t offset ) const
 	{
-		using	::std::views::all;
 		const auto length = size( range );
-		//	manual concat using array of views + join
-		return	array{ all( ::std::forward< t_range >( range ) ), all( ::std::forward< t_range >( range ) ) }
-			|	join
+		return	concat( range, range )
 			|	drop( offset % length )
 			|	take( length );
 	}
