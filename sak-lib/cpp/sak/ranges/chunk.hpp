@@ -51,7 +51,6 @@ __using( ::std::ranges::
 __using( ::std::views::
 	,all
 	,iota
-	,transform
 )
 //	--------------------------------------------------
 
@@ -67,7 +66,7 @@ struct __chunk
 		{
 			auto view = all( ::std::forward< t_range >( range ) );
 			const auto length = size( view );
-			return	transform(
+			return	::std::views::transform(
 				 iota( size_t( 0 ), ( length + m_offset - 1 ) / m_offset )
 				,[ view, offset = m_offset, length ]( const size_t index ) { return subrange(
 					 begin( view ) + ( index * offset )
