@@ -30,6 +30,7 @@
 #include <array>
 #include <cstddef>
 #include <sak/math/math.hpp>
+#include <sak/math/vector.hpp>
 #include <sak/pattern/tupled.hpp>
 
 
@@ -63,14 +64,12 @@ __using( ::sak::math::
 	,multiplies
 	,divides
 	,modulus
-	,sum
-	,square
-	,square_root
 	,equal_to
 	,less_equal
 	,greater_equal
 	,is_arithmetic
 	,fold_left
+	,length
 )
 //	--------------------------------------------------
 
@@ -220,7 +219,7 @@ public:
 	}
 	constexpr auto operator == ( const point& other ) const noexcept -> bool { return is_all( other, equal_to ); }
 	constexpr auto is_inside( const point& other ) const noexcept -> bool { return is_all( other, less_equal ); }
-	constexpr auto get_length( ) const noexcept -> t_scalar { return square_root( sum( *this | square ) ); }
+	constexpr auto get_length( ) const noexcept -> t_scalar { return length( *this ); }
 	constexpr auto get_product( ) const noexcept -> t_scalar { return fold_left( *this, 1, multiplies ); }
 
 };
