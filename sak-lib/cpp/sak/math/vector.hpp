@@ -39,8 +39,9 @@ namespace math {
 __using( ::sak::ranges::
 	,is_view
 	,operator*
-	,operator/
+	,operator+
 	,operator-
+	,operator/
 )
 __using( ::sak::ranges::views::
 	,rotated
@@ -66,6 +67,15 @@ template< is_crossable t_left, is_crossable t_right >
 constexpr auto cross( const t_left& left, const t_right& right ) noexcept
 {
 	return	( left | rotated( 1 ) ) * ( right | rotated( 2 ) ) - ( left | rotated( 2 ) ) * ( right | rotated( 1 ) );
+}
+
+//	rodrigues rotation of a vector around an axis by an angle, lazy result
+//	uses the inline sum instead of dot so heterogeneous point/view operands work
+constexpr auto rotate( const auto& vector, const auto& axis, float angle ) noexcept
+{
+	const float cosine = cos( angle );
+	const float sine = sin( angle );
+	return	vector * cosine + cross( axis, vector ) * sine + axis * sum( axis * vector ) * ( 1.0f - cosine );
 }
 
 
