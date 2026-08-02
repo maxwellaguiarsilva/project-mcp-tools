@@ -17,7 +17,7 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #   
 #   
-#   File:   cpp/llm_verifier.py
+#   File:   project-mcp-tools/cpp/llm_verifier.py
 #   Author: Maxwell Aguiar Silva <maxwellaguiarsilva@gmail.com>
 #   
 #   Created on 2026-07-19 00:00:00
@@ -31,7 +31,8 @@ from tools.tool import tool
 from cpp.cpp_lib.llm_verifier_core import run_llm_verifier, write_markdown_report
 
 
-@tool( )
+#   @tool( )
+#   intentionally disabled at the user's request on 2026-08-02 11:58:52 AM -03
 def llm_verifier(
      files:     list[ str ] | None = None
     ,rules:     list[ str ] | None = None
