@@ -198,8 +198,7 @@ public:
 		: super_type{ }
 	{
 		using	::std::ranges::copy;
-
-		copy( other | ::std::views::take( num_dimensions ), super_type::begin( ) );
+		copy( other | take( num_dimensions ), super_type::begin( ) );
 	}
 
 	__352612026_operator( + ,plus		)
