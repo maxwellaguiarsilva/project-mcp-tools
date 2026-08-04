@@ -85,7 +85,7 @@ concept is_arithmetic = is_arithmetic_v< t_arithmetic >;
 //	--------------------------------------------------
 //	unary niebloid closures: scalar overload plus range overload (element-wise transform)
 //	range bitor niebloid routes natively via range_adaptor_closure
-#define __935812590_unary_niebloid( a_name, a_expr ) \
+#define __935812590_unary_custom( a_name, a_alias, a_expr ) \
 struct __##a_name : ::std::ranges::range_adaptor_closure< __##a_name > \
 { \
 	template< is_arithmetic t_value > \
@@ -95,12 +95,18 @@ struct __##a_name : ::std::ranges::range_adaptor_closure< __##a_name > \
 	{ \
 		return	::std::views::transform( ::std::forward< t_range >( range ), *this ); \
 	} \
-};
+}; \
+inline constexpr auto sak_##a_name = __##a_name{ }; \
+inline constexpr auto a_alias = __##a_name{ };
+
+
+#define __935812590_unary_std( a_name, a_alias ) \
+	__935812590_unary_custom( a_name, a_alias, ::std::a_name( a_value ) )
 
 
 //	binary/ternary niebloid closures: chunk pattern (adaptor object plus nested closure)
 //	range bitor name( bound... ) routes natively via the nested range_adaptor_closure
-#define __935812590_binary( a_name, a_expr ) \
+#define __935812590_binary_custom( a_name, a_alias, a_expr ) \
 struct __##a_name \
 { \
 	template< typename t_bound > \
@@ -125,12 +131,17 @@ struct __##a_name \
 	} \
 	template< typename t_bound > \
 	constexpr auto operator ( ) ( t_bound a_bound ) const { return closure< t_bound >{ a_bound }; } \
-};
+}; \
+inline constexpr auto sak_##a_name = __##a_name{ }; \
+inline constexpr auto a_alias = __##a_name{ };
+
+
+#define __935812590_binary_std( a_name, a_alias ) \
+	__935812590_binary_custom( a_name, a_alias, ::std::a_name( a_left, a_right ) )
 
 
 //	negate: unary closure promoted from std::negate so it pipes natively
-__935812590_unary_niebloid( negate, -a_value )
-inline constexpr auto negate = __negate{ };
+__935812590_unary_custom( negate, negate, -a_value )
 
 
 struct __between
@@ -181,10 +192,8 @@ struct __dot
 inline constexpr auto dot = __dot{ };
 
 
-__935812590_unary_niebloid( square, a_value * a_value )
-inline constexpr auto square = __square{ };
-__935812590_unary_niebloid( square_root, ::std::sqrt( a_value ) )
-inline constexpr auto square_root = __square_root{ };
+__935812590_unary_custom( square, square, a_value * a_value )
+__935812590_unary_custom( square_root, square_root, ::std::sqrt( a_value ) )
 
 
 struct __min
@@ -235,87 +244,39 @@ struct __clamp
 inline constexpr auto clamp = __clamp{ };
 
 
-__935812590_binary( is_multiple, modulus( a_left, a_right ) == 0 )
-inline constexpr auto is_multiple = __is_multiple{ };
+__935812590_binary_custom( is_multiple, is_multiple, modulus( a_left, a_right ) == 0 )
 
 
-__935812590_unary_niebloid( is_even, is_multiple( a_value, 2 ) )
-inline constexpr auto is_even = __is_even{ };
-__935812590_unary_niebloid( is_odd,  not is_even( a_value ) )
-inline constexpr auto is_odd = __is_odd{ };
-__935812590_unary_niebloid( abs,     a_value < 0 ? -a_value : a_value )
-inline constexpr auto sak_abs = __abs{ };
-inline constexpr auto absolute = __abs{ };
-__935812590_unary_niebloid( sign,    ( a_value > 0 ) - ( a_value < 0 ) )
-inline constexpr auto sign = __sign{ };
+__935812590_unary_custom( is_even, is_even, is_multiple( a_value, 2 ) )
+__935812590_unary_custom( is_odd,  is_odd,  not is_even( a_value ) )
+__935812590_unary_custom( abs,     absolute, a_value < 0 ? -a_value : a_value )
+__935812590_unary_custom( sign,    sign,    ( a_value > 0 ) - ( a_value < 0 ) )
 
 
-#define __935812590_unary( a_name ) \
-struct __##a_name : ::std::ranges::range_adaptor_closure< __##a_name > \
-{ \
-	template< is_arithmetic t_value > \
-	constexpr auto operator ( ) ( t_value a_value ) const noexcept { return ::std::a_name( a_value ); } \
-	template< ::std::ranges::input_range t_range > \
-	constexpr auto operator ( ) ( t_range&& range ) const \
-	{ \
-		return	::std::views::transform( ::std::forward< t_range >( range ), *this ); \
-	} \
-};
+__935812590_unary_std( acos, arccosine )
+__935812590_unary_std( asin, arcsine )
+__935812590_unary_std( atan, arctangent )
+__935812590_unary_std( ceil, ceiling )
+__935812590_unary_std( cos, cosine )
+__935812590_unary_std( exp, exponential )
+__935812590_unary_std( floor, round_down )
+__935812590_unary_std( log, natural_logarithm )
+__935812590_unary_std( log2, logarithm_base_two )
+__935812590_unary_std( round, round_to_nearest )
+__935812590_unary_std( sin, sine )
+__935812590_unary_std( tan, tangent )
+__935812590_unary_std( tanh, hyperbolic_tangent )
+__935812590_unary_std( trunc, truncate )
 
 
-__935812590_unary( acos )
-inline constexpr auto sak_acos = __acos{ };
-inline constexpr auto arccosine = __acos{ };
-__935812590_unary( asin )
-inline constexpr auto sak_asin = __asin{ };
-inline constexpr auto arcsine = __asin{ };
-__935812590_unary( atan )
-inline constexpr auto sak_atan = __atan{ };
-inline constexpr auto arctangent = __atan{ };
-__935812590_unary( ceil )
-inline constexpr auto sak_ceil = __ceil{ };
-inline constexpr auto ceiling = __ceil{ };
-__935812590_unary( cos )
-inline constexpr auto sak_cos = __cos{ };
-inline constexpr auto cosine = __cos{ };
-__935812590_unary( exp )
-inline constexpr auto sak_exp = __exp{ };
-inline constexpr auto exponential = __exp{ };
-__935812590_unary( floor )
-inline constexpr auto sak_floor = __floor{ };
-inline constexpr auto round_down = __floor{ };
-__935812590_unary( log )
-inline constexpr auto sak_log = __log{ };
-inline constexpr auto natural_logarithm = __log{ };
-__935812590_unary( log2 )
-inline constexpr auto sak_log2 = __log2{ };
-inline constexpr auto logarithm_base_two = __log2{ };
-__935812590_unary( round )
-inline constexpr auto sak_round = __round{ };
-inline constexpr auto round_to_nearest = __round{ };
-__935812590_unary( sin )
-inline constexpr auto sak_sin = __sin{ };
-inline constexpr auto sine = __sin{ };
-__935812590_unary( tan )
-inline constexpr auto sak_tan = __tan{ };
-inline constexpr auto tangent = __tan{ };
-__935812590_unary( tanh )
-inline constexpr auto sak_tanh = __tanh{ };
-inline constexpr auto hyperbolic_tangent = __tanh{ };
-__935812590_unary( trunc )
-inline constexpr auto sak_trunc = __trunc{ };
-inline constexpr auto truncate = __trunc{ };
-__935812590_binary( atan2, ::std::atan2( a_left, a_right ) )
-inline constexpr auto sak_atan2 = __atan2{ };
-inline constexpr auto arctangent2 = __atan2{ };
-__935812590_binary( pow, ::std::pow( a_left, a_right ) )
-inline constexpr auto sak_pow = __pow{ };
-inline constexpr auto power = __pow{ };
+__935812590_binary_std( atan2, arctangent2 )
+__935812590_binary_std( pow, power )
 
 
-#undef __935812590_binary
-#undef __935812590_unary
-#undef __935812590_unary_niebloid
+#undef __935812590_binary_custom
+#undef __935812590_binary_std
+#undef __935812590_unary_custom
+#undef __935812590_unary_std
 
 
 } }
