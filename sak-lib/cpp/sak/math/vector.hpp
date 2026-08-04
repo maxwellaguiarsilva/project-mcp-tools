@@ -73,9 +73,9 @@ constexpr auto cross( const t_left& left, const t_right& right ) noexcept
 //	uses the inline sum instead of dot so heterogeneous point/view operands work
 constexpr auto rotate( const auto& vector, const auto& axis, float angle ) noexcept
 {
-	const float cosine = cos( angle );
-	const float sine = sin( angle );
-	return	vector * cosine + cross( axis, vector ) * sine + axis * sum( axis * vector ) * ( 1.0f - cosine );
+	const float cos_angle = sak_cos( angle );
+	const float sin_angle = sak_sin( angle );
+	return	vector * cos_angle + cross( axis, vector ) * sin_angle + axis * sum( axis * vector ) * ( 1.0f - cos_angle );
 }
 
 

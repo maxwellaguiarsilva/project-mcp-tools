@@ -45,7 +45,7 @@ __using( ::std::ranges::
 	,view_interface
 )
 __using( ::sak::math::
-	,abs
+	,absolute
 	,sign
 	,max
 	,bind_back
@@ -66,7 +66,7 @@ public:
 	constexpr line_view( t_point start, t_point end )
 		:m_start( start )
 		,m_difference( end - start )
-		,m_walker_step( m_difference | abs | to )
+		,m_walker_step( m_difference | absolute | to )
 		,m_step( m_difference | sign | to )
 		,m_total( max( m_walker_step ) )
 	{ }
