@@ -34,6 +34,7 @@
 #include <sak/math/vector.hpp>
 #include <sak/pattern/tupled.hpp>
 #include <sak/ranges/to.hpp>
+#include <sak/ranges/transform.hpp>
 
 
 namespace sak {
@@ -75,6 +76,7 @@ __using( ::sak::math::
 )
 __using( ::sak::ranges::
 	,to
+	,eager_transform
 )
 //	--------------------------------------------------
 
@@ -93,15 +95,13 @@ concept is_point = __is_point< remove_cvref_t< t_point > >::value;
 #define __352612026_operator( a_operator, a_operation ) \
 constexpr auto operator a_operator##= ( const point& other ) noexcept -> point& \
 { \
-	using	::std::ranges::transform; \
-	transform( *this, other, begin( ), a_operation ); \
+	eager_transform( *this, other, begin( ), a_operation ); \
 	return	*this; \
 } \
 constexpr auto operator a_operator##= ( t_scalar other ) noexcept -> point& \
 { \
-	using	::std::ranges::transform; \
 	using	::std::views::repeat; \
-	transform( *this, repeat( other ), begin( ), a_operation ); \
+	eager_transform( *this, repeat( other ), begin( ), a_operation ); \
 	return	*this; \
 } \
 friend constexpr auto operator a_operator ( point left, const point& right ) noexcept -> point { return left a_operator##= right; } \

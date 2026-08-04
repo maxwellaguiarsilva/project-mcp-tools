@@ -29,6 +29,7 @@
 
 #include <sak/sak.hpp>
 #include <sak/math/math.hpp>
+#include <sak/ranges/transform.hpp>
 #include <ranges>
 #include <algorithm>
 
@@ -37,7 +38,7 @@ namespace sak {
 
 
 using	::std::string;
-using	::std::ranges::transform;
+using	::sak::ranges::eager_transform;
 using	::sak::math::between;
 
 
@@ -53,7 +54,7 @@ struct __to_lower_case
 
 	auto operator ( ) ( string text ) const -> string
 	{
-		transform( text, text.begin( ), *this );
+		eager_transform( text, text.begin( ), *this );
 		return	text;
 	}
 };
@@ -69,7 +70,7 @@ struct __to_upper_case
 
 	auto operator ( ) ( string text ) const -> string
 	{
-		transform( text, text.begin( ), *this );
+		eager_transform( text, text.begin( ), *this );
 		return	text;
 	}
 };

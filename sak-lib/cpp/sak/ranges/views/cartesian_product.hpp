@@ -29,6 +29,7 @@
 
 #include <sak/sak.hpp>
 #include <sak/using.hpp>
+#include <sak/ranges/transform.hpp>
 #include <ranges>
 #include <utility>
 
@@ -46,8 +47,10 @@ __using( ::std::ranges::
 )
 __using( ::std::views::
 	,all
-	,transform
 	,join
+)
+__using( ::sak::ranges::
+	,lazy_transform
 )
 //    ------------------------------
 
@@ -71,8 +74,8 @@ struct __cartesian_product
 	{
 		auto second_view = all( ::std::forward< t_second_range >( second_range ) );
 		return	all( ::std::forward< t_first_range >( first_range ) )
-			bitor	transform( [ second_view ] ( auto const& first_element ) {
-				return	second_view bitor transform( [ first_element ] ( auto const& second_element ) {
+			bitor	lazy_transform( [ second_view ] ( auto const& first_element ) {
+				return	second_view bitor lazy_transform( [ first_element ] ( auto const& second_element ) {
 					return	make_pair( first_element, second_element );
 				} );
 			} )

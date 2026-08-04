@@ -34,6 +34,7 @@
 #include <concepts>
 #include <cstddef>
 #include <sak/math/math.hpp>
+#include <sak/ranges/transform.hpp>
 
 
 namespace sak {
@@ -49,7 +50,6 @@ __using( ::std::
 )
 __using( ::std::ranges::
 	,input_range
-	,transform
 	,view
 	,viewable_range
 )
@@ -87,9 +87,9 @@ constexpr auto operator a_operator ( t_left&& left, t_right&& right ) -> remove_
 { \
 	remove_cvref_t< t_left > result; \
 	if constexpr( is_resizable< remove_cvref_t< t_left > > ) \
-		transform( left, right, back_inserter( result ), a_operation ); \
+		eager_transform( left, right, back_inserter( result ), a_operation ); \
 	else \
-		transform( left, right, result.begin( ), a_operation ); \
+		eager_transform( left, right, result.begin( ), a_operation ); \
 	return	result; \
 } \
 template< input_range t_left, is_arithmetic t_scalar > \
@@ -98,9 +98,9 @@ constexpr auto operator a_operator ( t_left&& left, t_scalar right ) -> remove_c
 { \
 	remove_cvref_t< t_left > result; \
 	if constexpr( is_resizable< remove_cvref_t< t_left > > ) \
-		transform( left, repeat( right ), back_inserter( result ), a_operation ); \
+		eager_transform( left, repeat( right ), back_inserter( result ), a_operation ); \
 	else \
-		transform( left, repeat( right ), result.begin( ), a_operation ); \
+		eager_transform( left, repeat( right ), result.begin( ), a_operation ); \
 	return	result; \
 } \
 template< is_arithmetic t_scalar, input_range t_right > \
@@ -109,9 +109,9 @@ constexpr auto operator a_operator ( t_scalar left, t_right&& right ) -> remove_
 { \
 	remove_cvref_t< t_right > result; \
 	if constexpr( is_resizable< remove_cvref_t< t_right > > ) \
-		transform( repeat( left ), right, back_inserter( result ), a_operation ); \
+		eager_transform( repeat( left ), right, back_inserter( result ), a_operation ); \
 	else \
-		transform( repeat( left ), right, result.begin( ), a_operation ); \
+		eager_transform( repeat( left ), right, result.begin( ), a_operation ); \
 	return	result; \
 }
 
@@ -121,14 +121,14 @@ template< input_range t_left, input_range t_right > \
 requires( not is_view< t_left > and not is_view< t_right > and not is_string_like< t_left > and not is_string_like< t_right > and same_as< remove_cvref_t< t_left >, remove_cvref_t< t_right > > ) \
 constexpr auto operator a_operator##= ( t_left& left, const t_right& right ) noexcept -> t_left& \
 { \
-	transform( left, right, left.begin( ), a_operation ); \
+	eager_transform( left, right, left.begin( ), a_operation ); \
 	return	left; \
 } \
 template< input_range t_left, is_arithmetic t_scalar > \
 requires( not is_view< t_left > and not is_string_like< t_left > ) \
 constexpr auto operator a_operator##= ( t_left& left, t_scalar right ) noexcept -> t_left& \
 { \
-	transform( left, repeat( right ), left.begin( ), a_operation ); \
+	eager_transform( left, repeat( right ), left.begin( ), a_operation ); \
 	return	left; \
 }
 
@@ -186,9 +186,9 @@ constexpr auto operator - ( const t_left& left ) -> remove_cvref_t< t_left >
 {
 	remove_cvref_t< t_left > result;
 	if constexpr( is_resizable< remove_cvref_t< t_left > > )
-		transform( left, back_inserter( result ), negate );
+		eager_transform( left, back_inserter( result ), negate );
 	else
-		transform( left, result.begin( ), negate );
+		eager_transform( left, result.begin( ), negate );
 	return	result;
 }
 

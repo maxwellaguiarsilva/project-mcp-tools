@@ -29,6 +29,7 @@
 
 #include <iterator>
 #include <sak/geometry/point.hpp>
+#include <sak/ranges/transform.hpp>
 
 
 namespace sak {
@@ -43,9 +44,6 @@ __using( ::std::
 __using( ::std::ranges::
 	,view_interface
 )
-__using( ::std::views::
-	,transform
-)
 __using( ::sak::math::
 	,abs
 	,sign
@@ -55,6 +53,7 @@ __using( ::sak::math::
 )
 __using( ::sak::ranges::
 	,to
+	,lazy_transform
 )
 
 
@@ -93,7 +92,7 @@ public:
 		constexpr auto operator ++ ( ) noexcept -> iterator&
 		{
 			const auto& parent = *m_parent;
-			const t_point direction = transform( m_walker, bind_back( greater_equal, parent.m_total ) ) | to;
+			const t_point direction = lazy_transform( m_walker, bind_back( greater_equal, parent.m_total ) ) | to;
 
 			m_current += parent.m_step * direction;
 			m_walker += parent.m_walker_step - direction * parent.m_total;
