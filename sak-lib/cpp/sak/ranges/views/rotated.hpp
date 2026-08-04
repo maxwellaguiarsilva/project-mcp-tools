@@ -41,6 +41,7 @@ __using( ::std::
 __using( ::std::ranges::
 	,viewable_range
 	,size
+	,range_adaptor_closure
 )
 __using( ::std::views::
 	,concat
@@ -50,8 +51,25 @@ __using( ::std::views::
 //	--------------------------------------------------
 
 
-struct __rotated
+struct __rotated : range_adaptor_closure< __rotated >
 {
+	struct closure : range_adaptor_closure< closure >
+	{
+		size_t m_offset;
+		constexpr explicit closure( size_t offset ) : m_offset( offset ) { }
+		template< viewable_range t_range >
+		constexpr auto operator ( ) ( t_range&& range ) const
+		{
+			return	__rotated{ }( ::std::forward< t_range >( range ), m_offset );
+		}
+	};
+
+	template< viewable_range t_range >
+	constexpr auto operator ( ) ( t_range&& range ) const
+	{
+		return	__rotated{ }( ::std::forward< t_range >( range ), 1 );
+	}
+
 	template< viewable_range t_range >
 	constexpr auto operator ( ) ( t_range&& range, const size_t offset ) const
 	{
@@ -63,26 +81,11 @@ struct __rotated
 
 	constexpr auto operator ( ) ( const size_t offset ) const
 	{
-		return	[ offset ] ( viewable_range auto&& range ) {
-			return	__rotated{ }( ::std::forward< decltype( range ) >( range ), offset );
-		};
+		return	closure{ offset };
 	}
 };
 
 inline constexpr auto rotated = __rotated{ };
-
-template< viewable_range t_range >
-constexpr auto operator bitor ( t_range&& range, const __rotated& )
-{
-	return	rotated( ::std::forward< t_range >( range ), 1 );
-}
-
-template< viewable_range t_range, typename t_closure >
-requires requires { { ::std::declval< t_closure >( )( ::std::declval< t_range >( ) ) }; }
-constexpr auto operator bitor ( t_range&& range, t_closure&& closure )
-{
-	return	::std::forward< t_closure >( closure )( ::std::forward< t_range >( range ) );
-}
 
 }
 

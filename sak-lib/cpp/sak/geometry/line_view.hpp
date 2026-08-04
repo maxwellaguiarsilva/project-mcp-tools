@@ -43,12 +43,18 @@ __using( ::std::
 __using( ::std::ranges::
 	,view_interface
 )
+__using( ::std::views::
+	,transform
+)
 __using( ::sak::math::
 	,abs
 	,sign
 	,max
 	,bind_back
 	,greater_equal
+)
+__using( ::sak::ranges::
+	,to
 )
 
 
@@ -61,8 +67,8 @@ public:
 	constexpr line_view( t_point start, t_point end )
 		:m_start( start )
 		,m_difference( end - start )
-		,m_walker_step( m_difference | abs | to_point )
-		,m_step( m_difference | sign | to_point )
+		,m_walker_step( m_difference | abs | to )
+		,m_step( m_difference | sign | to )
 		,m_total( max( m_walker_step ) )
 	{ }
 	
@@ -87,7 +93,7 @@ public:
 		constexpr auto operator ++ ( ) noexcept -> iterator&
 		{
 			const auto& parent = *m_parent;
-			const t_point direction = m_walker | bind_back( greater_equal, parent.m_total ) | to_point;
+			const t_point direction = transform( m_walker, bind_back( greater_equal, parent.m_total ) ) | to;
 
 			m_current += parent.m_step * direction;
 			m_walker += parent.m_walker_step - direction * parent.m_total;
@@ -126,25 +132,20 @@ private:
 
 
 template< is_point t_point >
-struct __line_to_closure 
-{ 
-	t_point m_end; 
-};
-
-
-template< is_point t_point >
-constexpr auto operator | ( t_point start, __line_to_closure< t_point > closure )
+struct __line_to_closure : ::std::ranges::range_adaptor_closure< __line_to_closure< t_point > >
 {
-	return	line_view< t_point >( start, closure.m_end );
-}
+	t_point m_end;
+	constexpr explicit __line_to_closure( t_point end ) : m_end( end ) { }
+	constexpr auto operator ( ) ( t_point start ) const { return line_view< t_point >( start, m_end ); }
+};
 
 
 struct __line_to
 {
 	template< is_point t_point >
-	constexpr auto operator ( ) ( t_point end ) const 
-	{ 
-		return	__line_to_closure< t_point >{ end }; 
+	constexpr auto operator ( ) ( t_point end ) const
+	{
+		return	__line_to_closure< t_point >{ end };
 	}
 };
 inline constexpr auto line_to = __line_to{ };

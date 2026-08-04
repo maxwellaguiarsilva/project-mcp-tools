@@ -41,7 +41,6 @@ namespace math {
 
 inline constexpr auto plus			= 	::std::plus{ };
 inline constexpr auto minus			= 	::std::minus{ };
-inline constexpr auto negate		= 	::std::negate{ };
 inline constexpr auto multiplies	= 	::std::multiplies{ };
 inline constexpr auto divides		= 	::std::divides{ };
 inline constexpr auto modulus		= 	::std::modulus{ };
@@ -83,12 +82,85 @@ template< typename t_arithmetic >
 concept is_arithmetic = is_arithmetic_v< t_arithmetic >;
 
 
+//	--------------------------------------------------
+//	unary niebloid closures: scalar overload plus range overload (element-wise transform)
+//	range bitor niebloid routes natively via range_adaptor_closure
+#define __935812590_unary_niebloid( a_name, a_expr ) \
+struct __##a_name : ::std::ranges::range_adaptor_closure< __##a_name > \
+{ \
+	constexpr auto operator ( ) ( auto a_value ) const noexcept { return a_expr; } \
+	template< ::std::ranges::input_range t_range > \
+	constexpr auto operator ( ) ( t_range&& range ) const \
+	{ \
+		return	::std::views::transform( ::std::forward< t_range >( range ), *this ); \
+	} \
+}; \
+inline constexpr auto a_name = __##a_name{ };
+
+
+//	binary/ternary niebloid closures: chunk pattern (adaptor object plus nested closure)
+//	range bitor name( bound... ) routes natively via the nested range_adaptor_closure
+#define __935812590_binary( a_name, a_expr ) \
+struct __##a_name \
+{ \
+	template< typename t_bound > \
+	struct closure : ::std::ranges::range_adaptor_closure< closure< t_bound > > \
+	{ \
+		t_bound m_bound; \
+		constexpr explicit closure( t_bound bound ) : m_bound( bound ) { } \
+		template< ::std::ranges::viewable_range t_range > \
+		constexpr auto operator ( ) ( t_range&& range ) const \
+		{ \
+			return	::std::views::transform( ::std::forward< t_range >( range ), \
+				[ this ] ( auto&& a_value ) { return __##a_name{ }( ::std::forward< decltype( a_value ) >( a_value ), m_bound ); } ); \
+		} \
+	}; \
+	template< typename t_left, typename t_right > \
+	constexpr auto operator ( ) ( t_left a_left, t_right a_right ) const noexcept { return a_expr; } \
+	template< ::std::ranges::viewable_range t_range, typename t_right > \
+	constexpr auto operator ( ) ( t_range&& range, t_right a_right ) const \
+	{ \
+		return	::std::views::transform( ::std::forward< t_range >( range ), \
+			[ a_right ] ( auto&& a_value ) { return __##a_name{ }( ::std::forward< decltype( a_value ) >( a_value ), a_right ); } ); \
+	} \
+	template< typename t_bound > \
+	constexpr auto operator ( ) ( t_bound a_bound ) const { return closure< t_bound >{ a_bound }; } \
+}; \
+inline constexpr auto a_name = __##a_name{ };
+
+
+//	negate: unary closure promoted from std::negate so it pipes natively
+__935812590_unary_niebloid( negate, -a_value )
+
+
 struct __between
 {
-	constexpr auto operator ( ) ( auto value, auto start, auto end ) const noexcept -> bool
+	template< typename t_start, typename t_end >
+	struct closure : ::std::ranges::range_adaptor_closure< closure< t_start, t_end > >
+	{
+		t_start m_start;
+		t_end m_end;
+		constexpr closure( t_start start, t_end end ) : m_start( start ), m_end( end ) { }
+		template< ::std::ranges::viewable_range t_range >
+		constexpr auto operator ( ) ( t_range&& range ) const
+		{
+			return	::std::views::transform( ::std::forward< t_range >( range ),
+				[ this ] ( auto&& a_value ) { return __between{ }( ::std::forward< decltype( a_value ) >( a_value ), m_start, m_end ); } );
+		}
+	};
+	template< typename t_value, typename t_start, typename t_end >
+	constexpr auto operator ( ) ( t_value value, t_start start, t_end end ) const noexcept -> bool
 	{
 		return	value >= start and value <= end;
 	}
+	template< ::std::ranges::viewable_range t_range, typename t_start, typename t_end >
+	constexpr auto operator ( ) ( t_range&& range, t_start start, t_end end ) const
+	{
+		return	::std::views::transform( ::std::forward< t_range >( range ),
+			[ start, end ] ( auto&& a_value ) { return __between{ }( ::std::forward< decltype( a_value ) >( a_value ), start, end ); } );
+	}
+	template< typename t_start, typename t_end >
+	constexpr auto operator ( ) ( t_start start, t_end end ) const { return closure< t_start, t_end >{ start, end }; }
 };
 inline constexpr auto between = __between{ };
 
@@ -109,17 +181,8 @@ struct __dot
 inline constexpr auto dot = __dot{ };
 
 
-struct __square
-{
-	constexpr auto operator ( ) ( auto value ) const noexcept { return value * value; }
-};
-inline constexpr auto square = __square{ };
-
-struct __square_root
-{
-	constexpr auto operator ( ) ( auto a_value ) const noexcept { return ::std::sqrt( a_value ); }
-};
-inline constexpr auto square_root = __square_root{ };
+__935812590_unary_niebloid( square, a_value * a_value )
+__935812590_unary_niebloid( square_root, ::std::sqrt( a_value ) )
 
 
 struct __min
@@ -140,25 +203,37 @@ inline constexpr auto max = __max{ };
 
 struct __clamp
 {
-	constexpr auto operator ( ) ( auto value, auto low, auto high ) const noexcept
+	template< typename t_low, typename t_high >
+	struct closure : ::std::ranges::range_adaptor_closure< closure< t_low, t_high > >
+	{
+		t_low m_low;
+		t_high m_high;
+		constexpr closure( t_low low, t_high high ) : m_low( low ), m_high( high ) { }
+		template< ::std::ranges::viewable_range t_range >
+		constexpr auto operator ( ) ( t_range&& range ) const
+		{
+			return	::std::views::transform( ::std::forward< t_range >( range ),
+				[ this ] ( auto&& a_value ) { return __clamp{ }( ::std::forward< decltype( a_value ) >( a_value ), m_low, m_high ); } );
+		}
+	};
+	template< typename t_value, typename t_low, typename t_high >
+	constexpr auto operator ( ) ( t_value value, t_low low, t_high high ) const noexcept
 	{
 		return	min( max( value, low ), high );
 	}
+	template< ::std::ranges::viewable_range t_range, typename t_low, typename t_high >
+	constexpr auto operator ( ) ( t_range&& range, t_low low, t_high high ) const
+	{
+		return	::std::views::transform( ::std::forward< t_range >( range ),
+			[ low, high ] ( auto&& a_value ) { return __clamp{ }( ::std::forward< decltype( a_value ) >( a_value ), low, high ); } );
+	}
+	template< typename t_low, typename t_high >
+	constexpr auto operator ( ) ( t_low low, t_high high ) const { return closure< t_low, t_high >{ low, high }; }
 };
 inline constexpr auto clamp = __clamp{ };
 
 
-struct __is_multiple
-{ constexpr auto operator ( ) ( auto left, auto right ) const noexcept { return modulus( left, right ) == 0; } };
-inline constexpr auto is_multiple = __is_multiple{ };
-
-
-#define __935812590_unary_niebloid( a_name, a_expr ) \
-struct __##a_name \
-{ \
-	constexpr auto operator ( ) ( auto a_value ) const noexcept { return a_expr; } \
-}; \
-inline constexpr auto a_name = __##a_name{ };
+__935812590_binary( is_multiple, modulus( a_left, a_right ) == 0 )
 
 
 __935812590_unary_niebloid( is_even, is_multiple( a_value, 2 ) )
@@ -168,17 +243,14 @@ __935812590_unary_niebloid( sign,    ( a_value > 0 ) - ( a_value < 0 ) )
 
 
 #define __935812590_unary( a_name ) \
-struct __##a_name \
+struct __##a_name : ::std::ranges::range_adaptor_closure< __##a_name > \
 { \
 	constexpr auto operator ( ) ( auto a_value ) const noexcept { return ::std::a_name( a_value ); } \
-}; \
-inline constexpr auto a_name = __##a_name{ };
-
-
-#define __935812590_binary( a_name ) \
-struct __##a_name \
-{ \
-	constexpr auto operator ( ) ( auto a_left, auto a_right ) const noexcept { return ::std::a_name( a_left, a_right ); } \
+	template< ::std::ranges::input_range t_range > \
+	constexpr auto operator ( ) ( t_range&& range ) const \
+	{ \
+		return	::std::views::transform( ::std::forward< t_range >( range ), *this ); \
+	} \
 }; \
 inline constexpr auto a_name = __##a_name{ };
 
@@ -195,13 +267,14 @@ __935812590_unary( log2 )
 __935812590_unary( round )
 __935812590_unary( sin )
 __935812590_unary( tan )
+__935812590_unary( tanh )
 __935812590_unary( trunc )
-__935812590_binary( atan2 )
-__935812590_binary( pow )
+__935812590_binary( atan2, ::std::atan2( a_left, a_right ) )
+__935812590_binary( pow, ::std::pow( a_left, a_right ) )
 
 
-#undef __935812590_unary
 #undef __935812590_binary
+#undef __935812590_unary
 #undef __935812590_unary_niebloid
 
 

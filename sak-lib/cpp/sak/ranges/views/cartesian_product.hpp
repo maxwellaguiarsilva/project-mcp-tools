@@ -42,8 +42,10 @@ __using( ::std::
 )
 __using( ::std::ranges::
 	,viewable_range
+	,range_adaptor_closure
 )
 __using( ::std::views::
+	,all
 	,transform
 	,join
 )
@@ -52,6 +54,18 @@ __using( ::std::views::
 
 struct __cartesian_product
 {
+	template< viewable_range t_second_range >
+	struct closure : range_adaptor_closure< closure< t_second_range > >
+	{
+		t_second_range m_second_range;
+		constexpr explicit closure( t_second_range second_range ) : m_second_range( second_range ) { }
+		template< viewable_range t_first_range >
+		constexpr auto operator ( ) ( t_first_range&& first_range ) const
+		{
+			return	__cartesian_product{ }( ::std::forward< t_first_range >( first_range ), m_second_range );
+		}
+	};
+
 	template< viewable_range t_first_range, viewable_range t_second_range >
 	constexpr auto operator ( ) ( t_first_range&& first_range, t_second_range&& second_range ) const
 	{
@@ -68,9 +82,7 @@ struct __cartesian_product
 	template< viewable_range t_second_range >
 	constexpr auto operator ( ) ( t_second_range&& second_range ) const
 	{
-		return	[ second_range = all( ::std::forward< t_second_range >( second_range ) ) ] ( viewable_range auto&& first_range ) {
-			return	__cartesian_product{ }( ::std::forward< decltype( first_range ) >( first_range ), second_range );
-		};
+		return	closure< t_second_range >{ ::std::forward< t_second_range >( second_range ) };
 	}
 };
 
