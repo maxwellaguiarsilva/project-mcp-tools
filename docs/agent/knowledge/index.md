@@ -10,3 +10,4 @@ Scope: this directory is the AI-managed knowledge base. Each subdirectory stores
 ## Index
 
 - `neovim/index.md` — Neovim knowledge base: how to use it and its documents.
+- `opencode/index.md` — opencode knowledge base: data storage, session context usage, and how `session_context_usage` works.

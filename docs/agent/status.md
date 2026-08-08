@@ -34,3 +34,27 @@ image path and a description of what it wants to know about the image.
   MIME detection, Gemini call)
 - Verified end-to-end via CLI and against the Google API
 
+---
+
+## Previous Task
+
+### Add `session_context_usage` tool in `session/`
+
+**Goal:** Create a mechanism for AI assistants to know how much of the model
+context token window is in use in the current opencode chat session, so the user
+can write conditional instructions (e.g., "if the session reaches 30k tokens,
+compact it"). The tool reads the opencode SQLite database directly (no HTTP
+server needed).
+
+**Status:** Completed.
+
+- `session/context_usage.py` — thin `@tool()` facade
+- `session/session_lib/context_tracker.py` — database reader: auto-detects the
+  active session in the target project, extracts the last request's token usage,
+  resolves the model context limit from the models.dev cache
+- Registered `session` folder in `main.py`
+- Verified via CLI (`session_context_usage` returns `context_used`,
+  `context_percent`, and breakdown) and `python_code_verifier`
+- Documented the mechanism in `docs/agent/knowledge/opencode/index.md`
+
+

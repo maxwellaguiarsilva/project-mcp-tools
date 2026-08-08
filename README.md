@@ -118,6 +118,12 @@ uv run cli --target-project ../my-host-project git_quick_upload --message "your 
 | `cpp_create_test` | `(hierarchy: str, flg_adhoc: bool = False, include_list: list[str] = []) -> str` | Scaffolds a C++ test file |
 | `cpp_analyze_include_tree` | `(file_path: str = None) -> str` | Displays the recursive include dependency tree of a C++ file. Defaults to the project main file |
 
+### Session
+
+| Tool | Signature | Description |
+|------|-----------|-------------|
+| `session_context_usage` | `(session_id: str \| None = None, context_limit: int \| None = None) -> str` | Reports how much of the model context window the current opencode chat session is using (`context_used`, `context_percent`, model limit). Reads the opencode database directly; auto-detects the active session in the target project. See [opencode knowledge](docs/agent/knowledge/opencode/index.md) |
+
 ## Project Structure
 
 ```
@@ -155,6 +161,9 @@ project-mcp-tools/
 │   ├── analyze.py             # Python full analysis tool
 │   ├── code_verifier.py       # Python formatting verification tool
 │   └── python_lib/            # Python domain library (model, verifier, config)
+├── session/
+│   ├── context_usage.py       # opencode session context usage tool
+│   └── session_lib/           # Session domain library (opencode database reader)
 ├── git/
 │   ├── discard_changes.py     # Git reset + clean tool
 │   └── quick_upload.py        # Git pull/add/commit/push tool
