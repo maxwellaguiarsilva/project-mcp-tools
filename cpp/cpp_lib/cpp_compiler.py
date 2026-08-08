@@ -44,19 +44,20 @@ class cpp_compiler:
     def __init__( self, config ):
         self.config = config
 
-    def get_compile_command( self, source_path, object_path ):
-        params = self._get_compile_params( )
-        executable = self.config[ "compiler" ][ "executable" ]
-        return  f"{executable} {params} -c {source_path} -o {object_path}"
+    def get_compile_command( self, cpp_file ):
+        config = cpp_file.config
+        params = self._get_compile_params( config )
+        executable = config[ "compiler" ][ "executable" ]
+        return  f"{executable} {params} -c {cpp_file.path} -o {cpp_file.object.path}"
 
-    def get_link_command( self, object_files, binary_path ):
-        params = self._get_link_params( )
-        executable = self.config[ "compiler" ][ "executable" ]
+    def get_link_command( self, cpp_file, object_files ):
+        config = cpp_file.config
+        params = self._get_link_params( config )
+        executable = config[ "compiler" ][ "executable" ]
         object_files_str = " ".join( object_files )
-        return  f"{executable} {object_files_str} {params} -o {binary_path}"
+        return  f"{executable} {object_files_str} {params} -o {cpp_file.binary.path}"
 
-    def _get_compile_params( self ):
-        config = self.config
+    def _get_compile_params( self, config ):
         params = [ ]
         
         params.append( f"-std={config[ "compiler" ][ "standard" ]}" )
@@ -89,8 +90,7 @@ class cpp_compiler:
 
         return  " ".join( params )
 
-    def _get_link_params( self ):
-        config = self.config
+    def _get_link_params( self, config ):
         params = [ ]
         
         if config[ "compiler" ][ "use_64_bits" ]:

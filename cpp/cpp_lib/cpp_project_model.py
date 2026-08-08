@@ -30,9 +30,9 @@
 import re
 import os
 
-from sak.fso import file, get_file_list
+from sak.fso import file, get_file_list, text_file
 from lib.project_file import project_file
-from sak.common import to_dict, to_json
+from sak.common import deep_update, from_json, to_dict, to_json
 
 
 def parse_hierarchy( hierarchy ):
@@ -41,9 +41,11 @@ def parse_hierarchy( hierarchy ):
 
 class cpp_project_file( project_file ):
     include_regex   =   re.compile( r"""#include\s*(?P<full>(?P<open>[<"])(?P<path>[^>"]+)(?P<close>[>"]))""" )
+    using_regex     =   re.compile( r"""^\s*//\s*using\s+(?P<file>\S+\.json)\s*$""", re.MULTILINE )
 
     def __init__( self, file_path, project ):
         self.project    =   project
+        self._using_config  =   None
         super( ).__init__( file_path )
     
     @property
@@ -57,7 +59,27 @@ class cpp_project_file( project_file ):
     def refresh( self ):
         super( ).refresh( )
         self.includes   =   [ match.group( "path" ) for match in self.include_regex.finditer( self.content ) ] if self.content else [ ]
-
+        self._using_config  =   None
+    
+    @property
+    def using_files( self ):
+        return  [ match.group( "file" ) for match in self.using_regex.finditer( self.content ) ] if self.content else [ ]
+    
+    @property
+    def using_config( self ):
+        if self._using_config is None:
+            result = { }
+            for json_name in self.using_files:
+                json_file = text_file( json_name )
+                if json_file.exists:
+                    result = deep_update( result, from_json( json_file.content ) )
+            self._using_config = result
+        return  self._using_config
+    
+    @property
+    def config( self ):
+        return  deep_update( self.project.config, self.using_config )
+    
     @property
     def hierarchy( self ):
         path    =   self.path
@@ -86,7 +108,7 @@ class cpp_project_file( project_file ):
 
     @property
     def to_dict( self ):
-        return  super( ).to_dict | to_dict( self, [ "hierarchy", "includes", "dependencies_modified_at" ] )
+        return  super( ).to_dict | to_dict( self, [ "hierarchy", "includes", "using_files", "dependencies_modified_at" ] )
 
 
 

@@ -58,7 +58,7 @@ class binary_builder:
         object_files = [ c.object.path for c in self.dependencies_list ]
         
         if self.cpp.is_linkage_needed:
-            linker_command = self.project.compiler.get_link_command( object_files, self.binary_path )
+            linker_command = self.project.compiler.get_link_command( self.cpp, object_files )
             
             process = create_process( linker_command, shell = True, check = False )
 
@@ -135,7 +135,7 @@ class project_core:
             self.print( f"    [cached]: {cpp_file.hierarchy}" )
             return
 
-        compiler_command = self.compiler.get_compile_command( cpp_file.path, cpp_file.object.path )
+        compiler_command = self.compiler.get_compile_command( cpp_file )
 
         process = create_process( compiler_command, shell = True, check = False )
 
