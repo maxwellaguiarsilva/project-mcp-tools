@@ -47,7 +47,7 @@ _path_manager.ensure_path( )
 
 def _setup_manager( ) -> tool_manager:
     m = tool_manager( "project-mcp-tools", _path_manager )
-    m.add_tool_folder( [ "git", "python", "cpp" ] )
+    m.add_tool_folder( [ "git", "python", "cpp", "session" ] )
     m.add_tool_folder( "general", flg_use_prefix = False )
     m.add_tool_folder( "music", flg_use_prefix = False )
     return  m
