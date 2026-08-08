@@ -17,7 +17,7 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #   
 #   
-#   File:   project-mcp-tools/cpp/cpp_lib/cpp_project_model.py
+#   File:   cpp/cpp_lib/cpp_project_model.py
 #   Author: Maxwell Aguiar Silva <maxwellaguiarsilva@gmail.com>
 #   
 #   Created on 2026-01-20 17:23:04

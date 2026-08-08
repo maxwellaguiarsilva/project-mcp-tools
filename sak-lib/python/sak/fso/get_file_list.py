@@ -17,7 +17,7 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #   
 #   
-#   File:   project-mcp-tools/sak-lib/python/sak/fso/get_file_list.py
+#   File:   sak-lib/python/sak/fso/get_file_list.py
 #   Author: Maxwell Aguiar Silva <maxwellaguiarsilva@gmail.com>
 #   
 #   Created on 2026-01-24 16:29:35

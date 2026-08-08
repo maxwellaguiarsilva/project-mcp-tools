@@ -17,7 +17,7 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #   
 #   
-#   File:   project-mcp-tools/cpp/cpp_lib/cpp_include_tree.py
+#   File:   cpp/cpp_lib/cpp_include_tree.py
 #   Author: Maxwell Aguiar Silva <maxwellaguiarsilva@gmail.com>
 #   
 #   Created on 2026-07-07 00:00:00
