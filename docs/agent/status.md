@@ -16,3 +16,21 @@ in the target project (see `docs/agent/style-guide/cpp.md` — Verification Matr
 
 **Status:** Completed.
 
+---
+
+## Current Task
+
+### Add `describe_image` tool in `general/`
+
+**Goal:** Create a tool that uses the Gemini vision model
+(`gemini-flash-lite-latest`) to help models without vision capability interpret
+an image located in the target project. The calling model passes the relative
+image path and a description of what it wants to know about the image.
+
+**Status:** Completed.
+
+- `general/describe_image.py` — thin `@tool()` facade
+- `general/general_lib/image_interpreter.py` — vision logic (path resolution,
+  MIME detection, Gemini call)
+- Verified end-to-end via CLI and against the Google API
+

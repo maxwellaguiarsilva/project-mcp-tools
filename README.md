@@ -87,6 +87,7 @@ uv run cli --target-project ../my-host-project git_quick_upload --message "your 
 | Tool | Signature | Description |
 |------|-----------|-------------|
 | `create_image` | `(description: str, file_name: str \| None = None) -> str` | Generates an image using Gemini (model `gemini-3.1-flash-lite-image`) from the given text description. Saves to `resources/images/` |
+| `describe_image` | `(image_path: str, description: str) -> str` | Interprets an image from the target project using Gemini vision (fixed model `gemini-flash-lite-latest`) for models without vision capability. `image_path` is relative to the target project |
 | `debug` | `() -> str` | Returns environment debugging information (cwd, paths, env vars) |
 | `get_random_number` | `(start: int = 1, end: int = 100) -> str` | Returns a random number between start and end |
 
@@ -131,6 +132,7 @@ project-mcp-tools/
 │   └── folder_scanner.py      # Auto-discovers @tool-decorated functions in directories
 ├── general/                    # General-purpose tools (no host project dependency)
 │   ├── create_image.py         # Gemini image generation tool
+│   ├── describe_image.py       # Gemini image interpretation tool
 │   ├── debug.py                # Environment debugging tool
 │   └── get_random_number.py    # Random number generator
 ├── sak/
