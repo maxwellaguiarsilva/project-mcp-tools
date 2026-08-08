@@ -17,7 +17,7 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #   
 #   
-#   File:   cpp/cpp_lib/cpp_project_config.py
+#   File:   project-mcp-tools/cpp/cpp_lib/cpp_project_config.py
 #   Author: Maxwell Aguiar Silva <maxwellaguiarsilva@gmail.com>
 #   
 #   Created on 2026-01-22 19:12:03

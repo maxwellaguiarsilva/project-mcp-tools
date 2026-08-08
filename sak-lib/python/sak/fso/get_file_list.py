@@ -17,7 +17,7 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #   
 #   
-#   File:   sak-lib/python/sak/fso/get_file_list.py
+#   File:   project-mcp-tools/sak-lib/python/sak/fso/get_file_list.py
 #   Author: Maxwell Aguiar Silva <maxwellaguiarsilva@gmail.com>
 #   
 #   Created on 2026-01-24 16:29:35
@@ -80,3 +80,5 @@ def _matches( file_path, ext_list, base_path, flg_recursive ):
     if not flg_recursive and os.sep in os.path.relpath( file_path, base_path ):
         return  False
     return  True
+
+

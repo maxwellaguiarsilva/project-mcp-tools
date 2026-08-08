@@ -17,7 +17,7 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #   
 #   
-#   File:   cpp/cpp_lib/build_runner.py
+#   File:   project-mcp-tools/cpp/cpp_lib/build_runner.py
 #   Author: Maxwell Aguiar Silva <maxwellaguiarsilva@gmail.com>
 #   
 #   Created on 2026-07-16 12:00:00

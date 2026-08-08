@@ -17,7 +17,7 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #   
 #   
-#   File:   cpp/cpp_lib/project_core.py
+#   File:   project-mcp-tools/cpp/cpp_lib/project_core.py
 #   Author: Maxwell Aguiar Silva <maxwellaguiarsilva@gmail.com>
 #   
 #   Created on 2026-01-16 17:38:37
