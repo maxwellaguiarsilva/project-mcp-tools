@@ -15,29 +15,48 @@
 //	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //	
 //	
-//	File:   include/sak/opengl/opengl.hpp
+//	File:   source/sak/opengl/shader.cpp
 //	Author: Maxwell Aguiar Silva <maxwellaguiarsilva@gmail.com>
 //	
-//	Created on 2026-08-18 21:04:42
+//	Created on 2026-08-18 22:18:53
 //	
 
 
-#pragma once
-#ifndef header_guard_149785803
-#define header_guard_149785803
-
-
-#include <sak/opengl/glad/gl.h>
-#include <sak/opengl/glad/snake_case.hpp>
+#include <sak/opengl/shader.hpp>
 
 
 namespace sak {
 namespace opengl {
 
 
+using	::std::string;
+using	::std::runtime_error;
+using	::sak::opengl::fetch_log;
+
+
+shader::shader( const string& source, const type shader_type )
+{
+	const GLuint id = gl_create_shader( shader_type == type::vertex ? GL_VERTEX_SHADER : GL_FRAGMENT_SHADER );
+	const char* const source_cstr = source.c_str( );
+	gl_shader_source( id, 1, &source_cstr, nullptr );
+	gl_compile_shader( id );
+
+	int success = 0;
+	gl_get_shaderiv( id, GL_COMPILE_STATUS, &success );
+	if( not success )
+	{
+		const string info_log = fetch_log( gl_get_shader_info_log, id );
+		gl_delete_shader( id );
+		throw	runtime_error( info_log );
+	}
+
+	m_id	=	id;
+}
+
+
+shader::~shader( ) noexcept { gl_delete_shader( m_id ); }
+
+
 } } 
-
-
-#endif
 
 
