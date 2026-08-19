@@ -27,7 +27,7 @@
 #define header_guard_015356114
 
 
-#include <sak/opengl/opengl.hpp>
+#include <sak/opengl/fetch_log.hpp>
 
 
 namespace sak {
@@ -46,6 +46,10 @@ public:
 	{
 		 vertex
 		,fragment
+		,geometry
+		,tess_control
+		,tess_evaluation
+		,compute
 	};
 
 	shader( const string& source, const type shader_type = type::vertex );
