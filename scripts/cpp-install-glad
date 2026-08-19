@@ -1,0 +1,53 @@
+#!/bin/bash
+
+uv --quiet --directory "../project-mcp-tools" run glad --out-path "$( pwd )" --api="gl:core=4.6" --extensions="" c --header-only --loader
+
+cpp-create-class --create-header-only --class-hierarchy sak/opengl/glad/snake_case
+
+python3 - << 'EOF'
+import re
+
+gl_header = "include/glad/gl.h"
+template_file = "include/sak/opengl/glad/snake_case.hpp"
+
+with open(gl_header, "r") as f:
+    text = f.read()
+
+funcs = re.findall(r"^#define\s+(gl[A-Za-z0-9_]+)\s+(glad_\1)$", text, re.MULTILINE)
+
+def to_snake(name):
+    s = re.sub(r"^gl", "", name)
+    s = re.sub(r"([0-9]+D)(?=[A-Z]|$)", r"\1_", s)
+    s = re.sub(r"(?<![0-9])(ui64|i64|64)", r"_\1", s)
+    s = re.sub(r"(VertexAttrib)([ILP])(?=[0-9])", r"\1_\2", s)
+    s = re.sub(r"(?<![0-9])([0-9]x[0-9])", r"_\1", s)
+    s = re.sub(r"(?<![0-9]x)(?<=[a-zA-HJ-OQ-Z])(?=[0-9])", "_", s)
+    s = re.sub(r"([a-z])([A-Z])", r"\1_\2", s)
+    s = re.sub(r"([A-Z]+)([A-Z][a-z])", r"\1_\2", s)
+    s = re.sub(r"_+", "_", s).strip("_")
+    return "gl_" + s.lower()
+
+macros = []
+for gl_name, glad_target in sorted(funcs):
+    snake_name = to_snake(gl_name)
+    macros.append(f"#define {snake_name} {glad_target}\n")
+
+with open(template_file, "r") as f:
+    template = f.read()
+
+template = template.replace(
+    "#include <sak/sak.hpp>",
+    "",
+)
+
+class_pattern = re.compile(r"class snake_case\s*\{.*?\};", re.DOTALL)
+template = class_pattern.sub("".join(macros), template, count=1)
+
+with open(template_file, "w") as f:
+    f.write(template)
+EOF
+
+mv include/glad/* include/sak/opengl/glad/
+rm -rf include/glad
+
+

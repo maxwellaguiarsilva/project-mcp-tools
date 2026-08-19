@@ -1,0 +1,55 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+*.pyc
+*.pyd
+*.pyo
+
+# Distribution / packaging
+build/
+dist/
+wheels/
+*.egg-info
+*.egg
+.Python
+
+# Virtual environments
+.venv
+.venv/
+.venv-*/
+venv/
+venv-*/
+venv.bak/
+venv-*.bak/
+env/
+env.bak/
+tools/venv/
+.env
+.env/
+
+# Old files/directories
+.old/
+
+# Object files and dependency files
+*.o
+*.d
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*~
+
+# Logs and databases
+*.log
+*.sqlite3
+*.db
+
+# Generated images
+resources/images/
+
+# Gemini CLI
+.gemini/
+
+# Credentials
+gha-creds-*.json

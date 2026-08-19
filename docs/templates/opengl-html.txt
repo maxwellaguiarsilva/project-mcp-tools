@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OpenGL 4.6 core profile</title>
+<style>
+:root {
+    --bg: #0d1117;
+    --panel: #151b24;
+    --panel-2: #1d2531;
+    --border: #273142;
+    --text: #d8e0ec;
+    --muted: #8595a9;
+    --accent: #5cc8ff;
+    --group: #b39dfc;
+    --badge: #243247;
+}
+
+* { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+    color: var(--text);
+    font: 28px/1.6 system-ui, sans-serif;
+}
+
+header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 18px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 32px;
+    font-weight: 600;
+}
+
+header h1 span {
+    color: var(--muted);
+    font-weight: 400;
+}
+
+#stats {
+    color: var(--muted);
+    font-size: 24px;
+}
+
+#search {
+    margin-left: auto;
+    width: 260px;
+    padding: 6px 12px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    background: var(--panel-2);
+    color: var(--text);
+    font: inherit;
+    outline: none;
+}
+
+#search:focus { border-color: var(--accent); }
+
+#sort {
+    padding: 6px 12px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    background: var(--panel-2);
+    color: var(--text);
+    font: inherit;
+    outline: none;
+}
+
+#sort:focus { border-color: var(--accent); }
+
+main {
+    flex: 1;
+    overflow: auto;
+    padding: 10px 16px 60px;
+}
+
+details > summary {
+    list-style: none;
+    cursor: pointer;
+}
+
+details > summary::-webkit-details-marker { display: none; }
+
+details.grp > summary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    user-select: none;
+}
+
+details.grp > summary:hover { background: var(--panel-2); }
+
+.tri {
+    width: 0;
+    height: 0;
+    border-left: 5px solid var(--muted);
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+    transition: transform 0.12s ease;
+    flex-shrink: 0;
+}
+
+details[open] > summary .tri { transform: rotate(90deg); }
+
+details.grp > summary .name {
+    color: var(--group);
+    font-weight: 600;
+    font-family: ui-monospace, "Cascadia Mono", "JetBrains Mono", monospace;
+    font-size: 26px;
+}
+
+.count {
+    font-size: 22px;
+    color: var(--muted);
+    background: var(--badge);
+    border-radius: 99px;
+    padding: 1px 9px;
+}
+
+.children {
+    margin-left: 14px;
+    padding-left: 10px;
+    border-left: 1px solid var(--border);
+}
+
+details.leaf > summary {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-family: ui-monospace, "Cascadia Mono", "JetBrains Mono", monospace;
+    font-size: 26px;
+}
+
+details.leaf > summary:hover { background: var(--panel-2); }
+
+details.leaf > summary .snake { color: var(--accent); }
+
+details.leaf > summary .camel { color: var(--muted); font-size: 24px; }
+
+.leaf-body {
+    margin: 2px 8px 12px 20px;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--panel);
+}
+
+.leaf-body .purpose {
+    color: var(--group);
+    margin-bottom: 6px;
+}
+
+.leaf-body .desc {
+    white-space: pre-line;
+    color: var(--text);
+}
+
+.leaf-body .no-doc {
+    color: var(--muted);
+    font-style: italic;
+}
+
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+<header>
+<h1>OpenGL <span>4.6 core profile</span></h1>
+<div id="stats"></div>
+<select id="sort">
+<option value="alpha">sort: alphabetical</option>
+<option value="count-desc">sort: group count (desc)</option>
+<option value="count-asc">sort: group count (asc)</option>
+</select>
+<input id="search" type="search" placeholder="filter by name">
+</header>
+<main id="tree"></main>
+<script>
+"use strict";
+
+const data = {{json_data}};
+
+const tree = document.getElementById("tree");
+const search = document.getElementById("search");
+const sort = document.getElementById("sort");
+const stats = document.getElementById("stats");
+
+function sort_key(item) {
+    return item.children ? item.label : item.snake;
+}
+
+function sorted_children(items, mode) {
+    const arr = Array.from(items);
+    arr.sort(function(a, b) {
+        if (mode === "count-desc") {
+            const diff = (b.count || 1) - (a.count || 1);
+            return diff !== 0 ? diff : sort_key(a).localeCompare(sort_key(b));
+        }
+        if (mode === "count-asc") {
+            const diff = (a.count || 1) - (b.count || 1);
+            return diff !== 0 ? diff : sort_key(a).localeCompare(sort_key(b));
+        }
+        return sort_key(a).localeCompare(sort_key(b));
+    });
+    return arr;
+}
+
+function code_span(text, css_class) {
+    const span = document.createElement("span");
+    span.className = css_class;
+    span.textContent = text;
+    return span;
+}
+
+function leaf_element(item) {
+    const details = document.createElement("details");
+    details.className = "leaf";
+    details.dataset.name = (item.snake + " " + item.camel).toLowerCase();
+    const summary = document.createElement("summary");
+    summary.append(code_span(item.snake, "snake"), code_span(item.camel, "camel"));
+    details.append(summary);
+    const body = document.createElement("div");
+    body.className = "leaf-body";
+    if (item.refpurpose || item.description) {
+        if (item.refpurpose) {
+            const purpose = document.createElement("div");
+            purpose.className = "purpose";
+            purpose.textContent = item.refpurpose;
+            body.append(purpose);
+        }
+        if (item.description) {
+            const description = document.createElement("div");
+            description.className = "desc";
+            description.textContent = item.description;
+            body.append(description);
+        }
+    } else {
+        const missing = document.createElement("div");
+        missing.className = "no-doc";
+        missing.textContent = "no official refpage in the khronos set";
+        body.append(missing);
+    }
+    details.append(body);
+    return details;
+}
+
+function group_element(node) {
+    const details = document.createElement("details");
+    details.className = "grp";
+    const summary = document.createElement("summary");
+    const triangle = document.createElement("span");
+    triangle.className = "tri";
+    const name = document.createElement("span");
+    name.className = "name";
+    name.textContent = node.label;
+    const count = document.createElement("span");
+    count.className = "count";
+    count.textContent = node.count;
+    summary.append(triangle, name, count);
+    details.append(summary);
+    const wrapper = document.createElement("div");
+    wrapper.className = "children";
+    for (const child of sorted_children(node.children, sortMode)) {
+        wrapper.append(child.children ? group_element(child) : leaf_element(child));
+    }
+    details.append(wrapper);
+    return details;
+}
+
+function apply_search() {
+    const query = search.value.trim().toLowerCase();
+    const leaves = Array.from(document.querySelectorAll("details.leaf"));
+    let hits = 0;
+    for (const leaf of leaves) {
+        const hit = query === "" || leaf.dataset.name.includes(query);
+        leaf.classList.toggle("hidden", !hit);
+        if (hit) {
+            hits += 1;
+        }
+    }
+    const groups = Array.from(document.querySelectorAll("details.grp")).reverse();
+    for (const group of groups) {
+        const visible = group.querySelectorAll("details.leaf:not(.hidden)").length > 0;
+        group.classList.toggle("hidden", !visible);
+        if (query !== "") {
+            group.open = visible;
+        }
+    }
+    stats.textContent = query === ""
+        ? data.total + " functions - " + data.missing_docs.length + " without official refpage"
+        : hits + " of " + data.total + " functions";
+}
+
+let sortMode = sort.value;
+
+function render() {
+    tree.textContent = "";
+    const root_element = group_element(data.root);
+    root_element.open = true;
+    tree.append(root_element);
+    apply_search();
+}
+
+render();
+
+search.addEventListener("input", apply_search);
+
+sort.addEventListener("change", function() {
+    sortMode = sort.value;
+    render();
+});
+</script>
+</body>
+</html>

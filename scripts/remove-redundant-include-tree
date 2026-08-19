@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+while tmp=$(cpp-analyze-include-tree | sed '/redundant/q') && printf '%s' "$tmp" | grep -q 'redundant'; do
+    space_count=$(printf '%s' "$tmp" | tail -n1 | grep -oP '^ *' | wc -c)
+    space_count=$((space_count - 1))
+    target=$((space_count - 4))
+    line=$(printf '%s' "$tmp" | grep -P "^ {${target}}<" | tail -n1)
+    path=$(printf '%s' "$line" | sed -E 's/.*<([^>]+)>.*/\1/')
+    target_file="include/$path"
+
+    # include redundante marcado na última linha
+    last_line=$(printf '%s' "$tmp" | tail -n1)
+    redundant_include=$(printf '%s' "$last_line" | grep -oP '<[^>]+>' | tr -d '<>')
+
+    # replace burro/cego: remove a linha #include <${redundant_include}>
+    sed -i "\|#include <${redundant_include}>|d" "$target_file"
+
+    echo "$target_file: $redundant_include"
+done
