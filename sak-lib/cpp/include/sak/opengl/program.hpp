@@ -49,11 +49,12 @@ requires convertible_to< range_reference_t< t_range >, const shader& >
 class program
 {
 public:
-	explicit program( t_range&& shaders )
+	explicit program( const t_range& shaders )
 	{
 		const GLuint id = gl_create_program( );
 		for( const shader& current_shader : shaders )
 			gl_attach_shader( id, current_shader.id( ) );
+
 		gl_link_program( id );
 
 		int success = 0;
