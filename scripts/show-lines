@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [ "$#" -ne 2 ]; then
+    echo "Usage: show-lines <file> <start:end|start+count>" >&2
+    exit 1
+fi
+
+FILE="$1"
+RANGE="$2"
+
+if [ ! -f "$FILE" ]; then
+    echo "Error: file '$FILE' not found." >&2
+    exit 1
+fi
+
+if [[ "$RANGE" =~ ^([0-9]+):([0-9]+)$ ]]; then
+    start="${BASH_REMATCH[1]}"
+    end="${BASH_REMATCH[2]}"
+elif [[ "$RANGE" =~ ^([0-9]+)\+([0-9]+)$ ]]; then
+    start="${BASH_REMATCH[1]}"
+    count="${BASH_REMATCH[2]}"
+    # count - 1 to make it inclusive: start + count - 1
+    end=$((start + count - 1))
+else
+    echo "Error: invalid range format '$RANGE'. Use START:END or START+COUNT." >&2
+    exit 1
+fi
+
+sed -n "${start},${end}p" "$FILE"
