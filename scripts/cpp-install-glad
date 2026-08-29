@@ -25,6 +25,7 @@ def to_snake(name):
     s = re.sub(r"([a-z])([A-Z])", r"\1_\2", s)
     s = re.sub(r"([A-Z]+)([A-Z][a-z])", r"\1_\2", s)
     s = re.sub(r"_+", "_", s).strip("_")
+    s = re.sub(r"(?<=[a-zA-Z0-9])(iuiv|usv|ubv|uiv|iiv|iv|fv|(?<!e)dv|bv|sv|v)$", r"_\1", s, flags=re.I)
     return "gl_" + s.lower()
 
 macros = []
