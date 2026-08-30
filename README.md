@@ -175,11 +175,10 @@ project-mcp-tools/
 └── docs/
     ├── templates/             # Template files for class/test scaffolding (user zone)
     ├── example/               # Usage examples (e.g. google-genai.py) (user zone)
-    └── agent/                 # AI-managed knowledge base (architecture, guides, workflows, status)
+    └── agent/                 # AI-managed knowledge base (architecture, guides, status)
         ├── architecture.md    # System architecture and design decisions
         ├── development/       # Tool development guide
         ├── style-guide/       # Coding style guides
-        ├── workflow/          # Workflow documentation
         └── status.md          # Agent task status
 ```
 

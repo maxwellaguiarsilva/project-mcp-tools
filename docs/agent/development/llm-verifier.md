@@ -196,4 +196,4 @@ The common rules (naming, comments, commas, single-use variables, language) have
 
 ## Naming Issue
 
-this document replaces the consumer project's `draft-point/docs/agent/analyses/cpp_llm_verifier_deferred.md`, which used underscores in its filename in violation of the [kebab-lower-case convention](../workflow/markdown-organization.md). that file has been removed.
+this document replaces the consumer project's `draft-point/docs/agent/analyses/cpp_llm_verifier_deferred.md`, which used underscores in its filename in violation of the kebab-lower-case convention. that file has been removed.

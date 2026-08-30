@@ -2,7 +2,7 @@
 
 This document explains how to add new tools, structure the tool layer, and work with domain libraries in the `project-mcp-tools` framework.
 
-For system architecture, see [System Architecture](../architecture.md). For style guidelines, see the [Python Style Guide](../style-guide/python.md). For standard workflows (e.g., committing/pushing changes), see [Workflows](../workflow/index.md).
+For system architecture, see [System Architecture](../architecture.md). For style guidelines, see the [Python Style Guide](../style-guide/python.md).
 
 ---
 
