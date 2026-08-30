@@ -134,7 +134,7 @@ def create_process( command: list[ str ] | str, **kwargs ):
 
 
 def get_process_text( result: subprocess.CompletedProcess | subprocess.CalledProcessError ) -> str:
-    return  "\n".join( [ s for s in [ result.stdout, result.stderr ] if s ] )
+    return  "\n".join( [ output for output in [ result.stdout, result.stderr ] if output ] )
 
 
 def get_git_config( configuration_name: str ) -> str:

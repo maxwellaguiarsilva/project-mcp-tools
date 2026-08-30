@@ -42,16 +42,16 @@ class text_file( file ):
     
     def read( self ):
         if self.exists:
-            with open( self.path, "r", encoding="utf-8" ) as f:
-                self.content    =   f.read( )
+            with open( self.path, "r", encoding="utf-8" ) as input_file:
+                self.content    =   input_file.read( )
         return  self.content
     
     def write( self, content ):
         dir_name = os.path.dirname( self.path )
         if dir_name:
             os.makedirs( dir_name, exist_ok = True )
-        with open( self.path, "w", encoding="utf-8" ) as f:
-            f.write( content )
+        with open( self.path, "w", encoding="utf-8" ) as output_file:
+            output_file.write( content )
         self.refresh( )
         return  f"created file: {self.path}\n"
 
