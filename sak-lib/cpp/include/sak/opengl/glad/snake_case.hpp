@@ -22,22 +22,14 @@
 //	
 
 
-
 #pragma once
 #ifndef header_guard_214794808
 #define header_guard_214794808
 
 
-
-
-
 namespace sak {
 namespace opengl {
 namespace glad {
-
-
-
-
 
 
 #define gl_active_shader_program glad_glActiveShaderProgram
@@ -697,7 +689,6 @@ namespace glad {
 #define gl_viewport_indexedf glad_glViewportIndexedf
 #define gl_viewport_indexed_fv glad_glViewportIndexedfv
 #define gl_wait_sync glad_glWaitSync
-
 
 
 } } } 
