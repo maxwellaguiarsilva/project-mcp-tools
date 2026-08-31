@@ -58,7 +58,7 @@ public:
 		gl_link_program( id );
 
 		int success = 0;
-		gl_get_programiv( id, GL_LINK_STATUS, &success );
+		gl_get_program_iv( id, GL_LINK_STATUS, &success );
 		if( not success )
 		{
 			const string info_log = fetch_log( gl_get_program_info_log, id );

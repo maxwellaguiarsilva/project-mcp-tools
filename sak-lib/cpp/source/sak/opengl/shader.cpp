@@ -57,7 +57,7 @@ shader::shader( const string& source, const type shader_type )
 	gl_compile_shader( id );
 
 	int success = 0;
-	gl_get_shaderiv( id, GL_COMPILE_STATUS, &success );
+	gl_get_shader_iv( id, GL_COMPILE_STATUS, &success );
 	if( not success )
 	{
 		const string info_log = fetch_log( gl_get_shader_info_log, id );
