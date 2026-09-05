@@ -72,7 +72,7 @@ class binary_builder:
                 log( f"    [link]: {self.binary_path}" )
                 self.cpp.binary.refresh( )
         else:
-            log( f"    [link]: {self.binary_path} (cached)" )
+            log( f"    [cached]: {self.binary_path}" )
 
 
 class project_core:
