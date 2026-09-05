@@ -42,7 +42,7 @@ No capital letters in code files, except in:
   following its standards.
 - Scenarios where using lowercase would prevent the code from functioning as
   intended (e.g., case-sensitive language keywords or intrinsic types).
-- Markdown files.
+- Common text in markdown files. The example code blocks must continue to follow the rules.
 
 ```cpp
 //	correct
@@ -168,8 +168,8 @@ for( const auto& p : line.start | line_to( line.end ) )
 
 ## Spacing `[cpp_code_verifier]`
 
-Internal spacing in `( )` and `[ ]` (and brace initializers). The verifier enforces a
-space after `(`, `[`, `{` and before `)`, `]`, `}`.
+Internal spacing in `( )`, `[ ]`, `{ }`, and template angle brackets `< >`. The
+verifier enforces a space after `(`, `[`, `{`, `<` and before `)`, `]`, `}`, `>`.
 
 ```cpp
 //	correct
@@ -177,11 +177,15 @@ if( condition )
 array[ index ]
 ensure( 1 + 1 == 2, "math is broken" );
 auto lock = lock_guard( m_mutex );
+auto closure = range_adaptor_closure< t_range >{ };
+auto value = optional< t_number >{ };
 
 //	incorrect
 if (condition)
 array[index]
 ensure(1 + 1 == 2, "math is broken");
+auto lock = lock_guard<m_mutex>( );
+auto value = optional<t_number>{ };
 ```
 
 This rule does not apply to string literals. Tokens like formatting placeholders
