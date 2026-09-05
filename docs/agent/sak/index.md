@@ -4,7 +4,7 @@ This directory contains the documentation for the `sak` (Swiss Army Knife) libra
 
 ## Available SAKs
 
-- [C++ SAK](cpp.md)
+- [C++ SAK](cpp/index.md)
 - [Python SAK](python.md)
 - [Lua SAK](lua.md)
 - [Bash SAK](bash.md)
