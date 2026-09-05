@@ -60,6 +60,23 @@ __using( ::std::ranges::
 __using( ::sak::ranges::, lazy_transform )
 
 
+#define __119678595_mutator( a_name, a_pipeline, a_op ) \
+	template< same_as< t_enum >... t_flags > \
+	constexpr auto a_name( const t_flags... flags ) noexcept -> void { a_name( initializer_list{ flags... } ); } \
+	constexpr auto a_name( const initializer_list< t_enum > flags ) noexcept -> void \
+	{ \
+		m_value = fold_left( flags | a_pipeline, m_value, a_op ); \
+	}
+
+#define __119678595_predicate( a_name, a_algorithm ) \
+	template< same_as< t_enum >... t_flags > \
+	constexpr auto a_name( const t_flags... flags ) const noexcept -> bool { return a_name( initializer_list{ flags... } ); } \
+	constexpr auto a_name( const initializer_list< t_enum > flags ) const noexcept -> bool \
+	{ \
+		return	a_algorithm( flags, bind_front( &bitmask::is_set, this ) ); \
+	}
+
+
 template< typename t_enum >
 	requires ( is_enum_v< t_enum > )
 class bitmask
@@ -74,40 +91,12 @@ public:
 	constexpr explicit bitmask( const t_flags... flags ) noexcept { use( flags... ); }
 	constexpr explicit bitmask( const initializer_list< t_enum > flags ) noexcept { use( flags ); }
 
-	template< same_as< t_enum >... t_flags >
-	constexpr auto use( const t_flags... flags ) noexcept -> void { use( initializer_list{ flags... } ); }
-	constexpr auto use( const initializer_list< t_enum > flags ) noexcept -> void
-	{
-		m_value = fold_left( flags | cast< underlying_type >, m_value, bit_or );
-	}
+	__119678595_mutator( use, cast< underlying_type >, bit_or )
+	__119678595_mutator( remove, cast< underlying_type > | lazy_transform( bit_not ), bit_and )
+	__119678595_mutator( toggle, cast< underlying_type >, bit_xor )
 
-	template< same_as< t_enum >... t_flags >
-	constexpr auto remove( const t_flags... flags ) noexcept -> void { remove( initializer_list{ flags... } ); }
-	constexpr auto remove( const initializer_list< t_enum > flags ) noexcept -> void
-	{
-		m_value = fold_left( flags | cast< underlying_type > | lazy_transform( bit_not ), m_value, bit_and );
-	}
-
-	template< same_as< t_enum >... t_flags >
-	constexpr auto toggle( const t_flags... flags ) noexcept -> void { toggle( initializer_list{ flags... } ); }
-	constexpr auto toggle( const initializer_list< t_enum > flags ) noexcept -> void
-	{
-		m_value = fold_left( flags | cast< underlying_type >, m_value, bit_xor );
-	}
-
-	template< same_as< t_enum >... t_flags >
-	constexpr auto all( const t_flags... flags ) const noexcept -> bool { return all( initializer_list{ flags... } ); }
-	constexpr auto all( const initializer_list< t_enum > flags ) const noexcept -> bool
-	{
-		return	all_of( flags, bind_front( &bitmask::is_set, this ) );
-	}
-
-	template< same_as< t_enum >... t_flags >
-	constexpr auto any( const t_flags... flags ) const noexcept -> bool { return any( initializer_list{ flags... } ); }
-	constexpr auto any( const initializer_list< t_enum > flags ) const noexcept -> bool
-	{
-		return	any_of( flags, bind_front( &bitmask::is_set, this ) );
-	}
+	__119678595_predicate( all, all_of )
+	__119678595_predicate( any, any_of )
 
 	constexpr auto clear( ) noexcept -> void { m_value = 0; }
 
@@ -119,6 +108,10 @@ private:
 
 	underlying_type	m_value{ 0 };
 };
+
+
+#undef __119678595_mutator
+#undef __119678595_predicate
 
 
 } } 
