@@ -28,6 +28,8 @@
 
 
 #include <sak/sak.hpp>
+#include <concepts>
+#include <initializer_list>
 #include <type_traits>
 #include <sak/ensure.hpp>
 #include <sak/pattern/bitmask.hpp>
@@ -38,11 +40,44 @@ namespace sak {
 namespace sdl3 {
 
 
+__using( ::sak::pattern::, bitmask )
+__using( ::std::, initializer_list, same_as )
+
+
 class application
 {
 public:
-	//	application( ) = default;
+	enum class flag : SDL_InitFlags
+	{
+		 audio		=	SDL_INIT_AUDIO
+		,video		=	SDL_INIT_VIDEO
+		,joystick	=	SDL_INIT_JOYSTICK
+		,haptic		=	SDL_INIT_HAPTIC
+		,gamepad	=	SDL_INIT_GAMEPAD
+		,events		=	SDL_INIT_EVENTS
+		,sensor		=	SDL_INIT_SENSOR
+		,camera		=	SDL_INIT_CAMERA
+	};
 
+	using	mask_type	=	bitmask< flag >;
+
+	application( const mask_type mask = mask_type{ flag::video } );
+	explicit application( const initializer_list< flag > flags );
+
+	template< same_as< flag >... t_flags >
+		requires ( sizeof...( t_flags ) > 0 )
+	explicit application( const t_flags... flags )
+		: application( mask_type{ flags... } )
+	{ }
+
+	~application( ) noexcept;
+
+	delete_copy_move_ctc( application )
+
+	auto mask( ) const noexcept -> const mask_type& { return m_mask; }
+
+private:
+	mask_type	m_mask;
 };
 
 

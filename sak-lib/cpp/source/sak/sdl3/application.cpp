@@ -29,6 +29,27 @@ namespace sak {
 namespace sdl3 {
 
 
+using	::sak::ensure;
+
+
+application::application( const mask_type mask )
+	:m_mask( mask )
+{
+	ensure( SDL_Init( m_mask.value( ) ), SDL_GetError( ) );
+}
+
+
+application::application( const initializer_list< flag > flags )
+	: application( mask_type{ flags } )
+{ }
+
+
+application::~application( ) noexcept
+{
+	SDL_Quit( );
+}
+
+
 } } 
 
 
