@@ -22,18 +22,11 @@
 //	
 
 
-
 #include <sak/sdl3/application.hpp>
-
 
 
 namespace sak {
 namespace sdl3 {
-
-
-
-
-
 
 
 } } 

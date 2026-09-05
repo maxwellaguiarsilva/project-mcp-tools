@@ -22,10 +22,10 @@
 //	
 
 
-
 #pragma once
 #ifndef header_guard_498437518
 #define header_guard_498437518
+
 
 #include <sak/sak.hpp>
 #include <type_traits>
@@ -34,13 +34,8 @@
 #include <SDL3/SDL.h>
 
 
-
 namespace sak {
 namespace sdl3 {
-
-
-
-
 
 
 class application
