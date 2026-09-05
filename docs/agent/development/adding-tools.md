@@ -73,7 +73,7 @@ from lib.project_config import project_config
 domain_config = {
     "language": {
          "extension": "py"
-        ,"comment_string": "#   "
+        ,"comment-string": "#   "
     }
 }
 

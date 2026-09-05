@@ -217,7 +217,7 @@ Always split nested structures across lines to avoid excessive line length:
 python_project_config = {
     "language": {
          "extension": "py"
-        ,"comment_string": "#   "
+        ,"comment-string": "#   "
     }
 }
 ```
@@ -278,10 +278,10 @@ Use `extend( ... for ... in ... )` instead of a loop with `append`:
 
 ```python
 #   correct
-params.extend( config[ "compiler" ].get( "extra_compile_flags", [ ] ) )
+params.extend( config[ "compiler" ].get( "extra-compile-flags", [ ] ) )
 
 #   incorrect
-for flag in config[ "compiler" ].get( "extra_compile_flags", [ ] ):
+for flag in config[ "compiler" ].get( "extra-compile-flags", [ ] ):
     params.append( flag )
 ```
 
