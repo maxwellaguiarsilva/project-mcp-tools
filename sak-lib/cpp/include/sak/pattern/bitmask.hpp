@@ -29,6 +29,7 @@
 
 #include <sak/sak.hpp>
 #include <sak/math/math.hpp>
+#include <sak/pattern/cast.hpp>
 #include <sak/ranges/transform.hpp>
 #include <algorithm>
 #include <concepts>
@@ -77,21 +78,21 @@ public:
 	constexpr auto use( const t_flags... flags ) noexcept -> void { use( initializer_list{ flags... } ); }
 	constexpr auto use( const initializer_list< t_enum > flags ) noexcept -> void
 	{
-		m_value = fold_left( flags | lazy_transform( to_underlying ), m_value, bit_or );
+		m_value = fold_left( flags | cast< underlying_type >, m_value, bit_or );
 	}
 
 	template< same_as< t_enum >... t_flags >
 	constexpr auto remove( const t_flags... flags ) noexcept -> void { remove( initializer_list{ flags... } ); }
 	constexpr auto remove( const initializer_list< t_enum > flags ) noexcept -> void
 	{
-		m_value = fold_left( flags | lazy_transform( to_underlying ) | lazy_transform( bit_not ), m_value, bit_and );
+		m_value = fold_left( flags | cast< underlying_type > | lazy_transform( bit_not ), m_value, bit_and );
 	}
 
 	template< same_as< t_enum >... t_flags >
 	constexpr auto toggle( const t_flags... flags ) noexcept -> void { toggle( initializer_list{ flags... } ); }
 	constexpr auto toggle( const initializer_list< t_enum > flags ) noexcept -> void
 	{
-		m_value = fold_left( flags | lazy_transform( to_underlying ), m_value, bit_xor );
+		m_value = fold_left( flags | cast< underlying_type >, m_value, bit_xor );
 	}
 
 	template< same_as< t_enum >... t_flags >
@@ -111,14 +112,9 @@ public:
 	constexpr auto clear( ) noexcept -> void { m_value = 0; }
 
 private:
-	static constexpr auto to_underlying( const t_enum flag ) noexcept -> underlying_type
-	{
-		return	static_cast< underlying_type >( flag );
-	}
-
 	constexpr auto is_set( const t_enum flag ) const noexcept -> bool
 	{
-		return	( m_value & to_underlying( flag ) ) == to_underlying( flag );
+		return	( m_value & cast< underlying_type >( flag ) ) == cast< underlying_type >( flag );
 	}
 
 	underlying_type	m_value{ 0 };
