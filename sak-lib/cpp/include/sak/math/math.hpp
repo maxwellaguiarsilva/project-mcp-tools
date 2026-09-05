@@ -34,7 +34,7 @@
 
 
 //	what i expect to be in this file
-//	-	niebloids struct with operator() as constexpr
+//	-	niebloids struct with operator( ) as constexpr
 //	-	inline constexpr variables that define aliases for consuming these objects
 //	what should not be in this file
 //	-	constexpr of functions
