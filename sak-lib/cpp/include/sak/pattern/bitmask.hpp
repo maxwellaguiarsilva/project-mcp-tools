@@ -28,9 +28,13 @@
 
 
 #include <sak/sak.hpp>
+#include <sak/math/math.hpp>
+#include <sak/ranges/transform.hpp>
 #include <algorithm>
 #include <concepts>
+#include <functional>
 #include <initializer_list>
+#include <ranges>
 #include <type_traits>
 
 
@@ -39,16 +43,20 @@ namespace pattern {
 
 
 __using( ::std::
+	,bind_front
 	,initializer_list
 	,is_enum_v
 	,same_as
 	,underlying_type_t
 )
+__using( ::sak::math::, bit_and, bit_not, bit_or, bit_xor )
 __using( ::std::ranges::
 	,all_of
 	,any_of
+	,fold_left
 	,for_each
 )
+__using( ::sak::ranges::, lazy_transform )
 
 
 template< typename t_enum >
@@ -62,78 +70,45 @@ public:
 	constexpr bitmask( ) noexcept = default;
 
 	template< same_as< t_enum >... t_flags >
-	constexpr explicit bitmask( const t_enum first_flag, const t_flags... other_flags ) noexcept
-	{
-		use( first_flag, other_flags... );
-	}
-
-	constexpr explicit bitmask( const initializer_list< t_enum > flags ) noexcept
-	{
-		use( flags );
-	}
+	constexpr explicit bitmask( const t_flags... flags ) noexcept { use( flags... ); }
+	constexpr explicit bitmask( const initializer_list< t_enum > flags ) noexcept { use( flags ); }
 
 	template< same_as< t_enum >... t_flags >
-	constexpr auto use( const t_enum first_flag, const t_flags... other_flags ) noexcept -> void
-	{
-		m_value |= to_underlying( first_flag );
-		( ( m_value |= to_underlying( other_flags ) ), ... );
-	}
-
+	constexpr auto use( const t_flags... flags ) noexcept -> void { use( initializer_list{ flags... } ); }
 	constexpr auto use( const initializer_list< t_enum > flags ) noexcept -> void
 	{
-		for_each( flags, [ this ]( const auto flag ) { m_value |= to_underlying( flag ); } );
+		m_value = fold_left( flags | lazy_transform( to_underlying ), m_value, bit_or );
 	}
 
 	template< same_as< t_enum >... t_flags >
-	constexpr auto remove( const t_enum first_flag, const t_flags... other_flags ) noexcept -> void
-	{
-		m_value &= static_cast< underlying_type >( ~to_underlying( first_flag ) );
-		( ( m_value &= static_cast< underlying_type >( ~to_underlying( other_flags ) ) ), ... );
-	}
-
+	constexpr auto remove( const t_flags... flags ) noexcept -> void { remove( initializer_list{ flags... } ); }
 	constexpr auto remove( const initializer_list< t_enum > flags ) noexcept -> void
 	{
-		for_each( flags, [ this ]( const auto flag ) { m_value &= static_cast< underlying_type >( ~to_underlying( flag ) ); } );
+		m_value = fold_left( flags | lazy_transform( to_underlying ) | lazy_transform( bit_not ), m_value, bit_and );
 	}
 
 	template< same_as< t_enum >... t_flags >
-	constexpr auto toggle( const t_enum first_flag, const t_flags... other_flags ) noexcept -> void
-	{
-		m_value ^= to_underlying( first_flag );
-		( ( m_value ^= to_underlying( other_flags ) ), ... );
-	}
-
+	constexpr auto toggle( const t_flags... flags ) noexcept -> void { toggle( initializer_list{ flags... } ); }
 	constexpr auto toggle( const initializer_list< t_enum > flags ) noexcept -> void
 	{
-		for_each( flags, [ this ]( const auto flag ) { m_value ^= to_underlying( flag ); } );
+		m_value = fold_left( flags | lazy_transform( to_underlying ), m_value, bit_xor );
 	}
 
 	template< same_as< t_enum >... t_flags >
-	constexpr auto all( const t_enum first_flag, const t_flags... other_flags ) const noexcept -> bool
-	{
-		return	is_set( first_flag ) and ( is_set( other_flags ) and ... );
-	}
-
+	constexpr auto all( const t_flags... flags ) const noexcept -> bool { return all( initializer_list{ flags... } ); }
 	constexpr auto all( const initializer_list< t_enum > flags ) const noexcept -> bool
 	{
-		return	all_of( flags, [ this ]( const auto flag ) { return is_set( flag ); } );
+		return	all_of( flags, bind_front( &bitmask::is_set, this ) );
 	}
 
 	template< same_as< t_enum >... t_flags >
-	constexpr auto any( const t_enum first_flag, const t_flags... other_flags ) const noexcept -> bool
-	{
-		return	is_set( first_flag ) or ( is_set( other_flags ) or ... );
-	}
-
+	constexpr auto any( const t_flags... flags ) const noexcept -> bool { return any( initializer_list{ flags... } ); }
 	constexpr auto any( const initializer_list< t_enum > flags ) const noexcept -> bool
 	{
-		return	any_of( flags, [ this ]( const auto flag ) { return is_set( flag ); } );
+		return	any_of( flags, bind_front( &bitmask::is_set, this ) );
 	}
 
-	constexpr auto clear( ) noexcept -> void
-	{
-		m_value = 0;
-	}
+	constexpr auto clear( ) noexcept -> void { m_value = 0; }
 
 private:
 	static constexpr auto to_underlying( const t_enum flag ) noexcept -> underlying_type
