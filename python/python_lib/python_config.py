@@ -36,9 +36,9 @@ from lib.project_config import project_config
 python_project_config = {
     "language": {
          "extension": "py"
-        ,"comment_string": "#   "
+        ,"comment-string": "#   "
         ,"patterns": {
-            "string_comment_ignore": r"#.*|\"\"\"[\s\S]*?\"\"\"|'''[\s\S]*?'''|\"(?:\\.|[^\"\\])*\"|'(?:\\.|[^'\\])*'"
+            "string-comment-ignore": r"#.*|\"\"\"[\s\S]*?\"\"\"|'''[\s\S]*?'''|\"(?:\\.|[^\"\\])*\"|'(?:\\.|[^'\\])*'"
         }
     }
 }

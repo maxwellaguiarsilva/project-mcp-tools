@@ -50,7 +50,7 @@ class build_runner:
             os.makedirs( dirname( c.object.path ), exist_ok = True )
 
         #   3. parallel compilation
-        max_workers = self.core.config.get( "max_threads", get_cpu_count( ) )
+        max_workers = self.core.config.get( "max-threads", get_cpu_count( ) )
         self.core.print( f"\ncompiling {len(all_cpps)} files using {max_workers} threads..." )
         
         with concurrent.futures.ThreadPoolExecutor( max_workers = max_workers ) as executor:

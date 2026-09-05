@@ -68,7 +68,7 @@ bad example: include_list="<string>", using_list="using std::string;" """
         return  header_path
     
     source_path = model.get_path_for_hierarchy( class_hierarchy, "source" )
-    rel_header_path = "/".join( hierarchy_list ) + "." + cpp_project_config[ "language" ][ "header_extension" ]
+    rel_header_path = "/".join( hierarchy_list ) + "." + cpp_project_config[ "language" ][ "header-extension" ]
 
     template( "cpp/class-cpp" ).create_file( 
          source_path

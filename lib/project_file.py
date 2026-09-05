@@ -38,7 +38,7 @@ from lib.project_config import project_config
 from lib.template import template
 
 
-line_break = project_config[ "system" ][ "pattern" ][ "line_break" ]
+line_break = project_config[ "system" ][ "pattern" ][ "line-break" ]
 triple_line_break = line_break * 3
 
 

@@ -79,7 +79,7 @@ class cpp_check:
             ,"--inline-suppr"
             ,f"--std={config[ "compiler" ][ "standard" ]}"
             ,"--error-exitcode=1"
-            ,f"-j {config[ "max_threads" ]}"
+            ,f"-j {config[ "max-threads" ]}"
         ]
         
         params.append( f"--check-level={self.default_config[ "strictness" ]}" )
@@ -94,7 +94,7 @@ class cpp_check:
             params.append( "--force" )
 
         params.append( f"-I{config[ "paths" ][ "include" ]}" )
-        for d in config[ "dependencies" ][ "include_dirs" ]:
+        for d in config[ "dependencies" ][ "include-dirs" ]:
             params.append( f"-I{d}" )
             
         return  " ".join( params )

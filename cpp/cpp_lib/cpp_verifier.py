@@ -71,7 +71,7 @@ def cpp_return_filter( line: str ) -> bool:
 class cpp_verifier( base_verifier ):
     @property
     def string_comment_ignore_pattern( self ):
-        return  cpp_project_config[ "language" ][ "patterns" ][ "string_comment_ignore" ]
+        return  cpp_project_config[ "language" ][ "patterns" ][ "string-comment-ignore" ]
 
     @property
     def rules( self ):

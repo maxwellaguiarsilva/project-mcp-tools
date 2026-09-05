@@ -45,7 +45,7 @@ class python_project_file( project_file ):
 
     @property
     def comment_string( self ):
-        return  self.project.config[ "language" ][ "comment_string" ]
+        return  self.project.config[ "language" ][ "comment-string" ]
 
 
 class python_project_model:

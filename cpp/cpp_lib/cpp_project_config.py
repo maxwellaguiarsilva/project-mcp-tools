@@ -38,21 +38,21 @@ cpp_project_config = {
     "compiler": {
          "executable": "g++"            #   options: "g++", "clang++" or full path
         ,"standard": "c++26"            #   examples: "c++17", "c++20", "c++23", "c++26"
-        ,"use_64_bits": True            #   abstraction for -m64 (64-bit)
+        ,"use-64-bits": True            #   abstraction for -m64 (64-bit)
     }
 
     #   build rules (how to compile)
     ,"build_behavior": {
         #   options: "none" (-O0), "balanced" (-O2), "aggressive" (-O3), "debug" (-Og)
-         "experimental_library": False  #   enables -fexperimental-library
+         "experimental-library": False  #   enables -fexperimental-library
     }
 
     #   quality control (warning and analysis flags)
     ,"quality_control": {
         #   options: "minimal", "high" (-Wall -Wextra), "pedantic"
-         "warning_level": "high"
-        ,"treat_warnings_as_errors": True #   -Werror
-        ,"stop_on_first_error": True      #   -Wfatal-errors
+         "warning-level": "high"
+        ,"treat-warnings-as-errors": True #   -Werror
+        ,"stop-on-first-error": True      #   -Wfatal-errors
         ,"static_analysis": {
             "enabled": True
             #   cppcheck suppressions, appended as --suppress=<item> when present
@@ -67,17 +67,17 @@ cpp_project_config = {
     #   external dependencies (no -l or -I prefixes)
     ,"dependencies": {
          "libraries": [ ]               #   example: ["ncurses", "pthread"]
-        ,"include_dirs": [ ]            #   additional paths for header search
-        ,"library_dirs": [ ]            #   additional paths for library search
+        ,"include-dirs": [ ]            #   additional paths for header search
+        ,"library-dirs": [ ]            #   additional paths for library search
     }
 
     #   language information
     ,"language": {
-         "source_extension": "cpp"
-        ,"header_extension": "hpp"
-        ,"comment_string":  "//\t"
+         "source-extension": "cpp"
+        ,"header-extension": "hpp"
+        ,"comment-string":  "//\t"
         ,"patterns": {
-            "string_comment_ignore": r"//.*|/\*[\s\S]*?\*/|\"(?:\\.|[^\"\\])*\"|'(?:\\.|[^'\\])*'"
+            "string-comment-ignore": r"//.*|/\*[\s\S]*?\*/|\"(?:\\.|[^\"\\])*\"|'(?:\\.|[^'\\])*'"
         }
     }
 
@@ -97,15 +97,15 @@ cpp_release_config  =   {
     
     #   compiler information
     "compiler": {
-        "extra_compile_flags": [
+        "extra-compile-flags": [
              "-ffunction-sections"      #   place each function into its own section
             ,"-fdata-sections"          #   place each data item into its own section
             ,"-flto"                    #   enable link time optimization
         ]
-        ,"extra_link_flags": [
+        ,"extra-link-flags": [
             "-flto"                     #   enable link time optimization during linking
         ]
-        ,"linker_direct_options": [
+        ,"linker-direct-options": [
              "--as-needed"              #   only link libraries that satisfy undefined symbols
             ,"--gc-sections"            #   remove unused sections (dead code elimination)
         ]
@@ -115,8 +115,8 @@ cpp_release_config  =   {
     ,"build_behavior": {
         #   options: "none" (-O0), "balanced" (-O2), "aggressive" (-O3), "debug" (-Og)
          "optimization": "balanced"
-        ,"debug_symbols": False         #   generates symbols for gdb (-g)
-        ,"generate_dependencies": False #   generates .d files (intelligent recompilation)
+        ,"debug-symbols": False         #   generates symbols for gdb (-g)
+        ,"generate-dependencies": False #   generates .d files (intelligent recompilation)
     }
 }
 

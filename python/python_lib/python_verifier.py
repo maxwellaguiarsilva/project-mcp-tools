@@ -78,7 +78,7 @@ def python_comment_filter( line: str ) -> bool:
 class python_verifier( base_verifier ):
     @property
     def string_comment_ignore_pattern( self ):
-        return  python_project_config[ "language" ][ "patterns" ][ "string_comment_ignore" ]
+        return  python_project_config[ "language" ][ "patterns" ][ "string-comment-ignore" ]
 
     @property
     def rules( self ):

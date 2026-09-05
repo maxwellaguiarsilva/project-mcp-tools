@@ -30,7 +30,7 @@
 from sak.common import get_cpu_count, deep_update, get_git_config, ensure
 
 project_config = {
-    "max_threads": get_cpu_count( )
+    "max-threads": get_cpu_count( )
     #   folder organization
     ,"paths": {
          "tools": "."                  #   project tools directory
@@ -46,7 +46,7 @@ project_config = {
     }
     ,"system": {
         "pattern": {
-            "line_break": "\n"
+            "line-break": "\n"
         }
     }
 

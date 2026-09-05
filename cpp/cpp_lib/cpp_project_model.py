@@ -54,7 +54,7 @@ class cpp_project_file( project_file ):
     
     @property
     def comment_string( self ):
-        return  self.project.config[ "language" ][ "comment_string" ]
+        return  self.project.config[ "language" ][ "comment-string" ]
     
     def refresh( self ):
         super( ).refresh( )
@@ -180,8 +180,8 @@ class cpp_project_model:
         self.output_dir     =   paths[ "output" ]
 
         language    =   self.config[ "language" ]
-        self.source_ext  =   language[ "source_extension" ]
-        self.header_ext  =   language[ "header_extension" ]
+        self.source_ext  =   language[ "source-extension" ]
+        self.header_ext  =   language[ "header-extension" ]
         
         self.files  =   self.scan_dir( [ self.include_dir, self.source_dir, self.tests_dir ] )
 
