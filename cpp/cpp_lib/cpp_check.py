@@ -42,6 +42,27 @@ class cpp_check:
         self.paths = paths
 
     @property
+    def suppressions( self ):
+        suppressions = list( self.default_config[ "suppressions" ] )
+        config_suppress = ( self.config.get( "quality_control", { } )
+                                 .get( "static_analysis", { } )
+                                 .get( "suppress", [ ] ) )
+        suppressions.extend( config_suppress )
+        return  suppressions
+
+    @property
+    def file_filters( self ):
+        return  ( self.config.get( "quality_control", { } )
+                  .get( "static_analysis", { } )
+                  .get( "file-filter", [ ] ) )
+
+    @property
+    def flg_force( self ):
+        return  bool( self.config.get( "quality_control", { } )
+                           .get( "static_analysis", { } )
+                           .get( "force", False ) )
+
+    @property
     def command( self ):
         paths_str = " ".join( f'"{p}"' for p in self.paths )
         executable = self.default_config[ "executable" ]
@@ -63,8 +84,14 @@ class cpp_check:
         
         params.append( f"--check-level={self.default_config[ "strictness" ]}" )
             
-        for suppression in self.default_config[ "suppressions" ]:
+        for suppression in self.suppressions:
             params.append( f"--suppress={suppression}" )
+
+        for file_filter in self.file_filters:
+            params.append( f"--file-filter={file_filter}" )
+
+        if self.flg_force:
+            params.append( "--force" )
 
         params.append( f"-I{config[ "paths" ][ "include" ]}" )
         for d in config[ "dependencies" ][ "include_dirs" ]:

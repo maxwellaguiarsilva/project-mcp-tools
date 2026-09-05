@@ -55,6 +55,12 @@ cpp_project_config = {
         ,"stop_on_first_error": True      #   -Wfatal-errors
         ,"static_analysis": {
             "enabled": True
+            #   cppcheck suppressions, appended as --suppress=<item> when present
+            ,"suppress": [ "*:*/glad/*" ]
+            #   cppcheck file filter, appended as --file-filter=<item> when present
+            ,"file-filter": [ ]
+            #   cppcheck force: check all configurations instead of the default limit
+            ,"force": True
         }
     }
 
