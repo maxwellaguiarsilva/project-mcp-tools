@@ -61,8 +61,13 @@ public:
 
 	using	mask_type	=	bitmask< flag >;
 
-	application( const mask_type mask = mask_type{ flag::video } );
-	explicit application( const initializer_list< flag > flags );
+	application( const mask_type mask = mask_type{ flag::video } )
+		: m_mask( mask )
+	{ ensure( SDL_Init( m_mask.value( ) ), SDL_GetError( ) ); }
+
+	explicit application( const initializer_list< flag > flags )
+		: application( mask_type{ flags } )
+	{ }
 
 	template< same_as< flag >... t_flags >
 		requires ( sizeof...( t_flags ) > 0 )
@@ -70,7 +75,7 @@ public:
 		: application( mask_type{ flags... } )
 	{ }
 
-	~application( ) noexcept;
+	~application( ) noexcept { SDL_Quit( ); }
 
 	delete_copy_move_ctc( application )
 
