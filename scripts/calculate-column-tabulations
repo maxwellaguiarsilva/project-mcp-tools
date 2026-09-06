@@ -1,0 +1,83 @@
+#!/usr/bin/env python3
+
+import re
+import sys
+
+tabulation_site = 4
+tabulation_size = tabulation_site
+
+
+def read_input() -> list[str]:
+    if len(sys.argv) > 1:
+        lines = []
+        for file_path in sys.argv[1:]:
+            with open(file_path, "r", encoding="utf-8") as file_handle:
+                lines.extend(file_handle.readlines())
+        return lines
+    return sys.stdin.readlines()
+
+
+def process_lines(lines: list[str]) -> None:
+    line_pattern = re.compile(r"^(\t+),\((.*)\)\s*$")
+    selected_rows: list[tuple[str, list[str]]] = []
+
+    for line in lines:
+        match = line_pattern.match(line)
+        if not match:
+            continue
+        indent = match.group(1)
+        raw_content = match.group(2)
+        raw_items = [item.strip() for item in raw_content.split(",")]
+
+        formatted_items: list[str] = []
+        for index, item in enumerate(raw_items):
+            if index == 0:
+                formatted_items.append(item)
+            else:
+                formatted_items.append("," + item)
+
+        selected_rows.append((indent, formatted_items))
+
+    if not selected_rows:
+        return
+
+    column_count = max(len(items) for _, items in selected_rows)
+
+    elements_table: list[list[str]] = []
+    lengths_table: list[list[int]] = []
+
+    for _, items in selected_rows:
+        row_elements = list(items) + [""] * (column_count - len(items))
+        row_lengths = [len(element) for element in row_elements]
+        elements_table.append(row_elements)
+        lengths_table.append(row_lengths)
+
+    max_lengths = [0] * column_count
+    for row in lengths_table:
+        for column_index in range(column_count):
+            if row[column_index] > max_lengths[column_index]:
+                max_lengths[column_index] = row[column_index]
+
+    target_widths = [
+        ((max_len // tabulation_size) + 1) * tabulation_size
+        for max_len in max_lengths
+    ]
+
+    for row_index, (indent, items) in enumerate(selected_rows):
+        line_parts = [indent + ",(\t"]
+        for column_index in range(len(items)):
+            element = elements_table[row_index][column_index]
+            deficit = target_widths[column_index] - len(element)
+            tab_count = (deficit + tabulation_size - 1) // tabulation_size
+            line_parts.append(element + ("\t" * tab_count))
+        line_parts.append(")")
+        print("".join(line_parts))
+
+
+def main() -> None:
+    lines = read_input()
+    process_lines(lines)
+
+
+if __name__ == "__main__":
+    main()
