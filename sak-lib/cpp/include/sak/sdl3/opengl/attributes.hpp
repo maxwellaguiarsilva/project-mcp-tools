@@ -60,17 +60,17 @@ public:
 
 	enum class buffer_size
 	{
-		 red			=	SDL_GL_RED_SIZE
-		,green			=	SDL_GL_GREEN_SIZE
-		,blue			=	SDL_GL_BLUE_SIZE
-		,alpha			=	SDL_GL_ALPHA_SIZE
-		,depth			=	SDL_GL_DEPTH_SIZE
-		,stencil		=	SDL_GL_STENCIL_SIZE
-		,accum_red		=	SDL_GL_ACCUM_RED_SIZE
-		,accum_green	=	SDL_GL_ACCUM_GREEN_SIZE
-		,accum_blue		=	SDL_GL_ACCUM_BLUE_SIZE
-		,accum_alpha	=	SDL_GL_ACCUM_ALPHA_SIZE
-		,total			=	SDL_GL_BUFFER_SIZE
+		 red				=	SDL_GL_RED_SIZE
+		,green				=	SDL_GL_GREEN_SIZE
+		,blue				=	SDL_GL_BLUE_SIZE
+		,alpha				=	SDL_GL_ALPHA_SIZE
+		,depth				=	SDL_GL_DEPTH_SIZE
+		,stencil			=	SDL_GL_STENCIL_SIZE
+		,accumulation_red	=	SDL_GL_ACCUM_RED_SIZE
+		,accumulation_green	=	SDL_GL_ACCUM_GREEN_SIZE
+		,accumulation_blue	=	SDL_GL_ACCUM_BLUE_SIZE
+		,accumulation_alpha	=	SDL_GL_ACCUM_ALPHA_SIZE
+		,total				=	SDL_GL_BUFFER_SIZE
 	};
 
 	enum class visual
@@ -118,9 +118,9 @@ public:
 
 	auto set( const profile attribute, const version context_version ) -> void
 	{
-		raw_set( SDL_GL_CONTEXT_PROFILE_MASK, static_cast< int >( attribute ), "failed to set opengl profile" );
-		raw_set( SDL_GL_CONTEXT_MAJOR_VERSION, context_version.first, "failed to set opengl major version" );
-		raw_set( SDL_GL_CONTEXT_MINOR_VERSION, context_version.second, "failed to set opengl minor version" );
+		raw_set(	SDL_GL_CONTEXT_PROFILE_MASK		,static_cast< int >( attribute )	,"failed to set opengl profile"			);
+		raw_set(	SDL_GL_CONTEXT_MAJOR_VERSION	,context_version.first				,"failed to set opengl major version"	);
+		raw_set(	SDL_GL_CONTEXT_MINOR_VERSION	,context_version.second				,"failed to set opengl minor version"	);
 	}
 
 	__use_macro( __924217115_set_value_attribute
