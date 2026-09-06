@@ -42,6 +42,10 @@ __using( ::sak::, byte, ensure )
 __using( ::std::, pair, string )
 
 
+#define __924217115_set_value_attribute( attribute_type, value_type, error_message )	\
+auto set( const attribute_type attribute, const value_type value ) -> void { raw_set( attribute, value, error_message ); }
+
+
 class attributes
 {
 public:
@@ -106,15 +110,9 @@ public:
 		,lose_context		=	SDL_GL_CONTEXT_RESET_LOSE_CONTEXT
 	};
 
-	attributes( const profile gl_profile = profile::core, const version gl_version = version{ 4, 6 } )
-	{
-		set( gl_profile, gl_version );
-	}
+	attributes( const profile gl_profile = profile::core, const version gl_version = version{ 4, 6 } ) { set( gl_profile, gl_version ); }
 
-	~attributes( ) noexcept
-	{
-		SDL_GL_ResetAttributes( );
-	}
+	~attributes( ) noexcept { SDL_GL_ResetAttributes( ); }
 
 	delete_copy_move_ctc( attributes )
 
@@ -125,47 +123,26 @@ public:
 		raw_set( SDL_GL_CONTEXT_MINOR_VERSION, context_version.second, "failed to set opengl minor version" );
 	}
 
-	auto set( const buffer_size attribute, const int value ) -> void
-	{
-		raw_set( attribute, value, "failed to set opengl buffer size attribute" );
-	}
-
-	auto set( const visual attribute, const bool value ) -> void
-	{
-		raw_set( attribute, value, "failed to set opengl visual attribute" );
-	}
-
-	auto set( const multisample attribute, const int value ) -> void
-	{
-		raw_set( attribute, value, "failed to set opengl multisample attribute" );
-	}
-
-	auto set( const context_flag attribute, const bool value ) -> void
-	{
-		raw_set( attribute, value, "failed to set opengl context flag" );
-	}
-
-	auto set( const release_behavior attribute, const int value ) -> void
-	{
-		raw_set( attribute, value, "failed to set opengl context release behavior" );
-	}
-
-	auto set( const reset_notification attribute, const int value ) -> void
-	{
-		raw_set( attribute, value, "failed to set opengl context reset notification" );
-	}
+	__use_macro( __924217115_set_value_attribute
+		,(	buffer_size			,int	,"failed to set opengl buffer size attribute"		)
+		,(	visual				,bool	,"failed to set opengl visual attribute"			)
+		,(	multisample			,int	,"failed to set opengl multisample attribute"		)
+		,(	context_flag		,bool	,"failed to set opengl context flag"				)
+		,(	release_behavior	,int	,"failed to set opengl context release behavior"	)
+		,(	reset_notification	,int	,"failed to set opengl context reset notification"	)
+	)
 
 private:
 	template< typename attribute >
 	auto raw_set( const attribute gl_attribute, const int value, const string& error_message ) -> void
-		requires ::std::is_enum_v< attribute > and requires( const attribute gl_attribute )
-		{
-			static_cast< SDL_GLAttr >( gl_attribute );
-		}
+		requires ::std::is_enum_v< attribute > and requires( const attribute gl_attribute ) { static_cast< SDL_GLAttr >( gl_attribute ); }
 	{
 		ensure( SDL_GL_SetAttribute( static_cast< SDL_GLAttr >( gl_attribute ), value ), error_message );
 	}
 };
+
+
+#undef __924217115_set_value_attribute
 
 
 } } } 
