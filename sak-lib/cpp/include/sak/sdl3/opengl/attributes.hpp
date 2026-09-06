@@ -38,7 +38,7 @@ namespace sdl3 {
 namespace opengl {
 
 
-__using( ::sak::, byte, ensure )
+__using( ::sak::, byte, ensure, is_castable_enum )
 __using( ::std::, pair, string )
 
 
@@ -110,7 +110,7 @@ public:
 		,lose_context		=	SDL_GL_CONTEXT_RESET_LOSE_CONTEXT
 	};
 
-	attributes( const profile gl_profile = profile::core, const version gl_version = version{ 4, 6 } ) { set( gl_profile, gl_version ); }
+	explicit attributes( const profile gl_profile = profile::core, const version gl_version = version{ 4, 6 } ) { set( gl_profile, gl_version ); }
 
 	~attributes( ) noexcept { SDL_GL_ResetAttributes( ); }
 
@@ -135,7 +135,7 @@ public:
 private:
 	template< typename attribute >
 	auto raw_set( const attribute gl_attribute, const int value, const string& error_message ) -> void
-		requires ::std::is_enum_v< attribute > and requires( const attribute gl_attribute ) { static_cast< SDL_GLAttr >( gl_attribute ); }
+		requires is_castable_enum< attribute, SDL_GLAttr >
 	{
 		ensure( SDL_GL_SetAttribute( static_cast< SDL_GLAttr >( gl_attribute ), value ), error_message );
 	}
