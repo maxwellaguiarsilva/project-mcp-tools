@@ -193,8 +193,9 @@ class cpp_project_model:
             return  files
         
         return  {
-            file_path: cpp( file_path, self ) if file_path.endswith( f".{self.source_ext}" ) else hpp( file_path, self )
+            file_path: obj
             for file_path in get_file_list( dir_path, extensions = [ self.header_ext, self.source_ext ] )
+            if ( obj := cpp( file_path, self ) if file_path.endswith( f".{self.source_ext}" ) else hpp( file_path, self ) ).exists
         }
 
     def get_file( self, file_path, is_header = True ):
