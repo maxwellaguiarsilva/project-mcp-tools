@@ -63,7 +63,7 @@ public:
 
 	explicit application( const init_flags flags = init_flags{ flag::video } )
 		: m_flags( flags )
-	{ ensure( SDL_Init( m_flags.value( ) ), SDL_GetError( ) ); }
+	{ ensure( SDL_Init( m_flags ), SDL_GetError( ) ); }
 
 	explicit application( const initializer_list< flag > flags )
 		: application( init_flags{ flags } )

@@ -101,7 +101,7 @@ public:
 	constexpr auto clear( ) noexcept -> void { m_value = 0; }
 
 	constexpr auto value( ) const noexcept -> underlying_type { return m_value; }
-	constexpr explicit operator underlying_type( ) const noexcept { return m_value; }
+	constexpr operator underlying_type( ) const noexcept { return m_value; }
 
 private:
 	constexpr auto is_set( const t_enum flag ) const noexcept -> bool
