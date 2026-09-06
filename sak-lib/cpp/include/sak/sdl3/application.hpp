@@ -59,30 +59,30 @@ public:
 		,camera		=	SDL_INIT_CAMERA
 	};
 
-	using	mask_type	=	bitmask< flag >;
+	using	init_flags	=	bitmask< flag >;
 
-	application( const mask_type mask = mask_type{ flag::video } )
-		: m_mask( mask )
-	{ ensure( SDL_Init( m_mask.value( ) ), SDL_GetError( ) ); }
+	explicit application( const init_flags flags = init_flags{ flag::video } )
+		: m_flags( flags )
+	{ ensure( SDL_Init( m_flags.value( ) ), SDL_GetError( ) ); }
 
 	explicit application( const initializer_list< flag > flags )
-		: application( mask_type{ flags } )
+		: application( init_flags{ flags } )
 	{ }
 
 	template< same_as< flag >... t_flags >
 		requires ( sizeof...( t_flags ) > 0 )
 	explicit application( const t_flags... flags )
-		: application( mask_type{ flags... } )
+		: application( init_flags{ flags... } )
 	{ }
 
 	~application( ) noexcept { SDL_Quit( ); }
 
 	delete_copy_move_ctc( application )
 
-	auto mask( ) const noexcept -> const mask_type& { return m_mask; }
+	auto flags( ) const noexcept -> const init_flags& { return m_flags; }
 
 private:
-	mask_type	m_mask;
+	init_flags	m_flags;
 };
 
 
