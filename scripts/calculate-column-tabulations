@@ -17,17 +17,56 @@ def read_input() -> list[str]:
     return sys.stdin.readlines()
 
 
+def split_items(content: str) -> list[str]:
+    items: list[str] = []
+    current: list[str] = []
+    paren_depth = 0
+    in_quote = False
+    escape = False
+
+    for char in content:
+        if escape:
+            current.append(char)
+            escape = False
+            continue
+        if char == "\\":
+            escape = True
+            current.append(char)
+            continue
+        if char == '"':
+            in_quote = not in_quote
+            current.append(char)
+            continue
+        if in_quote:
+            current.append(char)
+            continue
+        if char == "(":
+            paren_depth += 1
+        elif char == ")":
+            paren_depth -= 1
+        elif char == "," and paren_depth == 0:
+            items.append("".join(current).strip())
+            current = []
+            continue
+        current.append(char)
+
+    if current:
+        items.append("".join(current).strip())
+    return items
+
+
 def process_lines(lines: list[str]) -> None:
-    line_pattern = re.compile(r"^(\t+),\((.*)\)\s*$")
-    selected_rows: list[tuple[str, list[str]]] = []
+    line_pattern = re.compile(r"^(\t*.*?\()\s*(.*?)\s*(\);?)\s*$")
+    selected_rows: list[tuple[str, str, list[str]]] = []
 
     for line in lines:
         match = line_pattern.match(line)
         if not match:
             continue
-        indent = match.group(1)
+        prefix = match.group(1)
         raw_content = match.group(2)
-        raw_items = [item.strip() for item in raw_content.split(",")]
+        suffix = match.group(3)
+        raw_items = split_items(raw_content)
 
         formatted_items: list[str] = []
         for index, item in enumerate(raw_items):
@@ -36,17 +75,17 @@ def process_lines(lines: list[str]) -> None:
             else:
                 formatted_items.append("," + item)
 
-        selected_rows.append((indent, formatted_items))
+        selected_rows.append((prefix, suffix, formatted_items))
 
     if not selected_rows:
         return
 
-    column_count = max(len(items) for _, items in selected_rows)
+    column_count = max(len(items) for _, _, items in selected_rows)
 
     elements_table: list[list[str]] = []
     lengths_table: list[list[int]] = []
 
-    for _, items in selected_rows:
+    for _, _, items in selected_rows:
         row_elements = list(items) + [""] * (column_count - len(items))
         row_lengths = [len(element) for element in row_elements]
         elements_table.append(row_elements)
@@ -63,20 +102,86 @@ def process_lines(lines: list[str]) -> None:
         for max_len in max_lengths
     ]
 
-    for row_index, (indent, items) in enumerate(selected_rows):
-        line_parts = [indent + ",(\t"]
+    for row_index, (prefix, suffix, items) in enumerate(selected_rows):
+        line_parts = [prefix + "\t"]
         for column_index in range(len(items)):
             element = elements_table[row_index][column_index]
             deficit = target_widths[column_index] - len(element)
             tab_count = (deficit + tabulation_size - 1) // tabulation_size
             line_parts.append(element + ("\t" * tab_count))
-        line_parts.append(")")
+        line_parts.append(suffix)
         print("".join(line_parts))
+
+
+def is_enum_class(lines: list[str]) -> bool:
+    for line in lines:
+        if re.search(r"\benum\s+(?:class|struct)\b", line):
+            return True
+
+    item_matches = 0
+    for line in lines:
+        stripped = line.strip()
+        if not stripped:
+            continue
+        if "(" in stripped and ")" in stripped:
+            return False
+        if re.match(r"^[, ]?\s*[a-zA-Z_]\w*\s*=", stripped):
+            item_matches += 1
+
+    return item_matches >= 2
+
+
+def process_enum_class(lines: list[str]) -> None:
+    item_pattern = re.compile(
+        r"^(\t*)(?:([, ])\s*)?([a-zA-Z_]\w*)\s*=\s*(.*?)\s*$"
+    )
+
+    parsed_items: list[tuple[int, str, str, str]] = []
+
+    for idx, line in enumerate(lines):
+        match = item_pattern.match(line)
+        if match:
+            indent = match.group(1)
+            identifier = match.group(3)
+            value = match.group(4).rstrip(", \t\r\n")
+            parsed_items.append((idx, indent, identifier, value))
+
+    if not parsed_items:
+        for line in lines:
+            print(line.rstrip("\r\n"))
+        return
+
+    formatted_names: list[str] = []
+    for item_idx, (_, _, identifier, _) in enumerate(parsed_items):
+        prefix = " " if item_idx == 0 else ","
+        formatted_names.append(prefix + identifier)
+
+    max_len = max(len(name) for name in formatted_names)
+    target_width = ((max_len // tabulation_size) + 1) * tabulation_size
+
+    formatted_lines_by_idx: dict[int, str] = {}
+    for item_idx, (line_idx, indent, _, value) in enumerate(parsed_items):
+        name_with_prefix = formatted_names[item_idx]
+        deficit = target_width - len(name_with_prefix)
+        tab_count = (deficit + tabulation_size - 1) // tabulation_size
+        tabs_before = "\t" * tab_count
+        formatted_lines_by_idx[line_idx] = (
+            f"{indent}{name_with_prefix}{tabs_before}=\t{value}"
+        )
+
+    for idx, line in enumerate(lines):
+        if idx in formatted_lines_by_idx:
+            print(formatted_lines_by_idx[idx])
+        else:
+            print(line.rstrip("\r\n"))
 
 
 def main() -> None:
     lines = read_input()
-    process_lines(lines)
+    if is_enum_class(lines):
+        process_enum_class(lines)
+    else:
+        process_lines(lines)
 
 
 if __name__ == "__main__":
