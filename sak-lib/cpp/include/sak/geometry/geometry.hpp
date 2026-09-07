@@ -42,17 +42,19 @@ struct geometry
 {
 	
 	using	point	=	t_point;
+	using	size	=	t_point;
+	using	position	=	t_point;
 
 	struct line
 	{
 		point start, end;
-		constexpr auto get_size( ) const noexcept -> point { return end - start; }
+		constexpr auto size( ) const noexcept -> point { return end - start; }
 	};
 
 	struct rectangle
 	{
 		point start, end;
-		constexpr auto get_size( ) const noexcept -> point { return end - start; }
+		constexpr auto size( ) const noexcept -> point { return end - start; }
 		constexpr auto contains( const point& point ) const noexcept -> bool
 		{
 			return	start.is_inside( point ) and point.is_inside( end );

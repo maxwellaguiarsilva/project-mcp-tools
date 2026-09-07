@@ -174,8 +174,8 @@ public:
 	}
 	constexpr auto operator == ( const point& other ) const noexcept -> bool { return is_all( other, equal_to ); }
 	constexpr auto is_inside( const point& other ) const noexcept -> bool { return is_all( other, less_equal ); }
-	constexpr auto get_length( ) const noexcept -> t_scalar { return length( *this ); }
-	constexpr auto get_product( ) const noexcept -> t_scalar { return fold_left( *this, 1, multiplies ); }
+	constexpr auto length( ) const noexcept -> t_scalar { return ::sak::math::length( *this ); }
+	constexpr auto product( ) const noexcept -> t_scalar { return fold_left( *this, 1, multiplies ); }
 
 };
 
