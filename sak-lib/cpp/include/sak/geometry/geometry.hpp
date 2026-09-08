@@ -28,6 +28,7 @@
 
 
 #include <sak/geometry/line_view.hpp>
+#include <ranges>
 
 
 namespace sak {
@@ -35,6 +36,9 @@ namespace sak {
 
 __using( ::sak::
 	,is_point
+)
+__using( ::std::ranges::
+	,range_adaptor_closure
 )
 
 template< is_point t_point = point< int, 2 > >
@@ -44,6 +48,18 @@ struct geometry
 	using	point	=	t_point;
 	using	size	=	t_point;
 	using	position	=	t_point;
+	using	scalar	=	typename t_point::value_type;
+
+	template< typename t_value, int index >
+	struct __axis : range_adaptor_closure< __axis< t_value, index > >
+	{
+		constexpr auto operator ( ) ( const t_value& value ) const noexcept -> scalar { return value[ index ]; }
+	};
+
+	static constexpr auto width		=	__axis< size,		0 >{ };
+	static constexpr auto height	=	__axis< size,		1 >{ };
+	static constexpr auto left		=	__axis< position,	0 >{ };
+	static constexpr auto top		=	__axis< position,	1 >{ };
 
 	struct line
 	{
