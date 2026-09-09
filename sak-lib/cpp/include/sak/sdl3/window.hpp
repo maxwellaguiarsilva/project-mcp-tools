@@ -48,6 +48,16 @@ using	geometry	=	::sak::g2i;
 __using_constexpr( geometry::, width, height, left, top )
 
 
+#define __631680322_window_geometry( a_name, a_sdl, a_type, a_first, a_second )	\
+auto a_name( ) const noexcept -> geometry::a_type									\
+{																					\
+	int window_##a_first = 0, window_##a_second = 0;								\
+	SDL_GetWindow##a_sdl( m_id, &window_##a_first, &window_##a_second );			\
+	return	{ window_##a_first, window_##a_second };								\
+}																					\
+auto a_name( const geometry::a_type& a_value ) -> void { SDL_SetWindow##a_sdl( m_id, a_first( a_value ), a_second( a_value ) ); }
+
+
 class window
 {
 public:
@@ -165,18 +175,6 @@ public:
 	auto title( ) const -> string { return SDL_GetWindowTitle( m_id ); }
 	auto title( const string& title ) -> void { SDL_SetWindowTitle( m_id, title.c_str( ) ); }
 
-	auto size( ) const noexcept -> geometry::size
-	{
-		int window_width = 0, window_height = 0;
-		SDL_GetWindowSize( m_id, &window_width, &window_height );
-		return	{ window_width, window_height };
-	}
-
-	auto size( const geometry::size& size ) -> void
-	{
-		SDL_SetWindowSize( m_id, width( size ), height( size ) );
-	}
-
 	auto pixel_size( ) const noexcept -> geometry::size
 	{
 		int window_width = 0, window_height = 0;
@@ -184,41 +182,12 @@ public:
 		return	{ window_width, window_height };
 	}
 
-	auto minimum_size( ) const noexcept -> geometry::size
-	{
-		int window_width = 0, window_height = 0;
-		SDL_GetWindowMinimumSize( m_id, &window_width, &window_height );
-		return	{ window_width, window_height };
-	}
-
-	auto minimum_size( const geometry::size& size ) -> void
-	{
-		SDL_SetWindowMinimumSize( m_id, width( size ), height( size ) );
-	}
-
-	auto maximum_size( ) const noexcept -> geometry::size
-	{
-		int window_width = 0, window_height = 0;
-		SDL_GetWindowMaximumSize( m_id, &window_width, &window_height );
-		return	{ window_width, window_height };
-	}
-
-	auto maximum_size( const geometry::size& size ) -> void
-	{
-		SDL_SetWindowMaximumSize( m_id, width( size ), height( size ) );
-	}
-
-	auto position( ) const noexcept -> geometry::position
-	{
-		int position_x = 0, position_y = 0;
-		SDL_GetWindowPosition( m_id, &position_x, &position_y );
-		return	{ position_x, position_y };
-	}
-
-	auto position( const geometry::position& position ) -> void
-	{
-		SDL_SetWindowPosition( m_id, left( position ), top( position ) );
-	}
+	__use_macro( __631680322_window_geometry
+		,(	size			,Size			,size		,width	,height	)
+		,(	minimum_size	,MinimumSize	,size		,width	,height	)
+		,(	maximum_size	,MaximumSize	,size		,width	,height	)
+		,(	position		,Position		,position	,left	,top	)
+	)
 
 	auto show( ) -> void { SDL_ShowWindow( m_id ); }
 	auto hide( ) -> void { SDL_HideWindow( m_id ); }
@@ -234,6 +203,9 @@ private:
 	SDL_Window*				m_id{ nullptr };
 	dispatcher< listener >	m_dispatcher;
 };
+
+
+#undef __631680322_window_geometry
 
 
 } } 
