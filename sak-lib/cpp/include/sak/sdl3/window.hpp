@@ -29,7 +29,10 @@
 
 #include <sak/sak.hpp>
 #include <sak/ensure.hpp>
+#include <sak/geometry/geometry.hpp>
 #include <sak/pattern/bitmask.hpp>
+#include <sak/pattern/dispatcher.hpp>
+#include <memory>
 #include <string>
 #include <SDL3/SDL.h>
 
@@ -38,14 +41,18 @@ namespace sak {
 namespace sdl3 {
 
 
-__using( ::std::, string )
+__using( ::std::, shared_ptr, string )
 __using( ::sak::, ensure )
-__using( ::sak::pattern::, bitmask )
+__using( ::sak::pattern::, bitmask, dispatcher )
+using	geometry	=	::sak::g2i;
+__using_constexpr( geometry::, width, height, left, top )
 
 
 class window
 {
 public:
+	using	geometry	=	::sak::g2i;
+
 	enum class flag : SDL_WindowFlags
 	{
 		//	window state that can be both requested and reported
@@ -89,22 +96,143 @@ public:
 
 	using	window_flags	=	bitmask< flag >;
 
-	window( const string& title, const int width, const int height, const window_flags flags = window_flags{ } )
-		: m_id( SDL_CreateWindow( title.c_str( ), width, height, flags ) )
+	window( const string& title, const geometry::size& size, const window_flags flags = window_flags{ } )
+		: m_id( SDL_CreateWindow( title.c_str( ), width( size ), height( size ), flags ) )
 	{
 		ensure( m_id not_eq nullptr, "failed to create sdl window" );
+		SDL_SetPointerProperty( SDL_GetWindowProperties( m_id ), "sak.window", this );
 	}
 
 	~window( ) noexcept { SDL_DestroyWindow( m_id ); }
 
 	delete_copy_move_ctc( window )
 
+	class listener
+	{
+	public:
+		virtual ~listener( ) = default;
+
+		virtual void resize( const geometry::size& ) { }
+		virtual void pixel_resize( const geometry::size& ) { }
+		virtual void move( const geometry::position& ) { }
+
+		virtual void show( ) { }
+		virtual void hide( ) { }
+		virtual void minimize( ) { }
+		virtual void maximize( ) { }
+		virtual void restore( ) { }
+		virtual void close_requested( ) { }
+
+		virtual void focus_gained( ) { }
+		virtual void focus_lost( ) { }
+	};
+
+	auto operator +=( const shared_ptr< listener >& subject ) -> void
+	{
+		m_dispatcher += subject;
+	}
+
+	auto dispatch( const SDL_WindowEvent& event ) -> void
+	{
+		switch( event.type )
+		{
+			case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
+				( void )m_dispatcher( &listener::pixel_resize, geometry::size{ event.data1, event.data2 } );
+				break;
+			case SDL_EVENT_WINDOW_RESIZED:
+				( void )m_dispatcher( &listener::resize, geometry::size{ event.data1, event.data2 } );
+				break;
+			case SDL_EVENT_WINDOW_MOVED:
+				( void )m_dispatcher( &listener::move, geometry::position{ event.data1, event.data2 } );
+				break;
+
+			case SDL_EVENT_WINDOW_SHOWN:			( void )m_dispatcher( &listener::show );			break;
+			case SDL_EVENT_WINDOW_HIDDEN:			( void )m_dispatcher( &listener::hide );			break;
+			case SDL_EVENT_WINDOW_MINIMIZED:		( void )m_dispatcher( &listener::minimize );		break;
+			case SDL_EVENT_WINDOW_MAXIMIZED:		( void )m_dispatcher( &listener::maximize );		break;
+			case SDL_EVENT_WINDOW_RESTORED:			( void )m_dispatcher( &listener::restore );			break;
+			case SDL_EVENT_WINDOW_CLOSE_REQUESTED:	( void )m_dispatcher( &listener::close_requested );	break;
+			case SDL_EVENT_WINDOW_FOCUS_GAINED:		( void )m_dispatcher( &listener::focus_gained );	break;
+			case SDL_EVENT_WINDOW_FOCUS_LOST:		( void )m_dispatcher( &listener::focus_lost );		break;
+
+			default:
+				break;
+		}
+	}
+
 	auto id( ) const noexcept -> SDL_Window* { return m_id; }
 	auto swap( ) const noexcept -> void { SDL_GL_SwapWindow( m_id ); }
+	auto title( ) const -> string { return SDL_GetWindowTitle( m_id ); }
 	auto title( const string& title ) -> void { SDL_SetWindowTitle( m_id, title.c_str( ) ); }
 
+	auto size( ) const noexcept -> geometry::size
+	{
+		int window_width = 0, window_height = 0;
+		SDL_GetWindowSize( m_id, &window_width, &window_height );
+		return	{ window_width, window_height };
+	}
+
+	auto size( const geometry::size& size ) -> void
+	{
+		SDL_SetWindowSize( m_id, width( size ), height( size ) );
+	}
+
+	auto pixel_size( ) const noexcept -> geometry::size
+	{
+		int window_width = 0, window_height = 0;
+		SDL_GetWindowSizeInPixels( m_id, &window_width, &window_height );
+		return	{ window_width, window_height };
+	}
+
+	auto minimum_size( ) const noexcept -> geometry::size
+	{
+		int window_width = 0, window_height = 0;
+		SDL_GetWindowMinimumSize( m_id, &window_width, &window_height );
+		return	{ window_width, window_height };
+	}
+
+	auto minimum_size( const geometry::size& size ) -> void
+	{
+		SDL_SetWindowMinimumSize( m_id, width( size ), height( size ) );
+	}
+
+	auto maximum_size( ) const noexcept -> geometry::size
+	{
+		int window_width = 0, window_height = 0;
+		SDL_GetWindowMaximumSize( m_id, &window_width, &window_height );
+		return	{ window_width, window_height };
+	}
+
+	auto maximum_size( const geometry::size& size ) -> void
+	{
+		SDL_SetWindowMaximumSize( m_id, width( size ), height( size ) );
+	}
+
+	auto position( ) const noexcept -> geometry::position
+	{
+		int position_x = 0, position_y = 0;
+		SDL_GetWindowPosition( m_id, &position_x, &position_y );
+		return	{ position_x, position_y };
+	}
+
+	auto position( const geometry::position& position ) -> void
+	{
+		SDL_SetWindowPosition( m_id, left( position ), top( position ) );
+	}
+
+	auto show( ) -> void { SDL_ShowWindow( m_id ); }
+	auto hide( ) -> void { SDL_HideWindow( m_id ); }
+	auto raise( ) -> void { SDL_RaiseWindow( m_id ); }
+	auto maximize( ) -> void { SDL_MaximizeWindow( m_id ); }
+	auto minimize( ) -> void { SDL_MinimizeWindow( m_id ); }
+	auto restore( ) -> void { SDL_RestoreWindow( m_id ); }
+	auto fullscreen( const bool is_fullscreen ) -> void { SDL_SetWindowFullscreen( m_id, is_fullscreen ); }
+	auto sync( ) -> void { SDL_SyncWindow( m_id ); }
+
 private:
-	SDL_Window*	m_id{ nullptr };
+	//	todo: integrate application::poll routing for "sak.window" property lookup
+	SDL_Window*				m_id{ nullptr };
+	dispatcher< listener >	m_dispatcher;
 };
 
 
