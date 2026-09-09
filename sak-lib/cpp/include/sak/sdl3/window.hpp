@@ -100,7 +100,7 @@ public:
 		: m_id( SDL_CreateWindow( title.c_str( ), width( size ), height( size ), flags ) )
 	{
 		ensure( m_id not_eq nullptr, "failed to create sdl window" );
-		SDL_SetPointerProperty( SDL_GetWindowProperties( m_id ), "sak.window", this );
+		SDL_SetPointerProperty( SDL_GetWindowProperties( m_id ), "sak.sdl3.window", this );
 	}
 
 	~window( ) noexcept { SDL_DestroyWindow( m_id ); }
@@ -230,7 +230,7 @@ public:
 	auto sync( ) -> void { SDL_SyncWindow( m_id ); }
 
 private:
-	//	todo: integrate application::poll routing for "sak.window" property lookup
+	//	todo: integrate application::poll routing for "sak.sdl3.window" property lookup
 	SDL_Window*				m_id{ nullptr };
 	dispatcher< listener >	m_dispatcher;
 };
