@@ -105,6 +105,7 @@ cpp_release_config  =   {
              "-ffunction-sections"      #   place each function into its own section
             ,"-fdata-sections"          #   place each data item into its own section
             ,"-flto"                    #   enable link time optimization
+            ,"-freflection"             #   enable C++26 static reflection
         ]
         ,"extra-link-flags": [
             "-flto"                     #   enable link time optimization during linking
