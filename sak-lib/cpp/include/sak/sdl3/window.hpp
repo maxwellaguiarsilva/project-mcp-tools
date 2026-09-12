@@ -123,6 +123,9 @@ public:
 
 		virtual void focus_gained( ) { }
 		virtual void focus_lost( ) { }
+
+		virtual void key_down( const SDL_KeyboardEvent& ) { }
+		virtual void key_up( const SDL_KeyboardEvent& ) { }
 	};
 
 	auto operator +=( const shared_ptr< listener >& subject ) -> void
@@ -158,6 +161,18 @@ public:
 		}
 	}
 
+	auto dispatch( const SDL_KeyboardEvent& event ) -> void
+	{
+		switch( event.type )
+		{
+			case SDL_EVENT_KEY_DOWN:	( void )m_dispatcher( &listener::key_down, event );	break;
+			case SDL_EVENT_KEY_UP:		( void )m_dispatcher( &listener::key_up, event );		break;
+
+			default:
+				break;
+		}
+	}
+
 	auto id( ) const noexcept -> SDL_Window* { return m_id; }
 	auto display( ) const noexcept -> const ::sak::sdl3::display& { return m_display; }
 	auto swap( ) const noexcept -> void { SDL_GL_SwapWindow( m_id ); }
@@ -184,7 +199,9 @@ public:
 	auto maximize( ) -> void { SDL_MaximizeWindow( m_id ); }
 	auto minimize( ) -> void { SDL_MinimizeWindow( m_id ); }
 	auto restore( ) -> void { SDL_RestoreWindow( m_id ); }
+	auto fullscreen( ) const noexcept -> bool { return ( SDL_GetWindowFlags( m_id ) & SDL_WINDOW_FULLSCREEN ) not_eq 0; }
 	auto fullscreen( const bool is_fullscreen ) -> void { SDL_SetWindowFullscreen( m_id, is_fullscreen ); }
+	auto toggle_fullscreen( ) -> void { fullscreen( not fullscreen( ) ); }
 	auto sync( ) -> void { SDL_SyncWindow( m_id ); }
 
 private:

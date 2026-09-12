@@ -90,13 +90,19 @@ public:
 				continue;
 			}
 
-			if( between( event.type, SDL_EVENT_WINDOW_FIRST, SDL_EVENT_WINDOW_LAST ) )
+			const bool is_window_event	=	between( event.type, SDL_EVENT_WINDOW_FIRST, SDL_EVENT_WINDOW_LAST );
+			const bool is_key_event		=	between( event.type, SDL_EVENT_KEY_DOWN, SDL_EVENT_KEY_UP );
+
+			if( is_window_event or is_key_event )
 				if( auto* raw_window = SDL_GetWindowFromEvent( &event ) )
 					if( auto* raw_instance = static_cast< window* >( SDL_GetPointerProperty( SDL_GetWindowProperties( raw_window ), "sak.sdl3.window", nullptr ) ) )
 					{
 						//	reference alias keeps the dispatch body free of pointer noise
 						auto& window_instance	=	*raw_instance;
-						window_instance.dispatch( event.window );
+						if( is_window_event )
+							window_instance.dispatch( event.window );
+						else
+							window_instance.dispatch( event.key );
 					}
 		}
 
