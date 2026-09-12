@@ -34,7 +34,8 @@ from cpp.cpp_lib.project_core import project_core
 from cpp.cpp_lib.cpp_verifier import cpp_verifier
 
 
-@tool( )
+# @tool( )
+# disabled at the user's request on 2026-09-12 16:35:53
 def analyze( ) -> str:
     """runs static analysis and automatically fixes formatting rules
 beyond checking, it also applies fixes for the rules verified by "cpp_code_verifier" on all .cpp and .hpp files
