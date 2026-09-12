@@ -24,6 +24,7 @@ namespace opengl {
 
 __using( ::sak::, ensure )
 __using( ::sak::opengl::, loader_for, detected_loader )
+__using( ::std::, shared_ptr, make_shared )
 
 
 class context
@@ -33,16 +34,19 @@ public:
 
 	template< typename t_loader >
 		requires loader_for< t_loader, loader_type >
-	explicit context( const window& application_window, t_loader load, const attributes& = attributes{ } )
+	explicit context( window& application_window, t_loader load, const attributes& = attributes{ } )
 		: m_id( SDL_GL_CreateContext( application_window.id( ) ) )
 	{
 		ensure( m_id not_eq nullptr, "failed to create opengl context" );
 		ensure( load( function_pointer( ) ), "failed to load opengl functions" );
+
+		m_viewport_listener = make_shared< viewport_listener >( );
+		application_window += m_viewport_listener;
 	}
 
-	template< typename t_loader = detected_loader<> >
+	template< typename t_loader = detected_loader< > >
 		requires ( t_loader::available )
-	explicit context( const window& application_window, const attributes& gl_attributes = attributes{ } )
+	explicit context( window& application_window, const attributes& gl_attributes = attributes{ } )
 		: context( application_window, t_loader{ }, gl_attributes )
 	{ }
 
@@ -54,7 +58,17 @@ public:
 	auto function_pointer( ) const noexcept -> loader_type { return &SDL_GL_GetProcAddress; }
 
 private:
-	SDL_GLContext	m_id{ nullptr };
+	class viewport_listener final : public window::listener
+	{
+	public:
+		void pixel_resize( const geometry::size& new_size ) override
+		{
+			gl_viewport( 0, 0, width( new_size ), height( new_size ) );
+		}
+	};
+
+	SDL_GLContext					m_id{ nullptr };
+	shared_ptr< window::listener >	m_viewport_listener;
 };
 
 
