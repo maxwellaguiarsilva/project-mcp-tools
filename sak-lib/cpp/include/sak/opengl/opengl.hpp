@@ -12,6 +12,7 @@
 #include <sak/sak.hpp>
 #include <sak/opengl/glad/gl.h>
 #include <sak/opengl/glad/snake_case.hpp>
+#include <sak/opengl/loader.hpp>
 
 
 namespace sak {
