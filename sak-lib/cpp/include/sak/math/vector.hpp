@@ -23,6 +23,12 @@ __using( ::sak::ranges::
 	,operator+
 	,operator-
 	,operator/
+	,operator%
+	,operator*=
+	,operator+=
+	,operator-=
+	,operator/=
+	,operator%=
 )
 __using( ::sak::ranges::views::
 	,rotated

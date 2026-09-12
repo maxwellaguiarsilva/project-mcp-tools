@@ -38,22 +38,23 @@ __using( ::std::ranges::
 	,input_range
 )
 __using( ::sak::math::
-	,plus
-	,minus
-	,negate
 	,multiplies
-	,divides
-	,modulus
 	,equal_to
 	,less_equal
 	,greater_equal
 	,is_arithmetic
 	,fold_left
 	,length
-)
-__using( ::sak::ranges::
-	,to
-	,eager_transform
+	,operator*
+	,operator+
+	,operator-
+	,operator/
+	,operator%
+	,operator*=
+	,operator+=
+	,operator-=
+	,operator/=
+	,operator%=
 )
 //	--------------------------------------------------
 
@@ -61,28 +62,6 @@ __using( ::sak::ranges::
 template< is_arithmetic t_scalar, size_t num_dimensions >
 requires	( num_dimensions > 1 )
 class point;
-
-
-#define __352612026_operator( a_operator, a_operation ) \
-constexpr auto operator a_operator##= ( const point& other ) noexcept -> point& \
-{ \
-	eager_transform( *this, other, begin( ), a_operation ); \
-	return	*this; \
-} \
-constexpr auto operator a_operator##= ( t_scalar other ) noexcept -> point& \
-{ \
-	using	::std::views::repeat; \
-	eager_transform( *this, repeat( other ), begin( ), a_operation ); \
-	return	*this; \
-} \
-friend constexpr auto operator a_operator ( point left, const point& right ) noexcept -> point { return left a_operator##= right; } \
-friend constexpr auto operator a_operator ( point left, t_scalar right          ) noexcept -> point { return left a_operator##= right; } \
-friend constexpr auto operator a_operator ( t_scalar left, const point& right   ) noexcept -> point \
-{ \
-	point result{ }; \
-	result.fill( left ); \
-	return	result a_operator##= right; \
-}
 
 
 template< is_arithmetic t_scalar = int, size_t num_dimensions = 2 >
@@ -139,14 +118,6 @@ public:
 		copy( ::std::forward< t_range >( range ), super_type::begin( ) );
 	}
 
-	__352612026_operator( + ,plus		)
-	__352612026_operator( - ,minus		)
-	__352612026_operator( * ,multiplies	)
-	__352612026_operator( / ,divides	)
-	__352612026_operator( % ,modulus	)
-
-	constexpr auto operator - ( ) const noexcept -> point { return *this | negate | to; }
-	
 	template< is_callable< t_scalar, t_scalar > t_operation >
 	constexpr auto is_all( const point& other, const t_operation& operation ) const noexcept -> bool
 	{
@@ -160,9 +131,6 @@ public:
 	constexpr auto product( ) const noexcept -> t_scalar { return fold_left( *this, 1, multiplies ); }
 
 };
-
-
-#undef __352612026_operator
 
 
 }
