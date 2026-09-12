@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+find -L source include -type f \
+    \( -name '*.cpp' -o -name '*.hpp' -o -name '*.h' -o -name '*.c' -o -name '*.cc' \) \
+    -not -name 'gl.h' -not -name 'snake_case.hpp' -not -path '*/expand64/*' \
+    -print0 | sort -z | xargs -0 -n1 sh -c 'printf "\n===== %s =====\n" "$1"; cat "$1"' _
