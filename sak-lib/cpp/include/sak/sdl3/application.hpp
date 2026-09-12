@@ -11,10 +11,14 @@
 
 #include <sak/sak.hpp>
 #include <concepts>
+#include <functional>
 #include <initializer_list>
 #include <type_traits>
 #include <sak/ensure.hpp>
+#include <sak/math/math.hpp>
 #include <sak/pattern/bitmask.hpp>
+#include <sak/pattern/dispatcher.hpp>
+#include <sak/sdl3/window.hpp>
 #include <SDL3/SDL.h>
 
 
@@ -22,8 +26,9 @@ namespace sak {
 namespace sdl3 {
 
 
-__using( ::sak::pattern::, bitmask )
-__using( ::std::, initializer_list, same_as )
+__using( ::sak::pattern::, bitmask, dispatcher )
+__using( ::sak::math::, between )
+__using( ::std::, function, initializer_list, same_as, shared_ptr )
 
 
 class application
@@ -63,8 +68,53 @@ public:
 
 	auto flags( ) const noexcept -> const init_flags& { return m_flags; }
 
+	class listener
+	{
+	public:
+		virtual ~listener( ) = default;
+
+		virtual void quit( ) { }
+	};
+
+	auto operator +=( const shared_ptr< listener >& subject ) -> void { m_dispatcher += subject; }
+
+	auto poll( ) -> bool
+	{
+		SDL_Event event;
+		while( SDL_PollEvent( &event ) )
+		{
+			if( event.type == SDL_EVENT_QUIT )
+			{
+				( void )m_dispatcher( &listener::quit );
+				m_is_running = false;
+				continue;
+			}
+
+			if( between( event.type, SDL_EVENT_WINDOW_FIRST, SDL_EVENT_WINDOW_LAST ) )
+				if( auto* raw_window = SDL_GetWindowFromEvent( &event ) )
+					if( auto* raw_instance = static_cast< window* >( SDL_GetPointerProperty( SDL_GetWindowProperties( raw_window ), "sak.sdl3.window", nullptr ) ) )
+					{
+						//	reference alias keeps the dispatch body free of pointer noise
+						auto& window_instance	=	*raw_instance;
+						window_instance.dispatch( event.window );
+					}
+		}
+
+		return	m_is_running;
+	}
+
+	auto run( const function< void( ) >& action ) -> void
+	{
+		while( poll( ) )
+			action( );
+	}
+
+	auto quit( ) noexcept -> void { m_is_running = false; }
+
 private:
-	init_flags	m_flags;
+	init_flags				m_flags;
+	dispatcher< listener >	m_dispatcher;
+	bool					m_is_running{ true };
 };
 
 
