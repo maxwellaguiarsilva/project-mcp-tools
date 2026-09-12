@@ -5,13 +5,12 @@
 
 
 #pragma once
-#ifndef header_guard_016647174
-#define header_guard_016647174
+#ifndef header_guard_805823872
+#define header_guard_805823872
 
 
 #include <sak/sak.hpp>
-#include <sak/ensure.hpp>
-#include <sak/sdl3/window.hpp>
+#include <sak/geometry/geometry.hpp>
 #include <SDL3/SDL.h>
 
 
@@ -19,23 +18,28 @@ namespace sak {
 namespace sdl3 {
 
 
-__using( ::sak::, ensure )
+using	geometry	=	::sak::g2i;
 
 
 class display
 {
 public:
-	display( ) noexcept
-		: m_id( SDL_GetPrimaryDisplay( ) )
-	{ }
+	display( ) noexcept : display( SDL_GetPrimaryDisplay( ) ) { }
 
-	explicit display( const window& application_window )
-		: m_id( SDL_GetDisplayForWindow( application_window.id( ) ) )
-	{ ensure( m_id not_eq 0, "failed to get sdl display for window" ); }
+	explicit display( const SDL_DisplayID display_id ) noexcept
+		: m_id( display_id )
+	{ }
 
 	delete_copy_move_ctc( display )
 
 	auto id( ) const noexcept -> SDL_DisplayID { return m_id; }
+
+	auto size( ) const noexcept -> geometry::size
+	{
+		SDL_Rect bounds{ };
+		SDL_GetDisplayBounds( m_id, &bounds );
+		return	{ bounds.w, bounds.h };
+	}
 
 private:
 	SDL_DisplayID	m_id{ 0 };

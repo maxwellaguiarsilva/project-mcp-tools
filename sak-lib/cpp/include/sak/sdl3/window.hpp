@@ -14,6 +14,7 @@
 #include <sak/geometry/geometry.hpp>
 #include <sak/pattern/bitmask.hpp>
 #include <sak/pattern/dispatcher.hpp>
+#include <sak/sdl3/display.hpp>
 #include <memory>
 #include <string>
 #include <SDL3/SDL.h>
@@ -88,10 +89,16 @@ public:
 
 	using	window_flags	=	bitmask< flag >;
 
+	static constexpr float	window_display_ratio	=	0.8f;
+
+	window( const string& title, const window_flags flags = window_flags{ } )
+		: window( title, ::sak::sdl3::display{ }.size( ) * window_display_ratio, flags )
+	{ }
+
 	window( const string& title, const geometry::size& size, const window_flags flags = window_flags{ } )
-		: m_id( SDL_CreateWindow( title.c_str( ), width( size ), height( size ), flags ) )
+		: m_id( create_window( title, size, flags ) )
+		, m_display( SDL_GetDisplayForWindow( m_id ) )
 	{
-		ensure( m_id not_eq nullptr, "failed to create sdl window" );
 		SDL_SetPointerProperty( SDL_GetWindowProperties( m_id ), "sak.sdl3.window", this );
 	}
 
@@ -153,6 +160,7 @@ public:
 	}
 
 	auto id( ) const noexcept -> SDL_Window* { return m_id; }
+	auto display( ) const noexcept -> const ::sak::sdl3::display& { return m_display; }
 	auto swap( ) const noexcept -> void { SDL_GL_SwapWindow( m_id ); }
 	auto title( ) const -> string { return SDL_GetWindowTitle( m_id ); }
 	auto title( const string& title ) -> void { SDL_SetWindowTitle( m_id, title.c_str( ) ); }
@@ -181,8 +189,16 @@ public:
 	auto sync( ) -> void { SDL_SyncWindow( m_id ); }
 
 private:
+	static auto create_window( const string& title, const geometry::size& size, const window_flags flags ) -> SDL_Window*
+	{
+		auto*	created_window	=	SDL_CreateWindow( title.c_str( ), width( size ), height( size ), flags );
+		ensure( created_window not_eq nullptr, "failed to create sdl window" );
+		return	created_window;
+	}
+
 	//	todo: integrate application::poll routing for "sak.sdl3.window" property lookup
 	SDL_Window*				m_id{ nullptr };
+	::sak::sdl3::display	m_display;
 	dispatcher< listener >	m_dispatcher;
 };
 
