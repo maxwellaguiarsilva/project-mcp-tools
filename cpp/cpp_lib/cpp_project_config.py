@@ -81,7 +81,8 @@ cpp_project_config = {
         ,"header-extension": "hpp"
         ,"comment-string":  "//\t"
         ,"patterns": {
-            "string-comment-ignore": r"//.*|/\*[\s\S]*?\*/|\"(?:\\.|[^\"\\])*\"|'(?:\\.|[^'\\])*'"
+             "string-comment-ignore": r"//.*|/\*[\s\S]*?\*/|\"(?:\\.|[^\"\\])*\"|'(?:\\.|[^'\\])*'"
+            ,"reflection-splice-ignore": r"\[:[\s\S]*?:\]"
         }
     }
 
