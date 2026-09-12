@@ -61,6 +61,9 @@ private:
 	class viewport_listener final : public window::listener
 	{
 	public:
+		using	geometry	=	::sak::g2i;
+		__using_static( geometry::, width, height )
+
 		void pixel_resize( const geometry::size& new_size ) override
 		{
 			gl_viewport( 0, 0, width( new_size ), height( new_size ) );

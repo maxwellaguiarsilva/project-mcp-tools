@@ -18,12 +18,11 @@ namespace sak {
 namespace sdl3 {
 
 
-using	geometry	=	::sak::g2i;
-
-
 class display
 {
 public:
+	using	geometry	=	::sak::g2i;
+
 	display( ) noexcept : display( SDL_GetPrimaryDisplay( ) ) { }
 
 	explicit display( const SDL_DisplayID display_id ) noexcept

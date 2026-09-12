@@ -27,8 +27,6 @@ namespace sdl3 {
 __using( ::std::, shared_ptr, string )
 __using( ::sak::, ensure )
 __using( ::sak::pattern::, bitmask, dispatcher )
-using	geometry	=	::sak::g2i;
-__using_constexpr( geometry::, width, height, left, top )
 
 
 #define __631680322_window_geometry( a_name, a_sdl, a_type, a_first, a_second )	\
@@ -45,6 +43,7 @@ class window
 {
 public:
 	using	geometry	=	::sak::g2i;
+	__using_static( geometry::, width, height, left, top )
 
 	enum class flag : SDL_WindowFlags
 	{
