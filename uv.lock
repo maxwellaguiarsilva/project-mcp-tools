@@ -915,6 +915,7 @@ dependencies = [
     { name = "glad2" },
     { name = "google-genai" },
     { name = "ipython" },
+    { name = "jinja2" },
     { name = "typer" },
 ]
 
@@ -925,6 +926,7 @@ requires-dist = [
     { name = "glad2", specifier = ">=2.0.8" },
     { name = "google-genai", specifier = ">=2.10.0" },
     { name = "ipython", specifier = ">=9.15.0" },
+    { name = "jinja2", specifier = ">=3.1.6" },
     { name = "typer", specifier = ">=0.15.0" },
 ]
 
