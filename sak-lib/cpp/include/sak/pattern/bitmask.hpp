@@ -70,8 +70,8 @@ public:
 	constexpr bitmask( ) noexcept = default;
 
 	template< same_as< t_enum >... t_flags >
-	constexpr explicit bitmask( const t_flags... flags ) noexcept { use( flags... ); }
-	constexpr explicit bitmask( const initializer_list< t_enum > flags ) noexcept { use( flags ); }
+	constexpr bitmask( const t_flags... flags ) noexcept { use( flags... ); }
+	constexpr bitmask( const initializer_list< t_enum > flags ) noexcept { use( flags ); }
 
 	__119678595_mutator( use, cast< underlying_type >, bit_or )
 	__119678595_mutator( remove, cast< underlying_type > | lazy_transform( bit_not ), bit_and )
