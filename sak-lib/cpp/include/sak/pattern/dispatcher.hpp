@@ -80,12 +80,11 @@ public:
 	virtual ~listener_registry( ) = default;
 
 	template< typename t_derived >
+		requires is_base_of_v< t_listener, t_derived >
 	auto operator +=( const shared_ptr< t_derived >& instance ) -> void
 	{
-		static_assert( is_base_of_v< t_listener, t_derived >, "the listener must derive from the registered interface" );
-		if( not instance )
-			return;
-		add( instance, subscription_of< t_listener, t_derived >( ) );
+		if( instance )
+			add( instance, subscription_of< t_listener, t_derived >( ) );
 	}
 
 private:
