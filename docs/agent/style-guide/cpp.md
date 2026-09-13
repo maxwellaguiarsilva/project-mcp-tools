@@ -88,6 +88,18 @@ Exemptions where `::` is allowed (and required):
 char code	=	::tui::terminal::read_char( );
 ```
 
+Scoped enumerators follow the same principle. When the names are unambiguous in the scope, bring them in with `using enum` instead of qualifying every use with the enum name:
+
+```cpp
+//	correct: enumerators brought in once
+using	enum	direction;
+
+ensure( heading == up, "unexpected heading" );
+
+//	incorrect: enum name repeated at every use
+ensure( heading == direction::up, "unexpected heading" );
+```
+
 ## Naming (C++ specifics)
 
 The common naming rules apply. Additionally:
