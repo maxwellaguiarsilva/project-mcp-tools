@@ -109,10 +109,10 @@ public:
 		return	m_is_running;
 	}
 
-	auto run( const function< void( ) >& action ) -> void
+	auto run( const function< void( ) >& frame_action ) -> void
 	{
 		while( poll( ) )
-			action( );
+			frame_action( );
 	}
 
 	auto quit( ) noexcept -> void { m_is_running = false; }
