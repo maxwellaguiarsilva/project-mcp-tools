@@ -81,18 +81,23 @@ public:
 		weak_ptr< t_listener >	listener;
 		exception_ptr			exception;
 	};
-	using	error	=	vector< failed_info >;
-	using	result	=	expected< void, error >;
+	using	error			=	vector< failed_info >;
+	using	result			=	expected< void, error >;
+	using	error_callback	=	function< void( const error& ) >;
 
-	dispatcher( ) = default;
+	explicit dispatcher( error_callback on_error = { } )
+		: m_error_callback( ::std::move( on_error ) )
+	{ }
 	delete_copy_move_ctc( dispatcher );
 
 	template< info t_method, typename... t_args >
-	auto operator ( ) ( t_args&&... arguments ) -> result
+	auto dispatch ( t_args&&... arguments ) -> void
 	{
 		constexpr auto index = override_model< t_listener >::position( t_method );
-		return	run( index, [ & ]( t_listener* listener )
+		auto dispatch_result = run( index, [ & ]( t_listener* listener )
 			{ invoke( &[: t_method :], listener, arguments... ); } );
+		if( not dispatch_result and m_error_callback )
+			m_error_callback( dispatch_result.error( ) );
 	}
 
 private:
@@ -147,6 +152,7 @@ private:
 	array< bucket, override_model< t_listener >::methods( ).size( ) >	m_buckets;
 	mutex				m_mutex;
 	atomic< unsigned >	m_clear_count	=	0;
+	error_callback		m_error_callback;
 };
 
 

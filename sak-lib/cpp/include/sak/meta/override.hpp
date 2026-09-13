@@ -123,13 +123,6 @@ template< typename t_base, typename t_derived, info t_method >
 consteval auto is_overridden( ) { return is_overridden< t_base, t_derived >( identifier_of( t_method ) ); }
 
 
-template< info t_method, typename t_dispatcher, typename... t_args >
-auto dispatch_reflected( t_dispatcher& dispatcher_instance, t_args&&... arguments )
-{
-	return	dispatcher_instance.template operator ( )< t_method >( arguments... );
-}
-
-
 } } 
 
 

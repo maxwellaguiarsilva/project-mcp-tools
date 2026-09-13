@@ -27,7 +27,6 @@ namespace sdl3 {
 
 
 __using( ::sak::math::, between )
-__using( ::sak::meta::, dispatch_reflected )
 __using( ::sak::pattern::, bitmask, dispatcher, listener_registry )
 __using( ::std::, function, initializer_list, same_as, shared_ptr )
 
@@ -86,7 +85,7 @@ public:
 		{
 			if( event.type == SDL_EVENT_QUIT )
 			{
-				( void )dispatch_reflected< ^^listener::quit >( m_dispatcher );
+				( void )m_dispatcher.dispatch< ^^listener::quit >( );
 				m_is_running = false;
 				continue;
 			}
