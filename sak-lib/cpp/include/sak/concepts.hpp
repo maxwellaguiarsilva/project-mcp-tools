@@ -10,6 +10,7 @@
 
 
 #include <sak/math/concepts.hpp>
+#include <sak/pattern/enum.hpp>
 #include <tuple>
 
 
