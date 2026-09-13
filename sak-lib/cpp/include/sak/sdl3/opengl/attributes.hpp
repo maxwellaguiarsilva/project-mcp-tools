@@ -39,6 +39,7 @@ public:
 		,compatibility	=	SDL_GL_CONTEXT_PROFILE_COMPATIBILITY
 		,es				=	SDL_GL_CONTEXT_PROFILE_ES
 	};
+	using	enum	profile;
 
 	enum class buffer_size
 	{
@@ -92,7 +93,7 @@ public:
 		,lose_context		=	SDL_GL_CONTEXT_RESET_LOSE_CONTEXT
 	};
 
-	explicit attributes( const profile gl_profile = profile::core, const version gl_version = version{ 4, 6 } ) { set( gl_profile, gl_version ); }
+	explicit attributes( const profile gl_profile = core, const version gl_version = version{ 4, 6 } ) { set( gl_profile, gl_version ); }
 
 	~attributes( ) noexcept { SDL_GL_ResetAttributes( ); }
 

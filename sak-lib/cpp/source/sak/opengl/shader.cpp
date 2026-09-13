@@ -18,14 +18,16 @@ using	::sak::opengl::fetch_log;
 
 static auto to_gl_shader_stage( const shader::type shader_type ) -> GLenum
 {
+	using	enum	shader::type;
+
 	switch( shader_type )
 	{
-		case shader::type::vertex: return GL_VERTEX_SHADER;
-		case shader::type::fragment: return GL_FRAGMENT_SHADER;
-		case shader::type::geometry: return GL_GEOMETRY_SHADER;
-		case shader::type::tess_control: return GL_TESS_CONTROL_SHADER;
-		case shader::type::tess_evaluation: return GL_TESS_EVALUATION_SHADER;
-		case shader::type::compute: return GL_COMPUTE_SHADER;
+		case vertex: return GL_VERTEX_SHADER;
+		case fragment: return GL_FRAGMENT_SHADER;
+		case geometry: return GL_GEOMETRY_SHADER;
+		case tess_control: return GL_TESS_CONTROL_SHADER;
+		case tess_evaluation: return GL_TESS_EVALUATION_SHADER;
+		case compute: return GL_COMPUTE_SHADER;
 	}
 	return	GL_VERTEX_SHADER;
 }

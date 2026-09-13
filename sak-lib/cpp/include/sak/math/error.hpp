@@ -33,11 +33,13 @@ struct exception : ::std::exception
 	
 	const char* what( ) const noexcept override
 	{
+		using	enum	error;
+
 		switch( m_error )
 		{
-			case error::division_by_zero: return "math: division by zero";
-			case error::arithmetic_overflow: return "math: arithmetic overflow";
-			case error::sqrt_of_negative: return "math: square root of negative number";
+			case division_by_zero: return "math: division by zero";
+			case arithmetic_overflow: return "math: arithmetic overflow";
+			case sqrt_of_negative: return "math: square root of negative number";
 		}
 		return	"math: unknown error";
 	}

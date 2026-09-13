@@ -33,8 +33,9 @@ public:
 		,tess_evaluation
 		,compute
 	};
+	using	enum	type;
 
-	shader( const string& source, const type shader_type = type::vertex );
+	shader( const string& source, const type shader_type = vertex );
 	~shader( ) noexcept;
 
 	delete_copy_move_ctc( shader )

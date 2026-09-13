@@ -45,10 +45,11 @@ public:
 		,sensor		=	SDL_INIT_SENSOR
 		,camera		=	SDL_INIT_CAMERA
 	};
+	using	enum	flag;
 
 	using	init_flags	=	bitmask< flag >;
 
-	explicit application( const init_flags flags = init_flags{ flag::video } )
+	explicit application( const init_flags flags = init_flags{ video } )
 		: m_flags( flags )
 	{ ensure( SDL_Init( m_flags ), SDL_GetError( ) ); }
 
