@@ -40,7 +40,7 @@ public:
 		ensure( load( function_pointer( ) ), "failed to load opengl functions" );
 
 		m_viewport_listener = make_shared< viewport_listener >( );
-		application_window += m_viewport_listener;
+		application_window.listeners( ) += m_viewport_listener;
 	}
 
 	template< typename t_loader = detected_loader< > >
@@ -70,7 +70,7 @@ private:
 	};
 
 	SDL_GLContext					m_id{ nullptr };
-	shared_ptr< window::listener >	m_viewport_listener;
+	shared_ptr< viewport_listener >	m_viewport_listener;
 };
 
 

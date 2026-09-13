@@ -13,7 +13,6 @@
 #include <string_view>
 #include <vector>
 #include <sak/using.hpp>
-#include <sak/pattern/dispatcher.hpp>
 
 
 namespace sak {
@@ -38,18 +37,26 @@ __using( ::std::meta::
 	,is_virtual
 	,members_of
 )
-__using( ::sak::pattern::, dispatcher )
 //	--------------------------------------------------
+
+
+//	every virtual method declared by the base interface, in declaration order
+template< typename t_base >
+consteval auto virtual_methods( )
+{
+	vector< info > result;
+	for( auto method : members_of( ^^t_base, access_context::current( ) ) )
+		if( is_function( method ) and not is_special_member_function( method ) and is_virtual( method ) )
+			result.push_back( method );
+	return	result;
+}
 
 
 template< typename t_base, typename t_derived >
 consteval auto overridden_methods( )
 {
 	vector< info > result;
-	for( auto method : members_of( ^^t_base, access_context::current( ) ) )
-	{
-		if( not is_function( method ) or is_special_member_function( method ) or not is_virtual( method ) )
-			continue;
+	for( auto method : virtual_methods< t_base >( ) )
 		for( auto candidate : members_of( ^^t_derived, access_context::current( ) ) )
 		{
 			if( not is_function( candidate ) or not is_override( candidate ) )
@@ -60,7 +67,6 @@ consteval auto overridden_methods( )
 				break;
 			}
 		}
-	}
 	return	result;
 }
 
@@ -99,10 +105,10 @@ consteval auto is_overridden( )
 }
 
 
-template< info t_method, typename t_listener, typename... t_args >
-auto dispatch_reflected( dispatcher< t_listener >& dispatcher_instance, t_args&&... arguments )
+template< info t_method, typename t_dispatcher, typename... t_args >
+auto dispatch_reflected( t_dispatcher& dispatcher_instance, t_args&&... arguments )
 {
-	return	dispatcher_instance( &[: t_method :], arguments... );
+	return	dispatcher_instance.template operator ( )< t_method >( arguments... );
 }
 
 

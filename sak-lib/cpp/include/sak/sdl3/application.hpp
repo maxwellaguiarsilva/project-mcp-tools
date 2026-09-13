@@ -26,8 +26,9 @@ namespace sak {
 namespace sdl3 {
 
 
-__using( ::sak::pattern::, bitmask, dispatcher )
 __using( ::sak::math::, between )
+__using( ::sak::meta::, dispatch_reflected )
+__using( ::sak::pattern::, bitmask, dispatcher, listener_registry )
 __using( ::std::, function, initializer_list, same_as, shared_ptr )
 
 
@@ -76,7 +77,7 @@ public:
 		virtual void quit( ) { }
 	};
 
-	auto operator +=( const shared_ptr< listener >& subject ) -> void { m_dispatcher += subject; }
+	auto listeners( ) noexcept -> listener_registry< listener >& { return m_dispatcher; }
 
 	auto poll( ) -> bool
 	{
@@ -85,7 +86,7 @@ public:
 		{
 			if( event.type == SDL_EVENT_QUIT )
 			{
-				( void )m_dispatcher( &listener::quit );
+				( void )dispatch_reflected< ^^listener::quit >( m_dispatcher );
 				m_is_running = false;
 				continue;
 			}
