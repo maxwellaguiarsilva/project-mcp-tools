@@ -17,6 +17,7 @@
 #include <bitset>
 #include <exception>
 #include <expected>
+#include <functional>
 #include <mutex>
 
 
@@ -33,6 +34,7 @@ __using( ::std::
 	,erase_if
 	,exception_ptr
 	,expected
+	,function
 	,invoke
 	,is_base_of_v
 	,lock_guard
@@ -112,7 +114,15 @@ public:
 	auto operator ( ) ( t_args&&... arguments ) -> result
 	{
 		constexpr auto index = *index_of( virtual_methods< t_listener >( ), t_method );
+		return	run( index, [ & ]( t_listener* listener )
+			{ invoke( &[: t_method :], listener, arguments... ); } );
+	}
 
+private:
+	using	bucket	=	vector< weak_ptr< t_listener > >;
+
+	auto run( const size_t index, const function< void( t_listener* ) >& invoke_method ) -> result
+	{
 		unsigned	clear_count;
 		bucket		listeners_list;
 		{
@@ -126,7 +136,7 @@ public:
 		for( const auto& current_listener : listeners_list )
 			if( auto locked = current_listener.lock( ) )
 				try {
-					invoke( &[: t_method :], locked.get( ), arguments... );
+					invoke_method( locked.get( ) );
 				} catch( ... ) { failed_list.emplace_back( current_listener, current_exception( ) ); }
 			else
 				should_clear = true;
@@ -138,9 +148,6 @@ public:
 			return	{ };
 		return	unexpected( failed_list );
 	}
-
-private:
-	using	bucket	=	vector< weak_ptr< t_listener > >;
 
 	auto add( const shared_ptr< t_listener >& instance, const subscription< t_listener >& subscribed ) -> void override
 	{
