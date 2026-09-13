@@ -9,10 +9,11 @@
 #define header_guard_773859171
 
 
+#include <bitset>
 #include <meta>
 #include <string_view>
 #include <vector>
-#include <sak/using.hpp>
+#include <sak/ranges/index_of.hpp>
 
 
 namespace sak {
@@ -21,6 +22,7 @@ namespace meta {
 
 //	--------------------------------------------------
 __using( ::std::
+	,bitset
 	,define_static_array
 	,define_static_string
 	,string_view
@@ -37,6 +39,7 @@ __using( ::std::meta::
 	,is_virtual
 	,members_of
 )
+__using( ::sak::ranges::, index_of )
 //	--------------------------------------------------
 
 
@@ -89,6 +92,28 @@ consteval auto overridden_names( )
 		result.push_back( define_static_string( identifier_of( method ) ) );
 	return	define_static_array( result );
 }
+
+
+//	reflective model pairing an interface with an implementation
+//	answers which methods exist, each one's position
+//	and the mask of methods the implementation overrides
+template< typename t_interface, typename t_implementation = t_interface >
+struct override_model
+{
+	using	override_mask	=	bitset< virtual_methods< t_interface >( ).size( ) >;
+
+	static consteval auto methods( ) { return virtual_methods< t_interface >( ); }
+	static consteval auto position( const info t_method ) { return *index_of( methods( ), t_method ); }
+	static consteval auto overridden( ) { return overridden_methods< t_interface, t_implementation >( ); }
+
+	static consteval auto mask( )
+	{
+		override_mask	result;
+		for( const auto& method : overridden( ) )
+			result.set( position( method ) );
+		return	result;
+	}
+};
 
 
 template< info t_method >

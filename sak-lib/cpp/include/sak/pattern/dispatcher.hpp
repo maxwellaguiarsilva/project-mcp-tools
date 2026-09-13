@@ -12,13 +12,10 @@
 #include <sak/sak.hpp>
 #include <sak/meta/override.hpp>
 #include <sak/ranges/count_to.hpp>
-#include <sak/ranges/index_of.hpp>
 #include <array>
 #include <atomic>
-#include <bitset>
 #include <exception>
 #include <expected>
-#include <functional>
 #include <mutex>
 
 
@@ -30,7 +27,6 @@ namespace pattern {
 __using( ::std::
 	,array
 	,atomic
-	,bitset
 	,current_exception
 	,erase_if
 	,exception_ptr
@@ -49,30 +45,14 @@ __using( ::std::
 	,weak_ptr
 )
 __using( ::std::meta::, info )
-__using( ::sak::meta::, overridden_methods, virtual_methods )
-__using( ::sak::ranges::, count_to, index_of )
+__using( ::sak::meta::, override_model )
+__using( ::sak::ranges::, count_to )
 //	-----------------------------
-
-
-//	number of dispatchable virtual methods declared by the listener interface
-template< typename t_listener >
-consteval auto listener_method_count( ) { return virtual_methods< t_listener >( ).size( ); }
 
 
 //	subscription mask over the listener interface slots
 template< typename t_listener >
-using	subscription	=	bitset< listener_method_count< t_listener >( ) >;
-
-
-//	subscription computed from the methods the derived listener actually overrides
-template< typename t_listener, typename t_derived >
-consteval auto subscription_of( )
-{
-	subscription< t_listener >	result;
-	for( const auto& method : overridden_methods< t_listener, t_derived >( ) )
-		result.set( *index_of( virtual_methods< t_listener >( ), method ) );
-	return	result;
-}
+using	subscription	=	typename override_model< t_listener >::override_mask;
 
 
 //	client contract: registration only, exposed to whoever wants to listen
@@ -84,7 +64,7 @@ public:
 
 	template< typename t_derived >
 		requires is_base_of_v< t_listener, t_derived >
-	auto operator +=( const shared_ptr< t_derived >& instance ) -> void { if( instance ) add( instance, subscription_of< t_listener, t_derived >( ) ); }
+	auto operator +=( const shared_ptr< t_derived >& instance ) -> void { if( instance ) add( instance, override_model< t_listener, t_derived >::mask( ) ); }
 
 private:
 	virtual auto add( const shared_ptr< t_listener >& instance, const subscription< t_listener >& subscribed ) -> void = 0;
@@ -110,7 +90,7 @@ public:
 	template< info t_method, typename... t_args >
 	auto operator ( ) ( t_args&&... arguments ) -> result
 	{
-		constexpr auto index = *index_of( virtual_methods< t_listener >( ), t_method );
+		constexpr auto index = override_model< t_listener >::position( t_method );
 		return	run( index, [ & ]( t_listener* listener )
 			{ invoke( &[: t_method :], listener, arguments... ); } );
 	}
@@ -164,7 +144,7 @@ private:
 		m_clear_count.fetch_add( 1, memory_order_release );
 	}
 
-	array< bucket, listener_method_count< t_listener >( ) >	m_buckets;
+	array< bucket, override_model< t_listener >::methods( ).size( ) >	m_buckets;
 	mutex				m_mutex;
 	atomic< unsigned >	m_clear_count	=	0;
 };
