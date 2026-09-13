@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+find -L source include -type f \
+    \( -name '*.cpp' -o -name '*.hpp' -o -name '*.h' -o -name '*.c' -o -name '*.cc' \) \
+    -not -name 'gl.h' -not -name 'snake_case.hpp' -not -path '*/expand64/*' \
+    -print0 | sort -z | while IFS= read -r -d '' file; do
+        grep -qF -- 'attach-only-on-demand' "$file" && continue
+        printf '%s\0' "$file"
+    done

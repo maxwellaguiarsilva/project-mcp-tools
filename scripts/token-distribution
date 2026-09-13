@@ -1,0 +1,51 @@
+#!/usr/bin/env -S uv run --quiet --script
+# /// script
+# requires-python = ">=3.14"
+# dependencies = ["tiktoken"]
+# ///
+
+import os
+import subprocess
+import sys
+
+import tiktoken
+
+
+def list_code_files() -> list[str]:
+    scripts_dir = os.path.dirname(os.path.abspath(__file__))
+    tool = os.path.join(scripts_dir, "list-code-files")
+    output = subprocess.run([tool], stdout = subprocess.PIPE, check = True).stdout
+    return [path.decode("utf-8") for path in output.split(b"\0") if path]
+
+
+def main() -> None:
+    encoding_name = sys.argv[1] if len(sys.argv) > 1 else "o200k_base"
+    encoding = tiktoken.get_encoding(encoding_name)
+
+    rows: list[tuple[int, str]] = []
+    for path in list_code_files():
+        with open(path, "rb") as file_handle:
+            text = file_handle.read().decode("utf-8", errors = "replace")
+        rows.append((len(encoding.encode(text, disallowed_special = ())), path))
+
+    total = sum(count for count, _ in rows)
+    rows.sort(reverse = True)
+    largest = rows[0][0] if rows else 0
+
+    bar_width = 40
+    print(f"encoding: {encoding_name}")
+    print(f"files: {len(rows)}   total tokens: {total}")
+    print()
+    print(f"{'tokens':>10}  {'%':>6}  {'cum%':>6}  bar")
+    print("-" * (bar_width + 30))
+
+    cumulative = 0.0
+    for count, path in rows:
+        percent = 100.0 * count / total if total else 0.0
+        cumulative += percent
+        bar = "#" * max(1, round(bar_width * count / largest)) if largest else ""
+        print(f"{count:>10}  {percent:>6.2f}  {cumulative:>6.2f}  {bar} {path}")
+
+
+if __name__ == "__main__":
+    main()
