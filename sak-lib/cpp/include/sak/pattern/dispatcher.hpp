@@ -84,11 +84,7 @@ public:
 
 	template< typename t_derived >
 		requires is_base_of_v< t_listener, t_derived >
-	auto operator +=( const shared_ptr< t_derived >& instance ) -> void
-	{
-		if( instance )
-			add( instance, subscription_of< t_listener, t_derived >( ) );
-	}
+	auto operator +=( const shared_ptr< t_derived >& instance ) -> void { if( instance ) add( instance, subscription_of< t_listener, t_derived >( ) ); }
 
 private:
 	virtual auto add( const shared_ptr< t_listener >& instance, const subscription< t_listener >& subscribed ) -> void = 0;
