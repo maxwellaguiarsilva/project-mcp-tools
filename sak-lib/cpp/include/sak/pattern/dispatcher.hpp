@@ -11,6 +11,7 @@
 
 #include <sak/sak.hpp>
 #include <sak/meta/override.hpp>
+#include <sak/ranges/count_to.hpp>
 #include <sak/ranges/index_of.hpp>
 #include <array>
 #include <atomic>
@@ -49,7 +50,7 @@ __using( ::std::
 )
 __using( ::std::meta::, info )
 __using( ::sak::meta::, overridden_methods, virtual_methods )
-__using( ::sak::ranges::, index_of )
+__using( ::sak::ranges::, count_to, index_of )
 //	-----------------------------
 
 
@@ -152,7 +153,7 @@ private:
 	auto add( const shared_ptr< t_listener >& instance, const subscription< t_listener >& subscribed ) -> void override
 	{
 		auto lock = lock_guard( m_mutex );
-		for( auto index = 0uz; index < subscribed.size( ); ++index )
+		for( auto index : count_to( subscribed.size( ) ) )
 			if( subscribed.test( index ) )
 				m_buckets[ index ].emplace_back( instance );
 	}
