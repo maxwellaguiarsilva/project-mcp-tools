@@ -15,27 +15,18 @@
 #include <sak/ranges/transform.hpp>
 
 
-//	what i expect to be in this file
+//	correct:
 //	-	niebloids struct with operator( ) as constexpr
 //	-	inline constexpr variables that define aliases for consuming these objects
-//	what should not be in this file
-//	-	constexpr of functions
-//	-	lambdas
-//	-	repeated code instead macros
+//	incorrect: constexpr of functions, lambdas or repeated code instead macros
 
 
 namespace sak {
 namespace math {
 
 
-__using( ::sak::ranges::
-	,lazy_transform
-)
-
-__using( ::std::
-	,bind_back
-)
-
+__using( ::sak::ranges::, lazy_transform )
+__using( ::std::, bind_back )
 __using( ::std::ranges::
 	,range_adaptor_closure
 	,input_range
@@ -47,8 +38,7 @@ __using( ::std::ranges::
 //	--------------------------------------------------
 //	macros generating niebloids: scalar overload plus range overload (element-wise transform)
 //	each niebloid is exposed as sak_<name> plus a descriptive alias
-#define __935812590_inline_constexpr_std( a_name ) \
-	inline constexpr auto a_name = ::std::a_name{ };
+#define __935812590_inline_constexpr_std( a_name ) inline constexpr auto a_name = ::std::a_name{ };
 
 
 //	unary niebloid closures: scalar overload plus range overload (element-wise transform)
@@ -69,8 +59,7 @@ inline constexpr auto sak_##a_name = __sak_##a_name{ }; \
 inline constexpr auto a_alias = __sak_##a_name{ };
 
 
-#define __935812590_unary_std( a_name, a_alias ) \
-	__935812590_unary_custom( a_name, a_alias, ::std::a_name( a_value ), is_arithmetic )
+#define __935812590_unary_std( a_name, a_alias ) __935812590_unary_custom( a_name, a_alias, ::std::a_name( a_value ), is_arithmetic )
 
 
 //	n-ary niebloid closures: chunk pattern (adaptor object plus nested closure)
@@ -78,8 +67,7 @@ inline constexpr auto a_alias = __sak_##a_name{ };
 //	the a_scalar_overload chunk carries the scalar call: expression first, parameters after
 //	each parameter is a constrained placeholder ( is_value keeps ranges on the range overload )
 //	a_arity is the scalar parameter count; the range overload binds a_arity - 1 trailing values
-#define __935812590_scalar_overload( a_expression, ... ) \
-	constexpr auto operator ( ) ( __VA_ARGS__ ) const noexcept { return a_expression; }
+#define __935812590_scalar_overload( a_expression, ... ) constexpr auto operator ( ) ( __VA_ARGS__ ) const noexcept { return a_expression; }
 
 
 #define __935812590_nary_custom( a_name, a_alias, a_arity, a_scalar_overload ) \

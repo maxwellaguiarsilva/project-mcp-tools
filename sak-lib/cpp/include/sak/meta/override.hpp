@@ -117,17 +117,10 @@ struct override_model
 
 
 template< info t_method >
-consteval auto method_pointer( )
-{
-	return	&[: t_method :];
-}
-
+consteval auto method_pointer( ) { return &[: t_method :]; }
 
 template< typename t_base, typename t_derived, info t_method >
-consteval auto is_overridden( )
-{
-	return	is_overridden< t_base, t_derived >( identifier_of( t_method ) );
-}
+consteval auto is_overridden( ) { return is_overridden< t_base, t_derived >( identifier_of( t_method ) ); }
 
 
 template< info t_method, typename t_dispatcher, typename... t_args >
