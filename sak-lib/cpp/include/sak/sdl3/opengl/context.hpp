@@ -11,7 +11,7 @@
 
 #include <sak/sak.hpp>
 #include <sak/ensure.hpp>
-#include <sak/opengl/glad/loader.hpp>
+#include <sak/sdl3/opengl/loader.hpp>
 #include <sak/sdl3/opengl/attributes.hpp>
 #include <sak/sdl3/window.hpp>
 #include <SDL3/SDL.h>
@@ -23,7 +23,6 @@ namespace opengl {
 
 
 __using( ::sak::, ensure )
-__using( ::sak::opengl::, loader_for, detected_loader )
 __using( ::std::, shared_ptr, make_shared )
 
 

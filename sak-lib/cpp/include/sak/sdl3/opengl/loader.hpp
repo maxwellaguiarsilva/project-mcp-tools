@@ -5,8 +5,8 @@
 
 
 #pragma once
-#ifndef header_guard_406251836
-#define header_guard_406251836
+#ifndef header_guard_452039566
+#define header_guard_452039566
 
 
 #include <sak/sak.hpp>
@@ -14,6 +14,7 @@
 
 
 namespace sak {
+namespace sdl3 {
 namespace opengl {
 
 
@@ -34,7 +35,26 @@ struct detected_loader
 };
 
 
-} } 
+#if defined( GLAD_GL_H_ )
+
+
+template<>
+struct detected_loader< void >
+{
+	static constexpr bool available = true;
+
+	template< typename t_function_pointer >
+	auto operator ( ) ( t_function_pointer function_pointer ) const -> bool
+	{
+		return	gladLoadGL( function_pointer ) not_eq 0;
+	}
+};
+
+
+#endif
+
+
+} } } 
 
 
 #endif
