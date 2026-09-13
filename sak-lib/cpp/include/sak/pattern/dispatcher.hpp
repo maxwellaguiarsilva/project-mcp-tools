@@ -11,6 +11,7 @@
 
 #include <sak/sak.hpp>
 #include <sak/meta/override.hpp>
+#include <sak/ranges/index_of.hpp>
 #include <array>
 #include <atomic>
 #include <bitset>
@@ -46,31 +47,13 @@ __using( ::std::
 )
 __using( ::std::meta::, info )
 __using( ::sak::meta::, overridden_methods, virtual_methods )
+__using( ::sak::ranges::, index_of )
 //	-----------------------------
 
 
 //	number of dispatchable virtual methods declared by the listener interface
 template< typename t_listener >
-consteval auto listener_method_count( )
-{
-	return	virtual_methods< t_listener >( ).size( );
-}
-
-
-//	position of a method inside the listener interface, used as the bucket index
-template< typename t_listener >
-consteval auto method_index( const info method )
-{
-	const auto	methods	=	virtual_methods< t_listener >( );
-	auto		index	=	0uz;
-	for( const auto& current_method : methods )
-	{
-		if( current_method == method )
-			return	index;
-		++index;
-	}
-	return	index;
-}
+consteval auto listener_method_count( ) { return virtual_methods< t_listener >( ).size( ); }
 
 
 //	subscription mask over the listener interface slots
@@ -84,7 +67,7 @@ consteval auto subscription_of( )
 {
 	subscription< t_listener >	result;
 	for( const auto& method : overridden_methods< t_listener, t_derived >( ) )
-		result.set( method_index< t_listener >( method ) );
+		result.set( *index_of( virtual_methods< t_listener >( ), method ) );
 	return	result;
 }
 
@@ -129,7 +112,7 @@ public:
 	template< info t_method, typename... t_args >
 	auto operator ( ) ( t_args&&... arguments ) -> result
 	{
-		constexpr auto index = method_index< t_listener >( t_method );
+		constexpr auto index = *index_of( virtual_methods< t_listener >( ), t_method );
 
 		unsigned	clear_count;
 		bucket		listeners_list;
