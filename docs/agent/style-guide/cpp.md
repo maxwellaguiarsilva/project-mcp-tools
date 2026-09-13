@@ -427,7 +427,11 @@ instruction manual ("how").
 ```cpp
 //	correct: named composition
 for( const auto& pixel : line.start | line_to( line.end ) )
-	plot_unsafe( pixel[ width_index ], pixel[ height_index ] );
+	println( "{}", pixel );
+
+//	correct: count_to names the [ 0, bound ) index range instead of manual bounds
+for( auto index : count_to( list.size( ) ) )
+	println( "{}: {}", index, list[ index ] );
 ```
 
 ## Casts `[llm]`
