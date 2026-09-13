@@ -166,7 +166,7 @@ public:
 		switch( event.type )
 		{
 			case SDL_EVENT_KEY_DOWN:	( void )m_dispatcher( &listener::key_down, event );	break;
-			case SDL_EVENT_KEY_UP:		( void )m_dispatcher( &listener::key_up, event );		break;
+			case SDL_EVENT_KEY_UP:		( void )m_dispatcher( &listener::key_up, event );	break;
 
 			default:
 				break;
