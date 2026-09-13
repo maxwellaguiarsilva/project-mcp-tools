@@ -135,13 +135,13 @@ public:
 		switch( event.type )
 		{
 			case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
-				( void )m_dispatcher.dispatch< ^^listener::pixel_resize >( geometry::size{ event.data1, event.data2 } );
+				m_dispatcher.dispatch< ^^listener::pixel_resize >( geometry::size{ event.data1, event.data2 } );
 				break;
 			case SDL_EVENT_WINDOW_RESIZED:
-				( void )m_dispatcher.dispatch< ^^listener::resize >( geometry::size{ event.data1, event.data2 } );
+				m_dispatcher.dispatch< ^^listener::resize >( geometry::size{ event.data1, event.data2 } );
 				break;
 			case SDL_EVENT_WINDOW_MOVED:
-				( void )m_dispatcher.dispatch< ^^listener::move >( geometry::position{ event.data1, event.data2 } );
+				m_dispatcher.dispatch< ^^listener::move >( geometry::position{ event.data1, event.data2 } );
 				break;
 
 			case SDL_EVENT_WINDOW_SHOWN:			m_dispatcher.dispatch< ^^listener::show >( );			break;
@@ -162,8 +162,8 @@ public:
 	{
 		switch( event.type )
 		{
-			case SDL_EVENT_KEY_DOWN:	( void )m_dispatcher.dispatch< ^^listener::key_down >( event );	break;
-			case SDL_EVENT_KEY_UP:		( void )m_dispatcher.dispatch< ^^listener::key_up >( event );		break;
+			case SDL_EVENT_KEY_DOWN:	m_dispatcher.dispatch< ^^listener::key_down >( event );	break;
+			case SDL_EVENT_KEY_UP:		m_dispatcher.dispatch< ^^listener::key_up >( event );		break;
 
 			default:
 				break;

@@ -85,7 +85,7 @@ public:
 		{
 			if( event.type == SDL_EVENT_QUIT )
 			{
-				( void )m_dispatcher.dispatch< ^^listener::quit >( );
+				m_dispatcher.dispatch< ^^listener::quit >( );
 				m_is_running = false;
 				continue;
 			}
