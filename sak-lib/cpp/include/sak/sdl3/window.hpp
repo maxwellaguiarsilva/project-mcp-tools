@@ -108,6 +108,8 @@ public:
 	class listener
 	{
 	public:
+		using	registry	=	listener_registry< listener >;
+
 		virtual ~listener( ) = default;
 
 		virtual void resize( const geometry::size& ) { }
@@ -128,7 +130,7 @@ public:
 		virtual void key_up( const SDL_KeyboardEvent& ) { }
 	};
 
-	auto listeners( ) noexcept -> listener_registry< listener >& { return m_dispatcher; }
+	auto listeners( ) noexcept -> listener::registry& { return m_dispatcher; }
 
 	auto dispatch( const SDL_WindowEvent& event ) -> void
 	{

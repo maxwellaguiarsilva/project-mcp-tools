@@ -72,12 +72,14 @@ public:
 	class listener
 	{
 	public:
+		using	registry	=	listener_registry< listener >;
+
 		virtual ~listener( ) = default;
 
 		virtual void quit( ) { }
 	};
 
-	auto listeners( ) noexcept -> listener_registry< listener >& { return m_dispatcher; }
+	auto listeners( ) noexcept -> listener::registry& { return m_dispatcher; }
 
 	auto poll( ) -> bool
 	{
