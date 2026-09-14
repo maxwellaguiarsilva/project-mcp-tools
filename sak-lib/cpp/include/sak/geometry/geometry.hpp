@@ -10,7 +10,6 @@
 
 
 #include <sak/geometry/line_view.hpp>
-#include <ranges>
 
 
 namespace sak {
