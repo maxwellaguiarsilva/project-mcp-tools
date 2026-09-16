@@ -39,6 +39,7 @@ struct geometry
 
 	static constexpr auto width		=	__axis< size,		0 >{ };
 	static constexpr auto height	=	__axis< size,		1 >{ };
+	static constexpr auto depth		=	__axis< size,		2 >{ };
 	static constexpr auto left		=	__axis< position,	0 >{ };
 	static constexpr auto top		=	__axis< position,	1 >{ };
 
