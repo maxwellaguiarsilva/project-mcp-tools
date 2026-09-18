@@ -26,10 +26,11 @@ template< is_point t_point = point< int, 2 > >
 struct geometry 
 {
 	
-	using	point	=	t_point;
-	using	size	=	t_point;
+	using	point		=	t_point;
+	using	size		=	t_point;
 	using	position	=	t_point;
-	using	scalar	=	typename t_point::value_type;
+	using	color		=	::sak::point< float, 3 >;
+	using	scalar		=	typename t_point::value_type;
 
 	template< typename t_value, int index >
 	struct __axis : range_adaptor_closure< __axis< t_value, index > >
@@ -37,22 +38,25 @@ struct geometry
 		constexpr auto operator ( ) ( const t_value& value ) const noexcept -> scalar { return value[ index ]; }
 	};
 
-	static constexpr auto width		=	__axis< size,		0 >{ };
-	static constexpr auto height	=	__axis< size,		1 >{ };
-	static constexpr auto depth		=	__axis< size,		2 >{ };
-	static constexpr auto left		=	__axis< position,	0 >{ };
-	static constexpr auto top		=	__axis< position,	1 >{ };
+	static constexpr auto red		=	__axis<	color		,0	>{ };
+	static constexpr auto green		=	__axis<	color		,1	>{ };
+	static constexpr auto blue		=	__axis<	color		,2	>{ };
+	static constexpr auto width		=	__axis<	size		,0	>{ };
+	static constexpr auto height	=	__axis<	size		,1	>{ };
+	static constexpr auto depth		=	__axis<	size		,2	>{ };
+	static constexpr auto left		=	__axis<	position	,0	>{ };
+	static constexpr auto top		=	__axis<	position	,1	>{ };
 
 	struct line
 	{
-		point start, end;
-		constexpr auto size( ) const noexcept -> point { return end - start; }
+		position start, end;
+		constexpr auto size( ) const noexcept -> size { return end - start; }
 	};
 
 	struct rectangle
 	{
-		point start, end;
-		constexpr auto size( ) const noexcept -> point { return end - start; }
+		position start, end;
+		constexpr auto size( ) const noexcept -> size { return end - start; }
 		constexpr auto contains( const point& point ) const noexcept -> bool
 		{
 			return	start.is_inside( point ) and point.is_inside( end );
