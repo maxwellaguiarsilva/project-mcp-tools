@@ -1,18 +1,13 @@
 # Common Style Rules
 
-This document contains coding style rules that apply to all languages in this
-project. Language-specific guides import this file and extend it with their own
-tooling and syntax conventions.
+This document contains coding style rules that apply to all languages in this project. Language-specific guides import this file and extend it with their own tooling and syntax conventions.
 
 ---
 
 ## Naming `[llm]`
-
 <!-- llm-rule: id=naming, complexity=low -->
 
-Use `snake_case` for all identifiers: variables, functions, methods, classes,
-constants, and filenames. No PascalCase, no camelCase, no UPPER_CASE.
-
+Use `snake_case` for all identifiers: variables, functions, methods, classes, constants, and filenames. No PascalCase, no camelCase, no UPPER_CASE.
 Exceptions:
 - External libraries and APIs that require different conventions.
 - Scenarios where the language or tooling requires a different case.
@@ -32,11 +27,9 @@ getFilePath( )
 ---
 
 ## Comments `[llm]`
-
 <!-- llm-rule: id=comments, complexity=low -->
 
-All comments follow the same visual pattern: lowercase, no trailing period,
-one idea per line.
+All comments follow the same visual pattern: lowercase, no trailing period, one idea per line.
 
 ```text
 #   correct: lowercase, no period
@@ -48,17 +41,15 @@ one idea per line.
 ## Comma Rule (Rule of 3) `[llm]`
 <!-- llm-rule: id=commas, complexity=medium -->
 
-The rule of 3 is a starting point for common sense, not a hard limit. The real goal is to avoid exceptionally long lines — more than **100 characters** — that force soft wrapping to see the whole code.
+The rule of three is a starting point for common sense, not a hard limit. The real goal is to avoid exceptionally long lines that could make editing a list in the code/text difficult.
 
 ### Inline
 
-On the same line, the space comes after the comma.
-When a list, enum, argument list, or aggregate initializer has **3 or fewer** items, keep it on one line. **4 or more** items may also stay inline when the line remains short (under 100 characters) and readable.
+On the same line, the space comes after the comma. When a list, enum, argument list, or aggregate initializer has **3 or fewer** items, keep it on one line. **4 or more** items may also stay inline when the line remains short (under 100 characters) and readable.
 
 ### Multiline (leading commas)
 
-Any list that is split across multiple lines must use the **leading comma**
-style — the comma starts the line.
+Any list that is split across multiple lines must use the **leading comma** style — the comma starts the line.
 
 Split across lines in two cases:
 1. When there are **4 or more** items and inlining would exceed **100 characters** or hurt readability.
@@ -76,14 +67,12 @@ data = {
 ## Single-use Variables `[llm]`
 <!-- llm-rule: id=single_use_vars, complexity=medium -->
 
-A single-use variable is justified when it **captures a value at a specific
-point in time** — preserving the semantic meaning of what passed through that
-line. It is **not** justified when it merely renames something at the call
-site.
+A single-use variable is justified when it **captures a value at a specific point in time** — preserving the semantic meaning of what passed through that line. It is **not** justified when it merely renames something at the call site.
 
 ```text
 #   justified: freezes the value at this moment in the pipeline
 filtered = data | filter( is_valid ) | to_list( )
+data.append( new_item )
 clean = normalize( filtered )
 
 #   unjustified: just a new name for the same thing, used once
