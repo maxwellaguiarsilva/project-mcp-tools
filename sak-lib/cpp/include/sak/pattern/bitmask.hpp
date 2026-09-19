@@ -9,16 +9,9 @@
 #define header_guard_119678595
 
 
-#include <sak/sak.hpp>
 #include <sak/math/math.hpp>
 #include <sak/pattern/cast.hpp>
-#include <sak/ranges/transform.hpp>
-#include <algorithm>
-#include <concepts>
-#include <functional>
 #include <initializer_list>
-#include <ranges>
-#include <type_traits>
 
 
 namespace sak {

@@ -9,17 +9,7 @@
 #define header_guard_498437518
 
 
-#include <sak/sak.hpp>
-#include <concepts>
-#include <functional>
-#include <initializer_list>
-#include <type_traits>
-#include <sak/ensure.hpp>
-#include <sak/math/math.hpp>
-#include <sak/pattern/bitmask.hpp>
-#include <sak/pattern/dispatcher.hpp>
 #include <sak/sdl3/window.hpp>
-#include <SDL3/SDL.h>
 
 
 namespace sak {

@@ -10,7 +10,6 @@
 
 
 #include <sak/opengl/opengl.hpp>
-#include <string>
 
 
 namespace sak {

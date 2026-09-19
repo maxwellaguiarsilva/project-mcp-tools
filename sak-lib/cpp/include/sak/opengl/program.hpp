@@ -9,11 +9,6 @@
 #define header_guard_327579479
 
 
-#include <concepts>
-#include <ranges>
-#include <stdexcept>
-#include <string>
-#include <sak/opengl/fetch_log.hpp>
 #include <sak/opengl/shader.hpp>
 
 

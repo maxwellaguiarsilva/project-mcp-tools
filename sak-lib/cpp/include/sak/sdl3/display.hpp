@@ -9,7 +9,6 @@
 #define header_guard_805823872
 
 
-#include <sak/sak.hpp>
 #include <sak/geometry/geometry.hpp>
 #include <SDL3/SDL.h>
 

@@ -10,7 +10,6 @@
 
 
 #include <sak/sak.hpp>
-#include <concepts>
 
 
 namespace sak {

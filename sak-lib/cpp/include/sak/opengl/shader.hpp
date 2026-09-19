@@ -9,8 +9,6 @@
 #define header_guard_015356114
 
 
-#include <stdexcept>
-#include <string>
 #include <sak/opengl/fetch_log.hpp>
 
 

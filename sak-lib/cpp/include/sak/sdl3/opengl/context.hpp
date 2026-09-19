@@ -9,12 +9,9 @@
 #define header_guard_495581557
 
 
-#include <sak/sak.hpp>
-#include <sak/ensure.hpp>
 #include <sak/sdl3/opengl/loader.hpp>
 #include <sak/sdl3/opengl/attributes.hpp>
 #include <sak/sdl3/window.hpp>
-#include <SDL3/SDL.h>
 
 
 namespace sak {

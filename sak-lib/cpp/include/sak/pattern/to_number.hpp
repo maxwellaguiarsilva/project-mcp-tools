@@ -9,12 +9,8 @@
 #define header_guard_1785682413
 
 
-#include <sak/concepts.hpp>
-#include <sak/sak.hpp>
 #include <sak/math/math.hpp>
 #include <charconv>
-#include <concepts>
-#include <string>
 #include <system_error>
 
 
