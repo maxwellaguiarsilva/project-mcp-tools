@@ -15,10 +15,9 @@ Rules are enforced at different levels depending on whether they can be mechanic
 | Level | Tool | Scope |
 |---|---|---|
 | **Regex** | `cpp_code_verifier` | Spacing, blank lines, return format, include block layout, and other purely mechanical patterns. See each section's badge below. |
-| **Static analysis** | `cpp_analyze` (cppcheck) | Compiler warnings-as-errors, unused variables, uninitialized members, performance traps. |
 | **LLM** | Code generation / review | Naming, const-correctness, architectural choices, redundant casts, pipeline style — rules that require understanding intent. |
 
-Individual sections below may be tagged with `[cpp_code_verifier]` (regex), `[cpp_analyze]` (cppcheck), or `[llm]` (requires judgment) to indicate who owns the check.
+Individual sections below may be tagged with `[cpp_code_verifier]` (regex) or `[llm]` (requires judgment) to indicate who owns the check.
 
 ## Case — Lowercase Everywhere `[llm]`
 <!-- llm-rule: id=lowercase, complexity=low -->

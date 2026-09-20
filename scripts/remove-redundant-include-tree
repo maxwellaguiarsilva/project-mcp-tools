@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-while tmp=$(cpp-analyze-include-tree | sed '/redundant/q') && printf '%s' "$tmp" | grep -q 'redundant'; do
+while tmp=$(cpp-include-tree | sed '/redundant/q') && printf '%s' "$tmp" | grep -q 'redundant'; do
     space_count=$(printf '%s' "$tmp" | tail -n1 | grep -oP '^ *' | wc -c)
     space_count=$((space_count - 1))
     target=$((space_count - 4))
