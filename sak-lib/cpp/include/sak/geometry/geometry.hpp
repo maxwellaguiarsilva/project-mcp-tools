@@ -15,12 +15,8 @@
 namespace sak {
 
 
-__using( ::sak::
-	,is_point
-)
-__using( ::std::ranges::
-	,range_adaptor_closure
-)
+__using( ::sak::, is_point )
+__using( ::std::ranges::, range_adaptor_closure )
 
 template< is_point t_point = point< int, 2 > >
 struct geometry 
@@ -38,14 +34,15 @@ struct geometry
 		constexpr auto operator ( ) ( const t_value& value ) const noexcept -> scalar { return value[ index ]; }
 	};
 
-	static constexpr auto red		=	__axis<	color		,0	>{ };
-	static constexpr auto green		=	__axis<	color		,1	>{ };
-	static constexpr auto blue		=	__axis<	color		,2	>{ };
+	static constexpr auto left		=	__axis<	position	,0	>{ };
+	static constexpr auto top		=	__axis<	position	,1	>{ };
 	static constexpr auto width		=	__axis<	size		,0	>{ };
 	static constexpr auto height	=	__axis<	size		,1	>{ };
 	static constexpr auto depth		=	__axis<	size		,2	>{ };
-	static constexpr auto left		=	__axis<	position	,0	>{ };
-	static constexpr auto top		=	__axis<	position	,1	>{ };
+	static constexpr auto red		=	__axis<	color		,0	>{ };
+	static constexpr auto green		=	__axis<	color		,1	>{ };
+	static constexpr auto blue		=	__axis<	color		,2	>{ };
+	static constexpr auto alpha		=	__axis<	color		,3	>{ };
 
 	struct line
 	{
@@ -72,7 +69,6 @@ struct geometry
 
 using	g2i	=	geometry< point< int, 2 > >;
 using	g3i	=	geometry< point< int, 3 > >;
-
 using	g2f	=	geometry< point< float, 2 > >;
 using	g3f	=	geometry< point< float, 3 > >;
 

@@ -13,6 +13,7 @@
 #include <sak/math/vector.hpp>
 #include <sak/pattern/tupled.hpp>
 #include <sak/ranges/to.hpp>
+#include <utility>
 
 
 namespace sak {
@@ -20,22 +21,20 @@ namespace sak {
 
 //	--------------------------------------------------
 using	::sak::pattern::tupled;
-__using( ::sak::
-	,is_callable
-)
+__using( ::sak::, is_callable )
 //	--------------------------------------------------
 __using( ::std::
 	,array
 	,convertible_to
+	,from_range
 	,from_range_t
 	,size_t
-)
-__using( ::std::
 	,views::take
 )
 __using( ::std::ranges::
 	,copy
 	,input_range
+	,viewable_range
 )
 __using( ::sak::math::
 	,multiplies
@@ -102,6 +101,25 @@ public:
 		: super_type{ static_cast< t_scalar >( args )... }
 	{ }
 
+	template< input_range t_range, typename t_first, typename... t_remaining >
+		requires( sizeof...( t_remaining ) + 1 < num_dimensions
+			and convertible_to< t_first, t_scalar >
+			and ( convertible_to< t_remaining, t_scalar > and ... )
+		)
+	constexpr point( t_range&& range, t_first first, t_remaining... remaining )
+		: super_type{ }
+	{
+		using	::std::ranges::copy;
+		using	::std::views::take;
+		constexpr auto remaining_count = sizeof...( t_remaining ) + 1;
+		constexpr auto prefix_size = num_dimensions - remaining_count;
+		copy( ::std::forward< t_range >( range ) | take( prefix_size ), super_type::begin( ) );
+		size_t index = prefix_size;
+		( *this )[ index ] = static_cast< t_scalar >( first );
+		++index;
+		( ( ( *this )[ index ] = static_cast< t_scalar >( remaining ), ++index ), ... );
+	}
+
 	template< is_arithmetic t_other_scalar, size_t other_dimensions >
 		requires( other_dimensions not_eq num_dimensions )
 	constexpr explicit point( const point< t_other_scalar, other_dimensions >& other )
@@ -130,6 +148,23 @@ public:
 	constexpr auto length( ) const noexcept -> t_scalar { return ::sak::math::length( *this ); }
 	constexpr auto product( ) const noexcept -> t_scalar { return fold_left( *this, 1, multiplies ); }
 
+};
+
+
+}
+
+
+namespace sak::ranges {
+
+
+template< typename t_scalar, size_t num_dimensions >
+struct __to_impl< point< t_scalar, num_dimensions > >
+{
+	template< viewable_range t_range >
+	static constexpr auto apply( t_range&& range )
+	{
+		return	point< t_scalar, num_dimensions >( from_range, ::std::forward< t_range >( range ) );
+	}
 };
 
 
