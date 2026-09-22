@@ -17,6 +17,7 @@ import re
 from lib.template import template
 from sak.common import create_process, ensure, to_json
 from sak.fso import text_file
+from .cpp_project_config import cpp_project_config
 
 
 class gl_function:
@@ -173,8 +174,8 @@ def compress_child( child: gl_tree_node ) -> dict:
 
 
 class opengl_html_generator:
-    header_relative_path = os.path.join( "include", "glad", "snake_case.hpp" )
-    output_relative_path = "opengl.htm"
+    header_relative_path = os.path.join( "include", "sak", "opengl", "glad", "snake_case.hpp" )
+    output_relative_path = os.path.join( cpp_project_config[ "paths" ][ "output" ], "opengl.html" )
     template_name = "opengl-html"
 
     def run( self ) -> str:

@@ -18,7 +18,7 @@ def generate_opengl_html( ) -> str:
     """generates a single file html tree view of the opengl 4.6 core profile
 reads the snake_case glad alias header from the target project
 fetches the official khronos refpages into /tmp/generate-opengl-html
-writes opengl.htm to the target project root"""
+writes opengl.html to the output directory defined in cpp_project_config"""
     return  opengl_html_generator( ).run( )
 
 
