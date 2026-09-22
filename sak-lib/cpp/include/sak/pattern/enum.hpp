@@ -10,7 +10,6 @@
 
 
 #include <sak/sak.hpp>
-#include <type_traits>
 
 
 namespace sak {

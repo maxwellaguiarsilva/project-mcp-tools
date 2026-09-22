@@ -9,13 +9,8 @@
 #define header_guard_197609099
 
 
-#include <concepts>
-#include <functional>
-#include <iterator>
 #include <optional>
-#include <ranges>
 #include <utility>
-#include <sak/using.hpp>
 #include <sak/ranges/concepts.hpp>
 
 
