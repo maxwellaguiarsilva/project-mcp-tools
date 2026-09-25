@@ -307,6 +307,39 @@ for( auto index : count_to( list.size( ) ) )
 	println( "{}: {}", index, list[ index ] );
 ```
 
+## `contains` and `value_or` `[llm]`
+<!-- llm-rule: id=contains_value_or, complexity=medium -->
+
+Pure existence tests and fallback lookups state intent through `sak::ranges::contains` and `sak::pattern::value_or` instead of restating `find` plus `end` plus ternary logic; linear `find( list.begin( ), list.end( ), value ) not_eq list.end( )`, `ranges::find( list, value ) not_eq list.end( )`, and `any_of` equality comparisons collapse to `contains( list, value )` and `contains( list, { alpha, beta } )` for the any-of braced-list overload, while associative `table.find( key ) not_eq table.end( )` used only as a boolean collapses to `contains( table, key )` and `not contains( table, key )`, and `find( key )` plus `end` plus ternary yielding `mapped` plus `index < list.size( )` plus ternary collapse to `value_or( table, key, fallback )` and `value_or( list, index, fallback )`.
+
+```cpp
+//	correct: linear existence stated as intent
+if( contains( list, value ) )
+if( contains( list, { alpha, beta } ) )
+
+//	correct: associative existence stated as intent
+if( contains( table, key ) )
+if( not contains( table, key ) )
+
+//	correct: fallback lookup without ternary noise
+const auto& mapped = value_or( table, key, fallback );
+const auto& element = value_or( list, index, fallback );
+```
+
+```cpp
+//	incorrect: manual find for a pure existence test
+if( find( list.begin( ), list.end( ), value ) not_eq list.end( ) )
+if( ranges::find( list, value ) not_eq list.end( ) )
+if( table.find( key ) not_eq table.end( ) )
+
+//	incorrect: find plus end plus ternary restates value_or
+const auto iterator = table.find( key );
+const auto& mapped = iterator not_eq table.end( ) ? iterator->second : fallback;
+const auto& element = index < list.size( ) ? list[ index ] : fallback;
+```
+
+Keep `find` when the iterator is reused afterwards (`->second`, `erase`, `insert`), when the `find_if` predicate yields a pointer or sentinel logic is involved, and in `insert`, loop-`erase`, and `erase`-`remove` with `ranges::end` idioms, which stay manual; a member `table.contains( key )` call is already canonical and equivalent to `contains( table, key )` for that case; never use `value_or` for insertion, for a mutable reference into the container, or as a replacement for `at( )`, `optional`, and pointer-returning lookups.
+
 ## Casts `[llm]`
 <!-- llm-rule: id=casts, complexity=medium -->
 

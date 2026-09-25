@@ -53,6 +53,19 @@ struct __contains
 	{
 		return	any_of( ::std::forward< t_range >( range ), bind_front( std_contains, values ) );
 	}
+
+	//	true if the associative container holds the key ( prefers member contains, falls back to find )
+	template< typename t_container >
+	requires( input_range< t_container >
+		and requires( const t_container& container, const typename t_container::key_type& key ) { container.find( key ); }
+		and not ::std::equality_comparable_with< range_reference_t< t_container >, typename t_container::key_type > )
+	constexpr auto operator ( ) ( const t_container& container, const typename t_container::key_type& key ) const noexcept -> bool
+	{
+		if constexpr( requires { container.contains( key ); } )
+			return	container.contains( key );
+		else
+			return	container.find( key ) not_eq container.end( );
+	}
 };
 
 inline constexpr auto contains = __contains{ };
