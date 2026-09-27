@@ -16,7 +16,7 @@ Exceptions:
 #   correct
 my_variable
 user_manager
-get_file_path( )
+file_path( )
 
 #   incorrect
 myVariable

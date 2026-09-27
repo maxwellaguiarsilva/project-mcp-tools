@@ -28,6 +28,7 @@ __using( ::std::
 	,convertible_to
 	,from_range
 	,from_range_t
+	,same_as
 	,size_t
 	,views::take
 )
@@ -118,6 +119,14 @@ public:
 		( *this )[ index ] = static_cast< t_scalar >( first );
 		++index;
 		( ( ( *this )[ index ] = static_cast< t_scalar >( remaining ), ++index ), ... );
+	}
+
+	template< is_arithmetic t_other_scalar >
+		requires( convertible_to< t_other_scalar, t_scalar > and not same_as< t_other_scalar, t_scalar > )
+	constexpr explicit point( const point< t_other_scalar, num_dimensions >& other )
+		: super_type{ }
+	{
+		copy( other, super_type::begin( ) );
 	}
 
 	template< is_arithmetic t_other_scalar, size_t other_dimensions >

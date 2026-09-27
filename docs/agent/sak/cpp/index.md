@@ -48,6 +48,10 @@ include/sak/
   concepts.hpp                # is_callable / is_tuple concepts
   string.hpp                  # String case conversion
 
+  fso/
+    file.hpp                  # File-system object with derived components and metadata
+    text_file.hpp             # Text file with read/write content
+
   math/
     math.hpp                  # Arithmetic functors, math niebloids
     concepts.hpp              # is_value / is_arithmetic / is_integral / is_number / is_crossable concepts
@@ -89,6 +93,7 @@ include/sak/
 The documentation is distributed across one file per module directory under `include/sak/`:
 
 - [Core Infrastructure](core.md) — `using`, `default_ctc_dtc`, `ensure`, `concepts`, `sak.hpp`.
+- [`sak/fso/`](fso.md) — file-system objects: `file` and `text_file`.
 - [`sak/math/`](math.md) — arithmetic operations, math functions, math concepts, vector math.
 - [`sak/pattern/`](pattern.md) — design patterns: dispatcher, tupled, value_or, to_number, bitmask.
 - [`sak/ranges/`](ranges.md) — range utilities and views.

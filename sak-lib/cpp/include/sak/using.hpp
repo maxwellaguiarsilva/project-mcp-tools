@@ -15,6 +15,7 @@
 //	and a public macro starting the chain
 //	__using imports plain names, it expands to using prefix name
 //	it cannot name class members outside a class scope
+//	__using_alias imports type aliases, it expands to using name = prefix name
 //	__using_inline imports inline constexpr references,
 //	it expands to inline constexpr auto& name = prefix name
 //	it works at namespace and class scope, never inside a function body
@@ -28,7 +29,7 @@
 //	it also works at namespace scope and in plain function bodies
 //	__use_macro forwards a macro plus an argument list once per argument,
 //	it expands to macro args
-//	llm instruction: do not attach or read the five expand64 headers into the
+//	llm instruction: do not attach or read the six expand64 headers into the
 //	conversation, they expand into 64 levels and would only burn context tokens
 //	trust that they work, the expansion is generated and verified
 
@@ -38,6 +39,7 @@
 #include <sak/expand64/using_static.hpp>
 #include <sak/expand64/using_constexpr.hpp>
 #include <sak/expand64/using_macro.hpp>
+#include <sak/expand64/using_alias.hpp>
 
 
 #endif

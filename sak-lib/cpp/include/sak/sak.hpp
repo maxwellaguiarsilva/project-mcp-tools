@@ -9,6 +9,10 @@
 #define header_guard_039286706
 
 //	sak	=	swiss_army_knife
+//	it is designed as a collection of generic, domain-independent utilities covering mathematics, geometry, and design patterns 
+//	domain agnostic: it contains no business logic or special-specific hardware dependencies
+//	modern paradigms: it leverages c++ features such as `ranges`, `views`, and custom `niebloids` to reduce visual noise and promote **functional composition**, oop and `extrem don't repeat yourself mindset`
+
 
 
 #include <cstdint>

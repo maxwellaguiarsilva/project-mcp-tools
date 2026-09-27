@@ -104,10 +104,12 @@ ensure( heading == direction::up, "unexpected heading" );
 The common naming rules apply. Additionally:
 
 - Class members prefixed with `m_`, template parameters with `t_`.
+- Accessors are named after the value they expose, mutators overload the accessor with an argument or use a plain verb, and event handlers are named after the event.
 - Use descriptive and extensive names.
 - Forbidden names:
     - Abbreviations such as `i`, `w`, `h`.
     - Any type-encoding suffix (e.g., `_f`, `_i`, `_t`, `_type`, `_str`, `_ptr`).
+    - In method names, the prefixes `get_`, `set_`, and `on_`.
 - STL, external libraries, and macros with numeric prefixes are exempt.
 
 ## Spacing `[cpp_code_verifier]`
@@ -206,7 +208,7 @@ Constructors with initializer lists are the exception (see the "Comma rule").
 
 ```cpp
 //	correct
-auto renderer::set_color( const byte color ) noexcept -> void { m_color = color; }
+auto renderer::color( const byte color ) noexcept -> void { m_color = color; }
 ```
 
 ## Program Termination `[llm]`
