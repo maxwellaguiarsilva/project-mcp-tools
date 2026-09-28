@@ -9,6 +9,7 @@
 #define header_guard_908765432
 
 
+#include <algorithm>
 #include <ranges>
 
 
