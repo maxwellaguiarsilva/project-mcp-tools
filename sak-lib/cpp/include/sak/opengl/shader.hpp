@@ -25,7 +25,7 @@ class shader
 public:
 	enum class type : GLenum
 	{
-		 vertex			=	GL_VERTEX_SHADER
+		 vertex				=	GL_VERTEX_SHADER
 		,fragment			=	GL_FRAGMENT_SHADER
 		,geometry			=	GL_GEOMETRY_SHADER
 		,tess_control		=	GL_TESS_CONTROL_SHADER
