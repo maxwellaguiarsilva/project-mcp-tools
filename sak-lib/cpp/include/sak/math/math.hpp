@@ -10,7 +10,6 @@
 
 
 #include <cmath>
-#include <algorithm>
 #include <sak/math/error.hpp>
 #include <sak/ranges/transform.hpp>
 
@@ -225,6 +224,9 @@ __935812590_nary_custom( clamp, clamp, 3, ( ( min( max( value, first ), second )
 
 
 } }
+
+
+#include <sak/math/close.hpp>
 
 
 #endif

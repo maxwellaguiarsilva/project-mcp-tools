@@ -61,7 +61,8 @@ struct __normalize : range_adaptor_closure< __normalize >
 inline constexpr auto normalize = __normalize{ };
 
 
-//	cross product via cyclic permutation, only valid for 3-element vectors
+//	cross product: cyclic permutation via rotated is valid for 2 and 3 element vectors
+//	lazy vector result
 //	direct-application binary closure: v | cross( right ) applies to the whole vector
 struct __cross
 {
@@ -109,8 +110,8 @@ struct __rotate
 
 	constexpr auto operator ( ) ( const auto& vector, const auto& axis, float angle ) const noexcept
 	{
-		const float cos_angle = sak_cos( angle );
-		const float sin_angle = sak_sin( angle );
+		const float cos_angle = cosine( angle );
+		const float sin_angle = sine( angle );
 		return	vector * cos_angle + cross( axis, vector ) * sin_angle + axis * sum( axis * vector ) * ( 1.0f - cos_angle );
 	}
 

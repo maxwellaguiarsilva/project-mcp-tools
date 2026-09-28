@@ -40,10 +40,13 @@ concept is_number	=	is_arithmetic< t_number > and not same_as< t_number, bool >;
 
 //	fixed-size tuples are verified at compile time, lazy views are trusted
 template< typename t_vector >
+concept is_doublet	=	( not ::sak::ranges::is_view< t_vector > ) and requires( const t_vector& vector ) { requires size( vector ) == 2; };
+
+template< typename t_vector >
 concept is_triplet	=	( not ::sak::ranges::is_view< t_vector > ) and requires( const t_vector& vector ) { requires size( vector ) == 3; };
 
 template< typename t_vector >
-concept is_crossable	=	is_triplet< t_vector > or ::sak::ranges::is_view< t_vector >;
+concept is_crossable	=	is_doublet< t_vector > or is_triplet< t_vector > or ::sak::ranges::is_view< t_vector >;
 
 
 } }
