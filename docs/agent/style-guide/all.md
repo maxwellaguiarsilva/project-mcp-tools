@@ -65,7 +65,7 @@ data = {
 ```
 
 ## Single-use Variables `[llm]`
-<!-- llm-rule: id=single_use_vars, complexity=medium -->
+<!-- llm-rule: id=single_use_vars, complexity=medium use-dedicated-sub-agent=true -->
 
 A single-use variable is justified when it **captures a value at a specific point in time** — preserving the semantic meaning of what passed through that line. It is **not** justified when it merely renames something at the call site.
 
