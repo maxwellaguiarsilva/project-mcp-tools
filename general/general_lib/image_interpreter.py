@@ -48,7 +48,7 @@ question: {description}"""
 
     client = genai.Client( api_key = os.environ.get( "GEMINI_API_KEY" ) )
     response = client.models.generate_content(
-         model   = "gemini-flash-latest"
+         model   = "gemini-flash-lite-latest"
         ,contents = [
              prompt
             ,types.Part.from_bytes( data = image_data, mime_type = _detect_mime_type( image_data ) )
