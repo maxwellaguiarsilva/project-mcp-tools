@@ -20,6 +20,8 @@ Niebloid `sak::ensure( expression, message )` that throws `std::runtime_error` w
 
 - `is_callable< t_callable, t_args... >` — the compiler accepts calling the object via `operator( )`.
 - `is_tuple< t_tuple >` — the type is tuple-like ( has `tuple_size` ).
+- `is_class< t_type >` — the type is a class ( wraps `std::is_class_v` ).
+- `is_union< t_type >` — the type is a union ( wraps `std::is_union_v` ).
 
 ## `sak/sak.hpp` — Main Header
 

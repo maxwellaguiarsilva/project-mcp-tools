@@ -9,10 +9,9 @@
 #define header_guard_642017385
 
 
-#include <ranges>
 #include <array>
 #include <algorithm>
-#include <sak/using.hpp>
+#include <sak/sak.hpp>
 
 
 namespace sak::ranges {
@@ -31,20 +30,21 @@ __using( ::std::ranges::
 //	--------------------------------------------------
 
 
-//	universal materializer: range bitor to -> proxy that converts to any target
+//	universal materializer: range | to -> proxy that converts to any target
 //	the general path delegates to std::ranges::to< t_target >
+//	a cv-qualified destination deduces a const target, delegate to the unqualified materializer
 //	std::array has no from_range_t constructor, so it gets a direct copy specialization
 template< typename t_target > struct __to_impl;
-
+template< typename t_target > struct __to_impl< const t_target > : __to_impl< t_target > { };
 template< typename t_target >
 struct __to_impl
 {
 	template< viewable_range t_range >
+		requires( is_class< t_target > or is_union< t_target > )
 	static constexpr auto apply( t_range&& range )
-	{
-		return	::std::ranges::to< t_target >( ::std::forward< t_range >( range ) );
-	}
+	{ return ::std::ranges::to< t_target >( ::std::forward< t_range >( range ) ); }
 };
+
 
 template< typename t_value, size_t t_size >
 struct __to_impl< array< t_value, t_size > >
@@ -59,6 +59,13 @@ struct __to_impl< array< t_value, t_size > >
 };
 
 
+//	materializable targets: the generic path handles only class and union types
+//	scalar or other non-class targets must provide an explicit __to_impl specialization
+template< typename t_target, typename t_range >
+concept materializes = requires( t_range&& range )
+{ __to_impl< t_target >::apply( ::std::forward< t_range >( range ) ); };
+
+
 //	proxy holds the range and converts on assignment to a strong type
 //	auto deduction is intentionally rejected so the target type is always explicit
 template< viewable_range t_range >
@@ -67,23 +74,18 @@ struct __to_proxy
 	t_range m_range;
 
 	template< typename t_target >
+		requires materializes< t_target, t_range >
 	constexpr operator t_target( ) &&
-	{
-		return	__to_impl< t_target >::apply( ::std::forward< t_range >( m_range ) );
-	}
+	{ return __to_impl< t_target >::apply( ::std::forward< t_range >( m_range ) ); }
 };
 
 
 struct __to_closure : range_adaptor_closure< __to_closure >
 {
 	template< viewable_range t_range >
-	constexpr auto operator ( ) ( t_range&& range ) const
-	{
-		return	__to_proxy< t_range >{ ::std::forward< t_range >( range ) };
-	}
+	constexpr auto operator ( ) ( t_range&& range ) const noexcept
+	{ return __to_proxy< t_range >{ ::std::forward< t_range >( range ) }; }
 };
-
-
 inline constexpr auto to = __to_closure{ };
 
 

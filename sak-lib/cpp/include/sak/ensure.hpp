@@ -12,13 +12,13 @@
 #include <string>
 #include <stdexcept>
 #include <cstdlib>
+#include <sak/using.hpp>
 
 
 namespace sak {
 
 
-using	::std::string;
-using	::std::runtime_error;
+__using( ::std::, string, runtime_error )
 
 
 inline const int exit_success = EXIT_SUCCESS;

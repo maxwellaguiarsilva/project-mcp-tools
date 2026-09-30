@@ -9,10 +9,8 @@
 #define header_guard_352612026
 
 
-#include <sak/geometry/concepts.hpp>
 #include <sak/math/vector.hpp>
 #include <sak/pattern/tupled.hpp>
-#include <sak/ranges/to.hpp>
 #include <utility>
 
 

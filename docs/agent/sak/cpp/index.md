@@ -45,7 +45,7 @@ include/sak/
   using.hpp                   # __using / __use_macro variadic macros
   default_ctc_dtc.hpp         # Copy/move/dtor macro utilities
   ensure.hpp                  # Runtime assertion utility
-  concepts.hpp                # is_callable / is_tuple concepts
+  concepts.hpp                # is_callable / is_tuple / is_class / is_union concepts
   string.hpp                  # String case conversion
 
   fso/

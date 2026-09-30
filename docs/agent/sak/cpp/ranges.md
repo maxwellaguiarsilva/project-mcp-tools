@@ -9,9 +9,13 @@ point | sin | to      // -> sak::point ( dimension-agnostic )
 range | to            // -> any target deduced from the assignment context
 ```
 
-- The general path delegates to `std::ranges::to< t_target >`.
+- The general path delegates to `std::ranges::to< t_target >`, gated by `requires( is_class< t_target > or is_union< t_target > )` ( `is_class` / `is_union` from `<sak/concepts.hpp>` ) to mirror `std::ranges::to`'s own requirement and keep scalar and other non-class targets out of its hard `static_assert`.
 - `std::array` has no `from_range_t` constructor, so `std::array` gets a direct copy specialization.
+- A cv-qualified destination deduces `t_target` as `const T`, so `__to_impl< const t_target >` delegates to `__to_impl< t_target >` instead of reaching the generic path.
 - The conversion is `&&`-qualified and intentionally rejects `auto` deduction so the target type is always explicit at the assignment site.
+- The conversion operator is constrained by `materializes< t_target, t_range >`, which requires `__to_impl< t_target >::apply( range )` to be a valid expression.
+
+The proxy deduces its target from the left-hand side of the assignment ( `point p = expr | to;`, and future scalar targets ). Without the constraint, a class whose constructor accepts `convertible_to` scalars ( e.g. `point` ) would offer two equally-ranked user-defined conversions — the destination constructor and the proxy operator — and the assignment would be rejected as ambiguous. Constraining the operator by materializability makes `convertible_to< proxy, scalar >` false, so the destination constructor stops competing, while targets with a `__to_impl` specialization ( e.g. `point`, `array` ) still materialize.
 
 ## `operators.hpp` — Element-wise Operators
 
