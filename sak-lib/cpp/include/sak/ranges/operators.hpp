@@ -10,6 +10,7 @@
 
 
 #include <sak/math/math.hpp>
+#include <sak/ranges/to.hpp>
 
 
 namespace sak {
@@ -17,7 +18,6 @@ namespace ranges {
 
 
 __using( ::std::
-	,back_inserter
 	,forward
 	,remove_cvref_t
 	,same_as
@@ -50,34 +50,19 @@ template< input_range t_left, input_range t_right > \
 requires( not is_view< t_left > and not is_view< t_right > and not is_string_like< t_left > and not is_string_like< t_right > and same_as< remove_cvref_t< t_left >, remove_cvref_t< t_right > > ) \
 constexpr auto operator a_operator ( t_left&& left, t_right&& right ) -> remove_cvref_t< t_left > \
 { \
-	remove_cvref_t< t_left > result; \
-	if constexpr( is_resizable< remove_cvref_t< t_left > > ) \
-		eager_transform( left, right, back_inserter( result ), a_operation ); \
-	else \
-		eager_transform( left, right, result.begin( ), a_operation ); \
-	return	result; \
+	return	zip_transform( a_operation, all( left ), all( right ) ) | to; \
 } \
 template< input_range t_left, is_arithmetic t_scalar > \
 requires( not is_view< t_left > and not is_string_like< t_left > ) \
 constexpr auto operator a_operator ( t_left&& left, t_scalar right ) -> remove_cvref_t< t_left > \
 { \
-	remove_cvref_t< t_left > result; \
-	if constexpr( is_resizable< remove_cvref_t< t_left > > ) \
-		eager_transform( left, repeat( right ), back_inserter( result ), a_operation ); \
-	else \
-		eager_transform( left, repeat( right ), result.begin( ), a_operation ); \
-	return	result; \
+	return	zip_transform( a_operation, all( left ), repeat( right ) ) | to; \
 } \
 template< is_arithmetic t_scalar, input_range t_right > \
 requires( not is_view< t_right > and not is_string_like< t_right > ) \
 constexpr auto operator a_operator ( t_scalar left, t_right&& right ) -> remove_cvref_t< t_right > \
 { \
-	remove_cvref_t< t_right > result; \
-	if constexpr( is_resizable< remove_cvref_t< t_right > > ) \
-		eager_transform( repeat( left ), right, back_inserter( result ), a_operation ); \
-	else \
-		eager_transform( repeat( left ), right, result.begin( ), a_operation ); \
-	return	result; \
+	return	zip_transform( a_operation, repeat( left ), all( right ) ) | to; \
 }
 
 
@@ -149,12 +134,7 @@ template< input_range t_left >
 requires( not is_view< t_left > and not is_string_like< t_left > )
 constexpr auto operator - ( const t_left& left ) -> remove_cvref_t< t_left >
 {
-	remove_cvref_t< t_left > result;
-	if constexpr( is_resizable< remove_cvref_t< t_left > > )
-		eager_transform( left, back_inserter( result ), negate );
-	else
-		eager_transform( left, result.begin( ), negate );
-	return	result;
+	return	lazy_transform( left, negate ) | to;
 }
 
 
