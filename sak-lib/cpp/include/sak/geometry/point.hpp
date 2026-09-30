@@ -95,12 +95,15 @@ public:
 	constexpr point( ) : super_type{ } { }
 
 	template< typename... t_args >
-		requires( sizeof...( t_args ) == num_dimensions
+		requires( sizeof...( t_args ) <= num_dimensions
 			and ( convertible_to< t_args, t_scalar > and ... )
 		)
 	constexpr point( t_args... args )
-		: super_type{ static_cast< t_scalar >( args )... }
-	{ }
+		: super_type{ }
+	{
+		size_t index = 0;
+		( ( ( *this )[ index ] = static_cast< t_scalar >( args ), ++index ), ... );
+	}
 
 	template< input_range t_range, typename t_first, typename... t_remaining >
 		requires( sizeof...( t_remaining ) + 1 < num_dimensions
