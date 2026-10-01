@@ -63,7 +63,7 @@ __using( ::sak::math::
 
 
 //	element-wise operators for containers (non-view ranges): eager result
-#define __sak_operators_eager( a_operator, a_operation ) \
+#define __781083963_eager( a_operator, a_operation ) \
 template< is_container t_left, is_container t_right > \
 requires( is_same_decayed< t_left, t_right > ) \
 constexpr auto operator a_operator ( t_left&& left, t_right&& right ) -> remove_cvref_t< t_left > \
@@ -76,7 +76,7 @@ constexpr auto operator a_operator ( t_scalar left, t_right&& right ) -> remove_
 { return zip_transform( a_operation, repeat( left ), all( right ) ) | to; }
 
 
-#define __sak_operators_compound( a_operator, a_operation ) \
+#define __781083963_compound( a_operator, a_operation ) \
 template< is_container t_left, is_container t_right > \
 requires( is_same_decayed< t_left, t_right > ) \
 constexpr auto operator a_operator##= ( t_left& left, const t_right& right ) noexcept -> t_left& \
@@ -87,7 +87,7 @@ constexpr auto operator a_operator##= ( t_left& left, t_scalar right ) noexcept 
 
 
 //	element-wise operators for views (at least one operand is a view): lazy result
-#define __sak_operators_lazy( a_operator, a_operation ) \
+#define __781083963_lazy( a_operator, a_operation ) \
 template< viewable_range t_left, viewable_range t_right > \
 requires( any_is_view< t_left, t_right > ) \
 constexpr auto operator a_operator ( t_left&& left, t_right&& right ) \
@@ -101,7 +101,7 @@ constexpr auto operator a_operator ( t_scalar left, t_right&& right ) \
 
 
 //	bitwise and shift scalars are narrowed to integral, container pairs stay as-is
-#define __sak_operators_eager_integral( a_operator, a_operation ) \
+#define __781083963_eager_integral( a_operator, a_operation ) \
 template< is_container t_left, is_container t_right > \
 requires( is_same_decayed< t_left, t_right > ) \
 constexpr auto operator a_operator ( t_left&& left, t_right&& right ) -> remove_cvref_t< t_left > \
@@ -114,7 +114,7 @@ constexpr auto operator a_operator ( t_scalar left, t_right&& right ) -> remove_
 { return zip_transform( a_operation, repeat( left ), all( right ) ) | to; }
 
 
-#define __sak_operators_compound_integral( a_operator, a_operation ) \
+#define __781083963_compound_integral( a_operator, a_operation ) \
 template< is_container t_left, is_container t_right > \
 requires( is_same_decayed< t_left, t_right > ) \
 constexpr auto operator a_operator##= ( t_left& left, const t_right& right ) noexcept -> t_left& \
@@ -124,7 +124,7 @@ constexpr auto operator a_operator##= ( t_left& left, t_scalar right ) noexcept 
 { return eager_transform( left, repeat( right ), left.begin( ), a_operation ), left; }
 
 
-#define __sak_operators_lazy_integral( a_operator, a_operation ) \
+#define __781083963_lazy_integral( a_operator, a_operation ) \
 template< viewable_range t_left, viewable_range t_right > \
 requires( any_is_view< t_left, t_right > ) \
 constexpr auto operator a_operator ( t_left&& left, t_right&& right ) \
@@ -139,7 +139,7 @@ constexpr auto operator a_operator ( t_scalar left, t_right&& right ) \
 
 //	comparison and logical results are bool per element, so they materialize into vector of bool,
 //	reusing the same container would deduce the wrong value type
-#define __sak_operators_eager_bool( a_operator, a_operation ) \
+#define __781083963_eager_bool( a_operator, a_operation ) \
 template< is_container t_left, is_container t_right > \
 requires( is_same_decayed< t_left, t_right > ) \
 constexpr auto operator a_operator ( t_left&& left, t_right&& right ) -> vector< bool > \
@@ -152,7 +152,7 @@ constexpr auto operator a_operator ( t_scalar left, t_right&& right ) -> vector<
 { return zip_transform( a_operation, repeat( left ), all( right ) ) | to; }
 
 
-#define __sak_operators_lazy_bool( a_operator, a_operation ) \
+#define __781083963_lazy_bool( a_operator, a_operation ) \
 template< viewable_range t_left, viewable_range t_right > \
 requires( any_is_view< t_left, t_right > ) \
 constexpr auto operator a_operator ( t_left&& left, t_right&& right ) \
@@ -165,77 +165,73 @@ constexpr auto operator a_operator ( t_scalar left, t_right&& right ) \
 { return zip_transform( a_operation, repeat( left ), all( ::std::forward< t_right >( right ) ) ); }
 
 
-__sak_operators_eager( + ,plus		)
-__sak_operators_eager( - ,minus		)
-__sak_operators_eager( * ,multiplies	)
-__sak_operators_eager( / ,divides	)
-__sak_operators_eager( % ,modulus	)
+#define __781083963_arithmetic( a_macro ) __use_macro( a_macro \
+	,(	+	,plus		) \
+	,(	-	,minus		) \
+	,(	*	,multiplies	) \
+	,(	/	,divides	) \
+	,(	%	,modulus	) \
+)
 
-__sak_operators_compound( + ,plus		)
-__sak_operators_compound( - ,minus		)
-__sak_operators_compound( * ,multiplies	)
-__sak_operators_compound( / ,divides	)
-__sak_operators_compound( % ,modulus	)
 
-__sak_operators_lazy( + ,plus		)
-__sak_operators_lazy( - ,minus		)
-__sak_operators_lazy( * ,multiplies	)
-__sak_operators_lazy( / ,divides	)
-__sak_operators_lazy( % ,modulus	)
+#define __781083963_integral( a_macro ) __use_macro( a_macro \
+	,(	&	,bit_and	) \
+	,(	|	,bit_or		) \
+	,(	^	,bit_xor	) \
+	,(	<<	,shift_left	) \
+	,(	>>	,shift_right	) \
+)
+
+
+#define __781083963_comparison( a_macro ) __use_macro( a_macro \
+	,(	==	,equal_to	) \
+	,(	not_eq	,not_equal_to	) \
+	,(	<	,less		) \
+	,(	<=	,less_equal	) \
+	,(	>	,greater	) \
+	,(	>=	,greater_equal	) \
+)
+
+
+#define __781083963_logical( a_macro ) __use_macro( a_macro \
+	,(	and	,logical_and	) \
+	,(	or	,logical_or	) \
+)
+
+
+__781083963_arithmetic( __781083963_eager )
+__781083963_arithmetic( __781083963_compound )
+__781083963_arithmetic( __781083963_lazy )
 
 
 //	pipe stays safe here: eager needs is_container and lazy needs a view on at least one side,
 //	a closure on the right is not a range, so container bitor closure never matches these overloads
-__sak_operators_eager_integral( & ,bit_and		)
-__sak_operators_eager_integral( | ,bit_or		)
-__sak_operators_eager_integral( ^ ,bit_xor		)
-__sak_operators_eager_integral( << ,shift_left	)
-__sak_operators_eager_integral( >> ,shift_right	)
-
-__sak_operators_compound_integral( & ,bit_and		)
-__sak_operators_compound_integral( | ,bit_or		)
-__sak_operators_compound_integral( ^ ,bit_xor		)
-__sak_operators_compound_integral( << ,shift_left	)
-__sak_operators_compound_integral( >> ,shift_right	)
-
-__sak_operators_lazy_integral( & ,bit_and		)
-__sak_operators_lazy_integral( | ,bit_or		)
-__sak_operators_lazy_integral( ^ ,bit_xor		)
-__sak_operators_lazy_integral( << ,shift_left	)
-__sak_operators_lazy_integral( >> ,shift_right	)
+__781083963_integral( __781083963_eager_integral )
+__781083963_integral( __781083963_compound_integral )
+__781083963_integral( __781083963_lazy_integral )
 
 
-__sak_operators_eager_bool( == ,equal_to		)
-__sak_operators_eager_bool( not_eq ,not_equal_to	)
-__sak_operators_eager_bool( < ,less			)
-__sak_operators_eager_bool( <= ,less_equal		)
-__sak_operators_eager_bool( > ,greater		)
-__sak_operators_eager_bool( >= ,greater_equal	)
-
-__sak_operators_lazy_bool( == ,equal_to		)
-__sak_operators_lazy_bool( not_eq ,not_equal_to	)
-__sak_operators_lazy_bool( < ,less			)
-__sak_operators_lazy_bool( <= ,less_equal		)
-__sak_operators_lazy_bool( > ,greater		)
-__sak_operators_lazy_bool( >= ,greater_equal	)
+__781083963_comparison( __781083963_eager_bool )
+__781083963_comparison( __781083963_lazy_bool )
 
 
 //	element-wise logical combination, no short-circuit: every element pair is always evaluated
-__sak_operators_eager_bool( and ,logical_and	)
-__sak_operators_eager_bool( or ,logical_or	)
-
-__sak_operators_lazy_bool( and ,logical_and	)
-__sak_operators_lazy_bool( or ,logical_or	)
+__781083963_logical( __781083963_eager_bool )
+__781083963_logical( __781083963_lazy_bool )
 
 
-#undef __sak_operators_eager
-#undef __sak_operators_compound
-#undef __sak_operators_lazy
-#undef __sak_operators_eager_integral
-#undef __sak_operators_compound_integral
-#undef __sak_operators_lazy_integral
-#undef __sak_operators_eager_bool
-#undef __sak_operators_lazy_bool
+#undef __781083963_eager
+#undef __781083963_compound
+#undef __781083963_lazy
+#undef __781083963_eager_integral
+#undef __781083963_compound_integral
+#undef __781083963_lazy_integral
+#undef __781083963_eager_bool
+#undef __781083963_lazy_bool
+#undef __781083963_arithmetic
+#undef __781083963_integral
+#undef __781083963_comparison
+#undef __781083963_logical
 
 
 //	unary negation for containers
