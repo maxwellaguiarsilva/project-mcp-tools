@@ -165,59 +165,59 @@ constexpr auto operator a_operator ( t_scalar left, t_right&& right ) \
 { return zip_transform( a_operation, repeat( left ), all( ::std::forward< t_right >( right ) ) ); }
 
 
-#define __781083963_arithmetic( a_macro ) __use_macro( a_macro \
-	,(	+	,plus		) \
-	,(	-	,minus		) \
-	,(	*	,multiplies	) \
-	,(	/	,divides	) \
-	,(	%	,modulus	) \
+__use_macro_list(
+	(
+		 (	+	,plus		)
+		,(	-	,minus		)
+		,(	*	,multiplies	)
+		,(	/	,divides	)
+		,(	%	,modulus	)
+	)
+	,__781083963_eager
+	,__781083963_compound
+	,__781083963_lazy
 )
-
-
-#define __781083963_integral( a_macro ) __use_macro( a_macro \
-	,(	&	,bit_and	) \
-	,(	|	,bit_or		) \
-	,(	^	,bit_xor	) \
-	,(	<<	,shift_left	) \
-	,(	>>	,shift_right	) \
-)
-
-
-#define __781083963_comparison( a_macro ) __use_macro( a_macro \
-	,(	==	,equal_to	) \
-	,(	not_eq	,not_equal_to	) \
-	,(	<	,less		) \
-	,(	<=	,less_equal	) \
-	,(	>	,greater	) \
-	,(	>=	,greater_equal	) \
-)
-
-
-#define __781083963_logical( a_macro ) __use_macro( a_macro \
-	,(	and	,logical_and	) \
-	,(	or	,logical_or	) \
-)
-
-
-__781083963_arithmetic( __781083963_eager )
-__781083963_arithmetic( __781083963_compound )
-__781083963_arithmetic( __781083963_lazy )
 
 
 //	pipe stays safe here: eager needs is_container and lazy needs a view on at least one side,
 //	a closure on the right is not a range, so container bitor closure never matches these overloads
-__781083963_integral( __781083963_eager_integral )
-__781083963_integral( __781083963_compound_integral )
-__781083963_integral( __781083963_lazy_integral )
+__use_macro_list(
+	(
+		 (	&	,bit_and		)
+		,(	|	,bit_or			)
+		,(	^	,bit_xor		)
+		,(	<<	,shift_left		)
+		,(	>>	,shift_right	)
+	)
+	,__781083963_eager_integral
+	,__781083963_compound_integral
+	,__781083963_lazy_integral
+)
 
 
-__781083963_comparison( __781083963_eager_bool )
-__781083963_comparison( __781083963_lazy_bool )
+__use_macro_list(
+	(	//	rule-exception: local style consistency
+		 (	!=	,not_equal_to	)
+		,(	==	,equal_to		)
+		,(	< 	,less			)
+		,(	<=	,less_equal		)
+		,(	> 	,greater		)
+		,(	>=	,greater_equal	)
+	)
+	,__781083963_eager_bool
+	,__781083963_lazy_bool
+)
 
 
 //	element-wise logical combination, no short-circuit: every element pair is always evaluated
-__781083963_logical( __781083963_eager_bool )
-__781083963_logical( __781083963_lazy_bool )
+__use_macro_list(
+	(
+		 (	and	,logical_and	)
+		,(	or	,logical_or		)
+	)
+	,__781083963_eager_bool
+	,__781083963_lazy_bool
+)
 
 
 #undef __781083963_eager
@@ -228,10 +228,6 @@ __781083963_logical( __781083963_lazy_bool )
 #undef __781083963_lazy_integral
 #undef __781083963_eager_bool
 #undef __781083963_lazy_bool
-#undef __781083963_arithmetic
-#undef __781083963_integral
-#undef __781083963_comparison
-#undef __781083963_logical
 
 
 //	unary containers stay eager, views stay lazy without materialization,
@@ -244,22 +240,6 @@ constexpr auto operator a_operator ( const t_left& left ) -> a_result { return l
 #define __781083963_unary_lazy( a_operator, a_operation ) \
 template< is_view t_left > \
 constexpr auto operator a_operator ( t_left&& left ) { return lazy_transform( all( ::std::forward< t_left >( left ) ), a_operation ); }
-
-
-#define __781083963_unary_eager_list( a_macro ) __use_macro( a_macro \
-	,(	-	,negate		,remove_cvref_t< t_left >	) \
-	,(	+	,identity	,remove_cvref_t< t_left >	) \
-	,(	~	,bit_not	,remove_cvref_t< t_left >	) \
-	,(	not	,logical_not	,vector< bool >		) \
-)
-
-
-#define __781083963_unary_lazy_list( a_macro ) __use_macro( a_macro \
-	,(	-	,negate		) \
-	,(	+	,identity	) \
-	,(	~	,bit_not	) \
-	,(	not	,logical_not	) \
-)
 
 
 //	prefix and postfix act on each element, not on iterator position,
@@ -277,23 +257,31 @@ constexpr auto operator a_operator ( t_view&& view ) \
 { return lazy_transform( all( ::std::forward< t_view >( view ) ), a_operation ); }
 
 
-#define __781083963_step_list( a_macro ) __use_macro( a_macro \
-	,(	++	,increment	) \
-	,(	--	,decrement	) \
+__use_macro( __781083963_unary_eager
+	,(	-	,negate		,remove_cvref_t< t_left >	)
+	,(	+	,identity	,remove_cvref_t< t_left >	)
+	,(	~	,bit_not	,remove_cvref_t< t_left >	)
+	,(	not	,logical_not	,vector< bool >		)
 )
 
 
-__781083963_unary_eager_list( __781083963_unary_eager )
-__781083963_unary_lazy_list( __781083963_unary_lazy )
-__781083963_step_list( __781083963_step )
+__use_macro( __781083963_unary_lazy
+	,(	-	,negate		)
+	,(	+	,identity	)
+	,(	~	,bit_not	)
+	,(	not	,logical_not	)
+)
+
+
+__use_macro( __781083963_step
+	,(	++	,increment	)
+	,(	--	,decrement	)
+)
 
 
 #undef __781083963_unary_eager
 #undef __781083963_unary_lazy
-#undef __781083963_unary_eager_list
-#undef __781083963_unary_lazy_list
 #undef __781083963_step
-#undef __781083963_step_list
 
 
 } }
