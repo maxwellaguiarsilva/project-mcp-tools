@@ -33,6 +33,7 @@ __using( ::std::
 	,remove_cvref_t
 )
 __using( ::std::ranges::
+	,input_range
 	,view
 )
 
@@ -45,6 +46,17 @@ concept is_resizable	=	requires( t_container& container ) { container.resize( si
 
 template< typename t_container >
 concept is_string_like	=	requires { typename remove_cvref_t< t_container >::traits_type; };
+
+//	container: an input range that is neither a view nor string-like
+template< typename t_container >
+concept is_container =
+		input_range< t_container >
+	and	not is_view< t_container >
+	and	not is_string_like< t_container >;
+
+//	at least one of the passed ranges is a view
+template< typename... t_ranges >
+concept any_is_view = ( is_view< t_ranges > or ... );
 
 template< class t_function, class t_type, class t_iterator >
 concept is_indirectly_binary_left_foldable	=
