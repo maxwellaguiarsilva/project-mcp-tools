@@ -34,115 +34,51 @@ __using( ::sak::math::
 
 
 //	element-wise operators for containers (non-view ranges): eager result
-#define __781083963_eager( a_operator, a_operation ) \
+//	scalar concept and eager return type are the only axes that vary per family
+#define __781083963_eager( a_operator, a_operation, a_scalar, a_return ) \
 template< is_container t_left, is_container t_right > \
 requires( is_same_decayed< t_left, t_right > ) \
-constexpr auto operator a_operator ( t_left&& left, t_right&& right ) -> remove_cvref_t< t_left > \
+constexpr auto operator a_operator ( t_left&& left, t_right&& right ) -> a_return \
 { return zip_transform( a_operation, all( left ), all( right ) ) | to; } \
-template< is_container t_left, is_arithmetic t_scalar > \
-constexpr auto operator a_operator ( t_left&& left, t_scalar right ) -> remove_cvref_t< t_left > \
+template< is_container t_left, a_scalar t_scalar > \
+constexpr auto operator a_operator ( t_left&& left, t_scalar right ) -> a_return \
 { return zip_transform( a_operation, all( left ), repeat( right ) ) | to; } \
-template< is_arithmetic t_scalar, is_container t_right > \
-constexpr auto operator a_operator ( t_scalar left, t_right&& right ) -> remove_cvref_t< t_right > \
+template< is_container t_left, a_scalar t_scalar > \
+constexpr auto operator a_operator ( t_scalar left, t_left&& right ) -> a_return \
 { return zip_transform( a_operation, repeat( left ), all( right ) ) | to; }
 
 
-#define __781083963_compound( a_operator, a_operation ) \
+#define __781083963_compound( a_operator, a_operation, a_scalar, ... ) \
 template< is_container t_left, is_container t_right > \
 requires( is_same_decayed< t_left, t_right > ) \
 constexpr auto operator a_operator##= ( t_left& left, const t_right& right ) noexcept -> t_left& \
 { return eager_transform( left, right, left.begin( ), a_operation ), left; } \
-template< is_container t_left, is_arithmetic t_scalar > \
+template< is_container t_left, a_scalar t_scalar > \
 constexpr auto operator a_operator##= ( t_left& left, t_scalar right ) noexcept -> t_left& \
 { return eager_transform( left, repeat( right ), left.begin( ), a_operation ), left; }
 
 
 //	element-wise operators for views (at least one operand is a view): lazy result
-#define __781083963_lazy( a_operator, a_operation ) \
+#define __781083963_lazy( a_operator, a_operation, a_scalar, ... ) \
 template< viewable_range t_left, viewable_range t_right > \
 requires( any_is_view< t_left, t_right > ) \
 constexpr auto operator a_operator ( t_left&& left, t_right&& right ) \
 { return zip_transform( a_operation, all( ::std::forward< t_left >( left ) ), all( ::std::forward< t_right >( right ) ) ); } \
-template< is_view t_left, is_arithmetic t_scalar > \
+template< is_view t_left, a_scalar t_scalar > \
 constexpr auto operator a_operator ( t_left&& left, t_scalar right ) \
 { return zip_transform( a_operation, all( ::std::forward< t_left >( left ) ), repeat( right ) ); } \
-template< is_arithmetic t_scalar, is_view t_right > \
-constexpr auto operator a_operator ( t_scalar left, t_right&& right ) \
-{ return zip_transform( a_operation, repeat( left ), all( ::std::forward< t_right >( right ) ) ); }
-
-
-//	bitwise and shift scalars are narrowed to integral, container pairs stay as-is
-#define __781083963_eager_integral( a_operator, a_operation ) \
-template< is_container t_left, is_container t_right > \
-requires( is_same_decayed< t_left, t_right > ) \
-constexpr auto operator a_operator ( t_left&& left, t_right&& right ) -> remove_cvref_t< t_left > \
-{ return zip_transform( a_operation, all( left ), all( right ) ) | to; } \
-template< is_container t_left, is_integral t_scalar > \
-constexpr auto operator a_operator ( t_left&& left, t_scalar right ) -> remove_cvref_t< t_left > \
-{ return zip_transform( a_operation, all( left ), repeat( right ) ) | to; } \
-template< is_integral t_scalar, is_container t_right > \
-constexpr auto operator a_operator ( t_scalar left, t_right&& right ) -> remove_cvref_t< t_right > \
-{ return zip_transform( a_operation, repeat( left ), all( right ) ) | to; }
-
-
-#define __781083963_compound_integral( a_operator, a_operation ) \
-template< is_container t_left, is_container t_right > \
-requires( is_same_decayed< t_left, t_right > ) \
-constexpr auto operator a_operator##= ( t_left& left, const t_right& right ) noexcept -> t_left& \
-{ return eager_transform( left, right, left.begin( ), a_operation ), left; } \
-template< is_container t_left, is_integral t_scalar > \
-constexpr auto operator a_operator##= ( t_left& left, t_scalar right ) noexcept -> t_left& \
-{ return eager_transform( left, repeat( right ), left.begin( ), a_operation ), left; }
-
-
-#define __781083963_lazy_integral( a_operator, a_operation ) \
-template< viewable_range t_left, viewable_range t_right > \
-requires( any_is_view< t_left, t_right > ) \
-constexpr auto operator a_operator ( t_left&& left, t_right&& right ) \
-{ return zip_transform( a_operation, all( ::std::forward< t_left >( left ) ), all( ::std::forward< t_right >( right ) ) ); } \
-template< is_view t_left, is_integral t_scalar > \
-constexpr auto operator a_operator ( t_left&& left, t_scalar right ) \
-{ return zip_transform( a_operation, all( ::std::forward< t_left >( left ) ), repeat( right ) ); } \
-template< is_integral t_scalar, is_view t_right > \
-constexpr auto operator a_operator ( t_scalar left, t_right&& right ) \
-{ return zip_transform( a_operation, repeat( left ), all( ::std::forward< t_right >( right ) ) ); }
-
-
-//	comparison and logical results are bool per element, so they materialize into vector of bool,
-//	reusing the same container would deduce the wrong value type
-#define __781083963_eager_bool( a_operator, a_operation ) \
-template< is_container t_left, is_container t_right > \
-requires( is_same_decayed< t_left, t_right > ) \
-constexpr auto operator a_operator ( t_left&& left, t_right&& right ) -> vector< bool > \
-{ return zip_transform( a_operation, all( left ), all( right ) ) | to; } \
-template< is_container t_left, is_value t_scalar > \
-constexpr auto operator a_operator ( t_left&& left, t_scalar right ) -> vector< bool > \
-{ return zip_transform( a_operation, all( left ), repeat( right ) ) | to; } \
-template< is_value t_scalar, is_container t_right > \
-constexpr auto operator a_operator ( t_scalar left, t_right&& right ) -> vector< bool > \
-{ return zip_transform( a_operation, repeat( left ), all( right ) ) | to; }
-
-
-#define __781083963_lazy_bool( a_operator, a_operation ) \
-template< viewable_range t_left, viewable_range t_right > \
-requires( any_is_view< t_left, t_right > ) \
-constexpr auto operator a_operator ( t_left&& left, t_right&& right ) \
-{ return zip_transform( a_operation, all( ::std::forward< t_left >( left ) ), all( ::std::forward< t_right >( right ) ) ); } \
-template< is_view t_left, is_value t_scalar > \
-constexpr auto operator a_operator ( t_left&& left, t_scalar right ) \
-{ return zip_transform( a_operation, all( ::std::forward< t_left >( left ) ), repeat( right ) ); } \
-template< is_value t_scalar, is_view t_right > \
-constexpr auto operator a_operator ( t_scalar left, t_right&& right ) \
-{ return zip_transform( a_operation, repeat( left ), all( ::std::forward< t_right >( right ) ) ); }
+template< is_view t_left, a_scalar t_scalar > \
+constexpr auto operator a_operator ( t_scalar left, t_left&& right ) \
+{ return zip_transform( a_operation, repeat( left ), all( ::std::forward< t_left >( right ) ) ); }
 
 
 __use_macro_list(
 	(
-		 (	+	,plus		)
-		,(	-	,minus		)
-		,(	*	,multiplies	)
-		,(	/	,divides	)
-		,(	%	,modulus	)
+		 (	+	,plus		,is_arithmetic	,remove_cvref_t< t_left >	)
+		,(	-	,minus		,is_arithmetic	,remove_cvref_t< t_left >	)
+		,(	*	,multiplies	,is_arithmetic	,remove_cvref_t< t_left >	)
+		,(	/	,divides	,is_arithmetic	,remove_cvref_t< t_left >	)
+		,(	%	,modulus	,is_arithmetic	,remove_cvref_t< t_left >	)
 	)
 	,__781083963_eager
 	,__781083963_compound
@@ -150,55 +86,51 @@ __use_macro_list(
 )
 
 
-//	pipe stays safe here: eager needs is_container and lazy needs a view on at least one side,
-//	a closure on the right is not a range, so container bitor closure never matches these overloads
+//	bitwise and shift scalars are narrowed to integral, container pairs stay as-is
 __use_macro_list(
 	(
-		 (	&	,bit_and		)
-		,(	|	,bit_or			)
-		,(	^	,bit_xor		)
-		,(	<<	,shift_left		)
-		,(	>>	,shift_right	)
+		 (	&	,bit_and	,is_integral	,remove_cvref_t< t_left >	)
+		,(	|	,bit_or		,is_integral	,remove_cvref_t< t_left >	)
+		,(	^	,bit_xor	,is_integral	,remove_cvref_t< t_left >	)
+		,(	<<	,shift_left	,is_integral	,remove_cvref_t< t_left >	)
+		,(	>>	,shift_right	,is_integral	,remove_cvref_t< t_left >	)
 	)
-	,__781083963_eager_integral
-	,__781083963_compound_integral
-	,__781083963_lazy_integral
+	,__781083963_eager
+	,__781083963_compound
+	,__781083963_lazy
 )
 
 
+//	comparison and logical results are bool per element, so they materialize into vector of bool,
+//	reusing the same container would deduce the wrong value type
 __use_macro_list(
 	(	//	rule-exception: local style consistency
-		 (	!=	,not_equal_to	)
-		,(	==	,equal_to		)
-		,(	< 	,less			)
-		,(	<=	,less_equal		)
-		,(	> 	,greater		)
-		,(	>=	,greater_equal	)
+		 (	!=	,not_equal_to	,is_value	,vector< bool >	)
+		,(	==	,equal_to		,is_value	,vector< bool >	)
+		,(	< 	,less			,is_value	,vector< bool >	)
+		,(	<=	,less_equal		,is_value	,vector< bool >	)
+		,(	> 	,greater		,is_value	,vector< bool >	)
+		,(	>=	,greater_equal	,is_value	,vector< bool >	)
 	)
-	,__781083963_eager_bool
-	,__781083963_lazy_bool
+	,__781083963_eager
+	,__781083963_lazy
 )
 
 
 //	element-wise logical combination, no short-circuit: every element pair is always evaluated
 __use_macro_list(
 	(
-		 (	and	,logical_and	)
-		,(	or	,logical_or		)
+		 (	and	,logical_and	,is_value	,vector< bool >	)
+		,(	or	,logical_or		,is_value	,vector< bool >	)
 	)
-	,__781083963_eager_bool
-	,__781083963_lazy_bool
+	,__781083963_eager
+	,__781083963_lazy
 )
 
 
 #undef __781083963_eager
 #undef __781083963_compound
 #undef __781083963_lazy
-#undef __781083963_eager_integral
-#undef __781083963_compound_integral
-#undef __781083963_lazy_integral
-#undef __781083963_eager_bool
-#undef __781083963_lazy_bool
 
 
 //	unary containers stay eager, views stay lazy without materialization,
