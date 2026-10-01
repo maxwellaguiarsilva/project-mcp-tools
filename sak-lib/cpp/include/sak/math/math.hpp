@@ -50,9 +50,7 @@ struct __sak_##a_name : range_adaptor_closure< __sak_##a_name > \
 	constexpr auto operator ( ) ( t_value a_value ) const noexcept { return a_expr; } \
 	template< input_range t_range > \
 	constexpr auto operator ( ) ( t_range&& range ) const \
-	{ \
-		return	lazy_transform( ::std::forward< t_range >( range ), *this ); \
-	} \
+	{ return lazy_transform( ::std::forward< t_range >( range ), *this ); } \
 }; \
 inline constexpr auto sak_##a_name = __sak_##a_name{ }; \
 inline constexpr auto a_alias = __sak_##a_name{ };
@@ -75,10 +73,7 @@ struct __sak_##a_name \
 	struct __sak_bind_back_factory \
 	{ \
 		template< typename... t_bound > \
-		constexpr auto operator ( ) ( t_bound&&... bound ) const \
-		{ \
-			return	bind_back( __sak_##a_name{ }, ::std::forward< t_bound >( bound )... ); \
-		} \
+		constexpr auto operator ( ) ( t_bound&&... bound ) const { return bind_back( __sak_##a_name{ }, ::std::forward< t_bound >( bound )... ); } \
 	}; \
 	template< typename... t_bound > \
 	struct closure : range_adaptor_closure< closure< t_bound... > > \
@@ -86,24 +81,15 @@ struct __sak_##a_name \
 		::std::tuple< t_bound... > m_bound; \
 		constexpr explicit closure( t_bound... bound ) : m_bound( bound... ) { } \
 		template< viewable_range t_range > \
-		constexpr auto operator ( ) ( t_range&& range ) const \
-		{ \
-			return	lazy_transform( ::std::forward< t_range >( range ), ::std::apply( __sak_bind_back_factory{ }, m_bound ) ); \
-		} \
+		constexpr auto operator ( ) ( t_range&& range ) const { return lazy_transform( ::std::forward< t_range >( range ), ::std::apply( __sak_bind_back_factory{ }, m_bound ) ); } \
 	}; \
 	__935812590_scalar_overload a_scalar_overload; \
 	template< viewable_range t_range, typename... t_bound > \
 		requires ( sizeof...( t_bound ) == a_arity - 1 ) \
-	constexpr auto operator ( ) ( t_range&& range, t_bound... bound ) const \
-	{ \
-		return	lazy_transform( ::std::forward< t_range >( range ), bind_back( __sak_##a_name{ }, bound... ) ); \
-	} \
+	constexpr auto operator ( ) ( t_range&& range, t_bound... bound ) const { return lazy_transform( ::std::forward< t_range >( range ), bind_back( __sak_##a_name{ }, bound... ) ); } \
 	template< typename... t_bound > \
 		requires ( sizeof...( t_bound ) == a_arity - 1 ) \
-	constexpr auto operator ( ) ( t_bound... bound ) const \
-	{ \
-		return	closure< t_bound... >{ bound... }; \
-	} \
+	constexpr auto operator ( ) ( t_bound... bound ) const { return closure< t_bound... >{ bound... }; } \
 }; \
 inline constexpr auto sak_##a_name = __sak_##a_name{ }; \
 inline constexpr auto a_alias = __sak_##a_name{ };
@@ -148,13 +134,17 @@ __use_macro( __935812590_inline_constexpr_std
 
 //	--------------------------------------------------
 //	binary functions: two scalar operands, or a range transformed element-wise
-__935812590_binary_std(	atan2	,arctangent2	)
-__935812590_nary_custom( is_multiple, is_multiple, 2, ( ( modulus( first, second ) == 0 ), is_integral auto first, is_integral auto second ) )
-__935812590_nary_custom( logical_and, logical_and, 2, ( ( first and second ), is_value auto first, is_value auto second ) )
-__935812590_nary_custom( logical_or, logical_or, 2, ( ( first or second ), is_value auto first, is_value auto second ) )
-__935812590_nary_custom( pow, power, 2, ( ( ::std::pow( first, second ) ), is_arithmetic auto first, is_arithmetic auto second ) )
-__935812590_nary_custom( shift_left, shift_left, 2, ( ( first << second ), is_integral auto first, is_integral auto second ) )
-__935812590_nary_custom( shift_right, shift_right, 2, ( ( first >> second ), is_integral auto first, is_integral auto second ) )
+__use_macro( __935812590_binary_std
+	,(	atan2	,arctangent2	)
+)
+__use_macro( __935812590_nary_custom
+	,(	is_multiple	,is_multiple	,2	,( ( modulus( first, second ) == 0 ), is_integral auto first, is_integral auto second )		)
+	,(	logical_and	,logical_and	,2	,( ( first and second ), is_value auto first, is_value auto second )						)
+	,(	logical_or	,logical_or		,2	,( ( first or second ), is_value auto first, is_value auto second )							)
+	,(	pow			,power			,2	,( ( ::std::pow( first, second ) ), is_arithmetic auto first, is_arithmetic auto second )	)
+	,(	shift_left	,shift_left		,2	,( ( first << second ), is_integral auto first, is_integral auto second )					)
+	,(	shift_right	,shift_right	,2	,( ( first >> second ), is_integral auto first, is_integral auto second )					)
+)
 
 
 //	--------------------------------------------------
@@ -211,15 +201,19 @@ struct __sak_dot
 inline constexpr auto dot = __sak_dot{ };
 
 
-__935812590_binary_range_scalar( min, min, first < second ? first : second )
-__935812590_binary_range_scalar( max, max, first > second ? first : second )
+__use_macro( __935812590_binary_range_scalar
+	,(	min	,min	,first < second ? first : second	)
+	,(	max	,max	,first > second ? first : second	)
+)
 
 
 //	--------------------------------------------------
 //	ternary functions: three operands, or a range transformed element-wise
 //	closures capture the extra operands and let a range pipe through them
-__935812590_nary_custom( between, between, 3, ( ( value >= first and value <= second ), is_value auto value, auto first, auto second ) )
-__935812590_nary_custom( clamp, clamp, 3, ( ( min( max( value, first ), second ) ), is_value auto value, auto first, auto second ) )
+__use_macro( __935812590_nary_custom
+	,(	between	,between	,3	,( ( value >= first and value <= second ), is_value auto value, auto first, auto second )	)
+	,(	clamp	,clamp		,3	,( ( min( max( value, first ), second ) ), is_value auto value, auto first, auto second )	)
+)
 
 
 #undef __935812590_scalar_overload
