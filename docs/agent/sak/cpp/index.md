@@ -45,7 +45,7 @@ include/sak/
   using.hpp                   # __using / __use_macro variadic macros
   default_ctc_dtc.hpp         # Copy/move/dtor macro utilities
   ensure.hpp                  # Runtime assertion utility
-  concepts.hpp                # is_callable / is_tuple / is_class / is_union concepts
+  concepts.hpp                # is_callable / is_tuple / is_class / is_union / is_enum / is_castable_enum / is_same_decayed concepts
   string.hpp                  # String case conversion
 
   fso/
@@ -68,7 +68,7 @@ include/sak/
   ranges/
     to.hpp                    # Universal materializer closure ( replaces to_point )
     operators.hpp             # Element-wise +,-,*,/,% for containers and views
-    concepts.hpp              # is_view / is_resizable / is_string_like / is_indirectly_binary_left_foldable
+    concepts.hpp              # is_view / is_resizable / is_string_like / is_container / any_is_view / is_indirectly_binary_left_foldable
     contains.hpp              # Range containment with braced-list overload
     count_to.hpp              # Integer range [ 0, bound )
     transform.hpp             # eager_transform / lazy_transform aliases

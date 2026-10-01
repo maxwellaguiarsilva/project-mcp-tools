@@ -19,16 +19,18 @@ The proxy deduces its target from the left-hand side of the assignment ( `point 
 
 ## `operators.hpp` — Element-wise Operators
 
-Provides `+`, `-`, `*`, `/`, `%` ( and their compound `+=`, `-=`, etc. ) for ranges:
-- **Containers** ( non-view, non-string-like ): eager result via `std::ranges::transform` into a new container.
-- **Views** ( at least one operand is a view ): lazy result via `std::views::zip_transform`.
-- Also provides unary negation for containers.
+Provides `+`, `-`, `*`, `/`, `%` ( and their compound `+=`, `-=`, etc. ) for ranges, with the behavioral intent that containers produce eager results, views produce lazy results, and strings stay standard. The constraints are now expressed through `is_container` / `any_is_view` / `is_same_decayed`:
+- **Containers** ( `is_container`: non-view, non-string-like ): eager result via `std::ranges::transform` into a new container. The container-container overloads additionally require `is_same_decayed< t_left, t_right >`.
+- **Views** ( the lazy overloads use `viewable_range` plus `any_is_view`, i.e. at least one operand is a view; the view-scalar and scalar-view forms require `is_view` ): lazy result via `std::views::zip_transform`.
+- Also provides unary negation for containers, constrained by `is_container`.
 
 ## `concepts.hpp` — Range Concepts
 
 - `is_view` — alias for `std::ranges::view` on the cvref-unwrapped type
 - `is_resizable` — has `resize( size_t )`
 - `is_string_like` — has `traits_type` ( string-like containers excluded from element-wise operators )
+- `is_container< t_container >` — an `input_range` that is neither a view nor string-like: `input_range and not is_view and not is_string_like`
+- `any_is_view< t_ranges... >` — variadic; true when at least one passed range is a view: `( is_view< t_ranges > or ... )`
 - `is_indirectly_binary_left_foldable` — fold constraint used by `fold_left_first`
 
 ## `contains.hpp` — Range Containment

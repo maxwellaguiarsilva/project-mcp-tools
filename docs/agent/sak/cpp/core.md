@@ -22,6 +22,9 @@ Niebloid `sak::ensure( expression, message )` that throws `std::runtime_error` w
 - `is_tuple< t_tuple >` — the type is tuple-like ( has `tuple_size` ).
 - `is_class< t_type >` — the type is a class ( wraps `std::is_class_v` ).
 - `is_union< t_type >` — the type is a union ( wraps `std::is_union_v` ).
+- `is_enum< t_type >` — the type is an enum ( wraps `std::is_enum_v` ).
+- `is_castable_enum< t_enum, t_target >` — the enum type has enumerators statically castable to `t_target`.
+- `is_same_decayed< t_first, t_rest... >` — variadic identity; true when every type is the same as `t_first` after `remove_cvref_t` ( strips references and cv-qualifiers ). Built on `std::same_as`.
 
 ## `sak/sak.hpp` — Main Header
 
