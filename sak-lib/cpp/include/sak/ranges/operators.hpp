@@ -234,60 +234,66 @@ __781083963_logical( __781083963_lazy_bool )
 #undef __781083963_logical
 
 
-//	unary negation for containers
-template< is_container t_left >
-constexpr auto operator - ( const t_left& left ) -> remove_cvref_t< t_left > { return lazy_transform( left, negate ) | to; }
+//	unary containers stay eager, views stay lazy without materialization,
+//	logical negation yields bool per element, so it materializes into vector of bool
+#define __781083963_unary_eager( a_operator, a_operation, a_result ) \
+template< is_container t_left > \
+constexpr auto operator a_operator ( const t_left& left ) -> a_result { return lazy_transform( left, a_operation ) | to; }
 
-//	unary plus and complement for containers, eager result
-template< is_container t_left >
-constexpr auto operator + ( const t_left& left ) -> remove_cvref_t< t_left > { return lazy_transform( left, identity ) | to; }
-template< is_container t_left >
-constexpr auto operator ~ ( const t_left& left ) -> remove_cvref_t< t_left > { return lazy_transform( left, bit_not ) | to; }
 
-//	logical negation yields bool per element, so it materializes into vector of bool, no short-circuit involved
-template< is_container t_left >
-constexpr auto operator not ( const t_left& left ) -> vector< bool > { return lazy_transform( left, logical_not ) | to; }
+#define __781083963_unary_lazy( a_operator, a_operation ) \
+template< is_view t_left > \
+constexpr auto operator a_operator ( t_left&& left ) { return lazy_transform( all( ::std::forward< t_left >( left ) ), a_operation ); }
 
-//	unary views stay lazy, no materialization needed
-template< is_view t_left >
-constexpr auto operator - ( t_left&& left ) { return lazy_transform( all( ::std::forward< t_left >( left ) ), negate ); }
-template< is_view t_left >
-constexpr auto operator + ( t_left&& left ) { return lazy_transform( all( ::std::forward< t_left >( left ) ), identity ); }
-template< is_view t_left >
-constexpr auto operator ~ ( t_left&& left ) { return lazy_transform( all( ::std::forward< t_left >( left ) ), bit_not ); }
-template< is_view t_left >
-constexpr auto operator not ( t_left&& left ) { return lazy_transform( all( ::std::forward< t_left >( left ) ), logical_not ); }
+
+#define __781083963_unary_eager_list( a_macro ) __use_macro( a_macro \
+	,(	-	,negate		,remove_cvref_t< t_left >	) \
+	,(	+	,identity	,remove_cvref_t< t_left >	) \
+	,(	~	,bit_not	,remove_cvref_t< t_left >	) \
+	,(	not	,logical_not	,vector< bool >		) \
+)
+
+
+#define __781083963_unary_lazy_list( a_macro ) __use_macro( a_macro \
+	,(	-	,negate		) \
+	,(	+	,identity	) \
+	,(	~	,bit_not	) \
+	,(	not	,logical_not	) \
+)
 
 
 //	prefix and postfix act on each element, not on iterator position,
 //	containers mutate in place, views stay lazy without mutation,
 //	postfix views are omitted since there is nothing to snapshot before a lazy step
-template< is_container t_type >
-constexpr auto operator ++ ( t_type& container ) noexcept -> t_type&
-{ return eager_transform( container, container.begin( ), increment ), container; }
-template< is_container t_type >
-constexpr auto operator ++ ( t_type& container, int ) -> remove_cvref_t< t_type >
-{
-	auto old = container;
-	eager_transform( container, container.begin( ), increment );
-	return	old;
-}
-template< is_container t_type >
-constexpr auto operator -- ( t_type& container ) noexcept -> t_type&
-{ return eager_transform( container, container.begin( ), decrement ), container; }
-template< is_container t_type >
-constexpr auto operator -- ( t_type& container, int ) -> remove_cvref_t< t_type >
-{
-	auto old = container;
-	eager_transform( container, container.begin( ), decrement );
-	return	old;
-}
-template< is_view t_type >
-constexpr auto operator ++ ( t_type&& view )
-{ return lazy_transform( all( ::std::forward< t_type >( view ) ), increment ); }
-template< is_view t_type >
-constexpr auto operator -- ( t_type&& view )
-{ return lazy_transform( all( ::std::forward< t_type >( view ) ), decrement ); }
+#define __781083963_step( a_operator, a_operation ) \
+template< is_container t_container > \
+constexpr auto operator a_operator ( t_container& container ) noexcept -> t_container& \
+{ return eager_transform( container, container.begin( ), a_operation ), container; } \
+template< is_container t_container > \
+constexpr auto operator a_operator ( t_container& container, int ) -> remove_cvref_t< t_container > \
+{ auto old = container; return eager_transform( container, container.begin( ), a_operation ), old; } \
+template< is_view t_view > \
+constexpr auto operator a_operator ( t_view&& view ) \
+{ return lazy_transform( all( ::std::forward< t_view >( view ) ), a_operation ); }
+
+
+#define __781083963_step_list( a_macro ) __use_macro( a_macro \
+	,(	++	,increment	) \
+	,(	--	,decrement	) \
+)
+
+
+__781083963_unary_eager_list( __781083963_unary_eager )
+__781083963_unary_lazy_list( __781083963_unary_lazy )
+__781083963_step_list( __781083963_step )
+
+
+#undef __781083963_unary_eager
+#undef __781083963_unary_lazy
+#undef __781083963_unary_eager_list
+#undef __781083963_unary_lazy_list
+#undef __781083963_step
+#undef __781083963_step_list
 
 
 } }
