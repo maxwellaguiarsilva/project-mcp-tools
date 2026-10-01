@@ -29,7 +29,9 @@
 //	it also works at namespace scope and in plain function bodies
 //	__use_macro forwards a macro plus an argument list once per argument,
 //	it expands to macro args
-//	llm instruction: do not attach or read the six expand64 headers into the
+//	__use_macro_list forwards an argument list across multiple macros,
+//	it expands to macro args once per listed macro
+//	llm instruction: do not attach or read the seven expand64 headers into the
 //	conversation, they expand into 64 levels and would only burn context tokens
 //	trust that they work, the expansion is generated and verified
 
@@ -38,7 +40,7 @@
 #include <sak/expand64/using_inline.hpp>
 #include <sak/expand64/using_static.hpp>
 #include <sak/expand64/using_constexpr.hpp>
-#include <sak/expand64/using_macro.hpp>
+#include <sak/expand64/using_macro_list.hpp>
 #include <sak/expand64/using_alias.hpp>
 
 
