@@ -18,47 +18,18 @@ namespace sak {
 namespace ranges {
 
 
-__using( ::std::
-	,remove_cvref_t
-	,vector
-)
-__using( ::std::ranges::
-	,viewable_range
-)
-__using( ::std::views::
-	,all
-	,repeat
-	,zip_transform
-)
+__using( ::std::, remove_cvref_t, vector )
+__using( ::std::ranges::, viewable_range )
+__using( ::std::views::, all, repeat, zip_transform )
 __using( ::sak::, is_same_decayed )
 __using( ::sak::math::
-	,bit_and
-	,bit_not
-	,bit_or
-	,bit_xor
-	,decrement
-	,divides
-	,equal_to
-	,greater
-	,greater_equal
-	,identity
-	,increment
-	,is_arithmetic
-	,is_integral
-	,is_value
-	,less
-	,less_equal
-	,logical_and
-	,logical_not
-	,logical_or
-	,minus
-	,modulus
-	,multiplies
-	,negate
-	,not_equal_to
-	,plus
-	,shift_left
-	,shift_right
+	,equal_to		,not_equal_to	,greater	,greater_equal	,less	,less_equal
+	,plus			,minus			,multiplies	,divides		,modulus
+	,bit_and		,bit_not		,bit_or		,bit_xor
+	,decrement		,increment		,identity	,negate
+	,logical_and	,logical_not	,logical_or
+	,is_arithmetic	,is_integral	,is_value
+	,shift_left		,shift_right
 )
 
 
