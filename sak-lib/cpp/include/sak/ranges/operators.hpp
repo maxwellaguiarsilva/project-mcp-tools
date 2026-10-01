@@ -104,10 +104,7 @@ __sak_operators_lazy( % ,modulus	)
 
 //	unary negation for containers
 template< is_container t_left >
-constexpr auto operator - ( const t_left& left ) -> remove_cvref_t< t_left >
-{
-	return	lazy_transform( left, negate ) | to;
-}
+constexpr auto operator - ( const t_left& left ) -> remove_cvref_t< t_left > { return lazy_transform( left, negate ) | to; }
 
 
 } }
