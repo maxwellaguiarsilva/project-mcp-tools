@@ -14,7 +14,6 @@
 //	modern paradigms: it leverages c++ features such as `ranges`, `views`, and custom `niebloids` to reduce visual noise and promote **functional composition**, oop and `extrem don't repeat yourself mindset`
 
 
-
 #include <cstdint>
 #include <cstdio>
 #include <memory>
