@@ -167,9 +167,9 @@ __use_macro( __935812590_unary_custom
 	,(	is_even		,is_even		,is_multiple( a_value, 2 )			,is_integral		)
 	,(	is_odd		,is_odd			,not is_even( a_value )				,is_integral		)
 	,(	sign		,sign			,( a_value > 0 ) - ( a_value < 0 )	,is_arithmetic		)
-	,(	decrement	,decrement		,--a_value						,is_arithmetic		)
+	,(	decrement	,decrement		,--a_value							,is_arithmetic		)
 	,(	identity	,identity		,a_value							,is_value			)
-	,(	increment	,increment		,++a_value						,is_arithmetic		)
+	,(	increment	,increment		,++a_value							,is_arithmetic		)
 	,(	logical_not	,logical_not	,not a_value						,is_value			)
 )
 
