@@ -2,7 +2,7 @@
 
 ## `sak/using.hpp` — Variadic `using` Macro
 
-Provides `__using( prefix, name1, name2, ... )` — a variadic macro that expands to a series of `using prefix::name;` declarations. Supports up to 64 names per invocation. Also provides `__use_macro( macro, ... )` for invoking a macro over multiple argument groups. Reduces visual noise when importing multiple symbols from the same namespace.
+Provides `__using( prefix, name1, name2, ... )` — a variadic macro that expands to a series of `using prefix::name;` declarations. Supports up to 64 names per invocation. Also provides `__use_macro( macro, ... )` for invoking a macro over multiple argument groups, and `__use_macro_list( args, ... )` for invoking multiple macros over the same argument list. Reduces visual noise when importing multiple symbols from the same namespace.
 
 ## `sak/default_ctc_dtc.hpp` — Constructor/Destructor Macros
 

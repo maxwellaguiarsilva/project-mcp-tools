@@ -42,7 +42,7 @@ That era is **fully retired**. The project now runs on Arch Linux with GCC 16 an
 ```
 include/sak/
   sak.hpp                     # Main header aggregator
-  using.hpp                   # __using / __use_macro variadic macros
+  using.hpp                   # __using / __use_macro / __use_macro_list variadic macros
   default_ctc_dtc.hpp         # Copy/move/dtor macro utilities
   ensure.hpp                  # Runtime assertion utility
   concepts.hpp                # is_callable / is_tuple / is_class / is_union / is_enum / is_castable_enum / is_same_decayed concepts
