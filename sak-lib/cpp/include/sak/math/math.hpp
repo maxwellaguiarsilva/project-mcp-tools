@@ -225,7 +225,6 @@ struct __close
 	constexpr auto operator ( ) ( const t_value first, const t_value second, const t_value epsilon ) const noexcept -> bool
 	{ return absolute( first - second ) < epsilon; }
 };
-
 inline constexpr auto close = __close{ };
 
 
