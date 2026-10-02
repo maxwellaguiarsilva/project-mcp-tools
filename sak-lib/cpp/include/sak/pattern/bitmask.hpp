@@ -79,10 +79,7 @@ public:
 	constexpr operator underlying_type( ) const noexcept { return m_value; }
 
 private:
-	constexpr auto is_set( const t_enum flag ) const noexcept -> bool
-	{
-		return	( m_value & cast< underlying_type >( flag ) ) == cast< underlying_type >( flag );
-	}
+	constexpr auto is_set( const t_enum flag ) const noexcept -> bool { return ( m_value & cast< underlying_type >( flag ) ) == cast< underlying_type >( flag ); }
 
 	underlying_type	m_value{ 0 };
 };

@@ -193,14 +193,6 @@ struct __sak_sum
 inline constexpr auto sum = __sak_sum{ };
 
 
-struct __sak_dot
-{
-	constexpr auto operator ( ) ( const auto& value ) const noexcept { return sum( value * value ); }
-	constexpr auto operator ( ) ( const auto& first, const auto& second ) const noexcept { return sum( first * second ); }
-};
-inline constexpr auto dot = __sak_dot{ };
-
-
 __use_macro( __935812590_binary_range_scalar
 	,(	min	,min	,first < second ? first : second	)
 	,(	max	,max	,first > second ? first : second	)

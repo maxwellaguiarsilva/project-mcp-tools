@@ -30,10 +30,7 @@ __using( ::std::
 struct __format
 {
 	template< typename... t_arguments >
-	auto operator ( ) ( const string_view format_pattern, const t_arguments&... format_arguments ) const -> string
-	{
-		return	vformat( format_pattern, make_format_args( format_arguments... ) );
-	}
+	auto operator ( ) ( const string_view format_pattern, const t_arguments&... format_arguments ) const -> string { return vformat( format_pattern, make_format_args( format_arguments... ) ); }
 };
 inline constexpr auto format = __format{ };
 

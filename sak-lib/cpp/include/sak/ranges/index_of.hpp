@@ -47,10 +47,7 @@ struct __index_of
 		constexpr explicit closure( t_value value ) : m_value( ::std::move( value ) ) { }
 
 		template< viewable_range t_range >
-		constexpr auto operator ( ) ( t_range&& range ) const
-		{
-			return	__index_of{ }( ::std::forward< t_range >( range ), m_value );
-		}
+		constexpr auto operator ( ) ( t_range&& range ) const { return __index_of{ }( ::std::forward< t_range >( range ), m_value ); }
 	};
 
 	template< viewable_range t_range, typename t_value >
@@ -63,10 +60,7 @@ struct __index_of
 	}
 
 	template< typename t_value >
-	constexpr auto operator ( ) ( t_value value ) const
-	{
-		return	closure< t_value >{ ::std::move( value ) };
-	}
+	constexpr auto operator ( ) ( t_value value ) const { return closure< t_value >{ ::std::move( value ) }; }
 };
 
 

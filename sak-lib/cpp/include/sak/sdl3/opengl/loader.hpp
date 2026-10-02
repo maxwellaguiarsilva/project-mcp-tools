@@ -43,10 +43,7 @@ struct detected_loader< void >
 	static constexpr bool available = true;
 
 	template< typename t_function_pointer >
-	auto operator ( ) ( t_function_pointer function_pointer ) const -> bool
-	{
-		return	gladLoadGL( function_pointer ) not_eq 0;
-	}
+		auto operator ( ) ( t_function_pointer function_pointer ) const -> bool { return gladLoadGL( function_pointer ) not_eq 0; }
 };
 
 

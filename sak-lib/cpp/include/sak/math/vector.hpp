@@ -39,11 +39,20 @@ __using( ::std::ranges::
 )
 
 
+//	dot product: sum of element-wise products, single-argument form is the squared norm
+struct __sak_dot
+{
+	constexpr auto operator ( ) ( const auto& value ) const noexcept { return sum( value * value ); }
+	constexpr auto operator ( ) ( const auto& first, const auto& second ) const noexcept { return sum( first * second ); }
+};
+inline constexpr auto dot = __sak_dot{ };
+
+
 //	euclidean norm of a vector: sqrt( dot( vector, vector ) )
 //	reduction to a scalar, so it is a plain function object (like sum), not pipeable
 struct __length
 {
-	constexpr auto operator ( ) ( const auto& vector ) const noexcept { return square_root( sum( vector * vector ) ); }
+	constexpr auto operator ( ) ( const auto& vector ) const noexcept { return square_root( dot( vector ) ); }
 };
 inline constexpr auto length = __length{ };
 
@@ -53,10 +62,7 @@ inline constexpr auto length = __length{ };
 struct __normalize : range_adaptor_closure< __normalize >
 {
 	template< viewable_range t_vector >
-	constexpr auto operator ( ) ( t_vector&& vector ) const noexcept
-	{
-		return	::std::forward< t_vector >( vector ) / length( vector );
-	}
+	constexpr auto operator ( ) ( t_vector&& vector ) const noexcept { return ::std::forward< t_vector >( vector ) / length( vector ); }
 };
 inline constexpr auto normalize = __normalize{ };
 
@@ -72,17 +78,11 @@ struct __cross
 		t_right m_right;
 		constexpr explicit closure( t_right right ) : m_right( right ) { }
 		template< viewable_range t_left >
-		constexpr auto operator ( ) ( t_left&& left ) const noexcept
-		{
-			return	__cross{ }( ::std::forward< t_left >( left ), m_right );
-		}
+		constexpr auto operator ( ) ( t_left&& left ) const noexcept { return __cross{ }( ::std::forward< t_left >( left ), m_right ); }
 	};
 
 	template< is_crossable t_left, is_crossable t_right >
-	constexpr auto operator ( ) ( const t_left& left, const t_right& right ) const noexcept
-	{
-		return	rotated( left, 1 ) * rotated( right, 2 ) - rotated( left, 2 ) * rotated( right, 1 );
-	}
+	constexpr auto operator ( ) ( const t_left& left, const t_right& right ) const noexcept { return rotated( left, 1 ) * rotated( right, 2 ) - rotated( left, 2 ) * rotated( right, 1 ); }
 
 	template< typename t_right >
 	constexpr auto operator ( ) ( t_right right ) const { return closure< t_right >{ right }; }
@@ -92,7 +92,6 @@ inline constexpr auto cross = __cross{ };
 
 //	rodrigues rotation of a vector around an axis by an angle, lazy result
 //	direct-application ternary closure: v | rotate( axis, angle ) applies to the whole vector
-//	uses the inline sum instead of dot so heterogeneous point/view operands work
 struct __rotate
 {
 	template< typename t_axis >
@@ -102,17 +101,14 @@ struct __rotate
 		float m_angle;
 		constexpr closure( t_axis axis, float angle ) : m_axis( axis ), m_angle( angle ) { }
 		template< viewable_range t_vector >
-		constexpr auto operator ( ) ( t_vector&& vector ) const noexcept
-		{
-			return	__rotate{ }( ::std::forward< t_vector >( vector ), m_axis, m_angle );
-		}
+		constexpr auto operator ( ) ( t_vector&& vector ) const noexcept { return __rotate{ }( ::std::forward< t_vector >( vector ), m_axis, m_angle ); }
 	};
 
 	constexpr auto operator ( ) ( const auto& vector, const auto& axis, float angle ) const noexcept
 	{
 		const float cos_angle = cosine( angle );
 		const float sin_angle = sine( angle );
-		return	vector * cos_angle + cross( axis, vector ) * sin_angle + axis * sum( axis * vector ) * ( 1.0f - cos_angle );
+		return	vector * cos_angle + cross( axis, vector ) * sin_angle + axis * dot( axis, vector ) * ( 1.0f - cos_angle );
 	}
 
 	template< typename t_axis >

@@ -52,10 +52,7 @@ inline constexpr auto read_little_u32 = __read_little_u32{ };
 
 struct __read_little_float
 {
-	constexpr auto operator ( ) ( const vector< byte >& data, size_t offset, const char* context ) const -> float
-	{
-		return	bit_cast< float >( read_little_u32( data, offset, context ) );
-	}
+	constexpr auto operator ( ) ( const vector< byte >& data, size_t offset, const char* context ) const -> float { return bit_cast< float >( read_little_u32( data, offset, context ) ); }
 };
 inline constexpr auto read_little_float = __read_little_float{ };
 

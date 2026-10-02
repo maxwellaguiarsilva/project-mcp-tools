@@ -171,10 +171,7 @@ template< typename t_scalar, size_t num_dimensions >
 struct __to_impl< point< t_scalar, num_dimensions > >
 {
 	template< viewable_range t_range >
-	static constexpr auto apply( t_range&& range )
-	{
-		return	point< t_scalar, num_dimensions >( from_range, ::std::forward< t_range >( range ) );
-	}
+	static constexpr auto apply( t_range&& range ) { return point< t_scalar, num_dimensions >( from_range, ::std::forward< t_range >( range ) ); }
 };
 
 

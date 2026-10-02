@@ -32,10 +32,7 @@ __using( ::std::ranges::
 struct __enumerate : range_adaptor_closure< __enumerate >
 {
 	template< viewable_range t_range >
-	constexpr auto operator ( ) ( t_range&& range, const ptrdiff_t start_index = 0 ) const
-	{
-		return	zip( iota( start_index ), ::std::forward< t_range >( range ) );
-	}
+	constexpr auto operator ( ) ( t_range&& range, const ptrdiff_t start_index = 0 ) const { return zip( iota( start_index ), ::std::forward< t_range >( range ) ); }
 };
 
 

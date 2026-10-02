@@ -18,10 +18,7 @@ namespace pattern {
 
 template< typename t_array, typename t_enum >
 	requires ::std::is_enum_v< t_enum >
-constexpr auto operator|( t_array&& array, const t_enum index ) noexcept -> decltype( auto )
-{
-	return	array[ static_cast< ::std::underlying_type_t< t_enum > >( index ) ];
-}
+constexpr auto operator|( t_array&& array, const t_enum index ) noexcept -> decltype( auto ) { return array[ static_cast< ::std::underlying_type_t< t_enum > >( index ) ]; }
 
 
 } } 

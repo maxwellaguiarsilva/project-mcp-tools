@@ -28,10 +28,7 @@ __using( ::std::views::
 struct __reversed : range_adaptor_closure< __reversed >
 {
 	template< viewable_range t_range >
-	constexpr auto operator ( ) ( t_range&& range ) const
-	{
-		return	reverse( ::std::forward< t_range >( range ) );
-	}
+	constexpr auto operator ( ) ( t_range&& range ) const { return reverse( ::std::forward< t_range >( range ) ); }
 };
 
 

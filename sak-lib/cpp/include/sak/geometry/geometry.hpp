@@ -60,14 +60,8 @@ struct geometry
 	{
 		position start, end;
 		constexpr auto size( ) const noexcept -> size { return end - start; }
-		constexpr auto contains( const point& point ) const noexcept -> bool
-		{
-			return	start.is_inside( point ) and point.is_inside( end );
-		}
-		constexpr auto is_inside( const rectangle& other ) const noexcept -> bool
-		{
-			return	other.start.is_inside( start ) and end.is_inside( other.end );
-		}
+		constexpr auto contains( const point& point ) const noexcept -> bool { return start.is_inside( point ) and point.is_inside( end ); }
+		constexpr auto is_inside( const rectangle& other ) const noexcept -> bool { return other.start.is_inside( start ) and end.is_inside( other.end ); }
 	};
 
 	struct triangle

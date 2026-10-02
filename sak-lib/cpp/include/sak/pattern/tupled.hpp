@@ -33,9 +33,7 @@ struct __tupled_caller
 struct __tupled
 {
 	template< typename t_invocable >
-	constexpr auto operator( )( const t_invocable& invocable ) const {
-		return	__tupled_caller< t_invocable >{ invocable };
-	}
+	constexpr auto operator( )( const t_invocable& invocable ) const { return __tupled_caller< t_invocable >{ invocable }; }
 };
 inline constexpr auto tupled = __tupled{ };
 

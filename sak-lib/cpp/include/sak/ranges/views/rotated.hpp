@@ -40,17 +40,11 @@ struct __rotated : range_adaptor_closure< __rotated >
 		size_t m_offset;
 		constexpr explicit closure( size_t offset ) : m_offset( offset ) { }
 		template< viewable_range t_range >
-		constexpr auto operator ( ) ( t_range&& range ) const
-		{
-			return	__rotated{ }( ::std::forward< t_range >( range ), m_offset );
-		}
+		constexpr auto operator ( ) ( t_range&& range ) const { return __rotated{ }( ::std::forward< t_range >( range ), m_offset ); }
 	};
 
 	template< viewable_range t_range >
-	constexpr auto operator ( ) ( t_range&& range ) const
-	{
-		return	__rotated{ }( ::std::forward< t_range >( range ), 1 );
-	}
+	constexpr auto operator ( ) ( t_range&& range ) const { return __rotated{ }( ::std::forward< t_range >( range ), 1 ); }
 
 	template< viewable_range t_range >
 	constexpr auto operator ( ) ( t_range&& range, const size_t offset ) const
@@ -61,10 +55,7 @@ struct __rotated : range_adaptor_closure< __rotated >
 			|	take( length );
 	}
 
-	constexpr auto operator ( ) ( const size_t offset ) const
-	{
-		return	closure{ offset };
-	}
+	constexpr auto operator ( ) ( const size_t offset ) const { return closure{ offset }; }
 };
 
 inline constexpr auto rotated = __rotated{ };

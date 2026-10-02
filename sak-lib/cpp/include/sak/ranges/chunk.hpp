@@ -62,15 +62,9 @@ struct __chunk
 	};
 
 	template< viewable_range t_range >
-	constexpr auto operator ( ) ( t_range&& range, const size_t offset ) const
-	{
-		return	closure( offset )( ::std::forward< t_range >( range ) );
-	}
+	constexpr auto operator ( ) ( t_range&& range, const size_t offset ) const { return closure( offset )( ::std::forward< t_range >( range ) ); }
 
-	constexpr auto operator ( ) ( const size_t offset ) const
-	{
-		return	closure( offset );
-	}
+	constexpr auto operator ( ) ( const size_t offset ) const { return closure( offset ); }
 };
 
 inline constexpr auto chunk = __chunk{ };

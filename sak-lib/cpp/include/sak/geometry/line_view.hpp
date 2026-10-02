@@ -90,10 +90,7 @@ public:
 			return	copy;
 		}
 
-		constexpr auto operator == ( default_sentinel_t ) const noexcept -> bool
-		{
-			return	m_index >= m_parent->m_total;
-		}
+		constexpr auto operator == ( default_sentinel_t ) const noexcept -> bool { return m_index >= m_parent->m_total; }
 
 		const line_view* m_parent{ nullptr };
 		t_point m_current;
@@ -125,10 +122,7 @@ struct __line_to_closure : ::std::ranges::range_adaptor_closure< __line_to_closu
 struct __line_to
 {
 	template< is_point t_point >
-	constexpr auto operator ( ) ( t_point end ) const
-	{
-		return	__line_to_closure< t_point >{ end };
-	}
+	constexpr auto operator ( ) ( t_point end ) const { return __line_to_closure< t_point >{ end }; }
 };
 inline constexpr auto line_to = __line_to{ };
 
