@@ -73,7 +73,8 @@ struct __fold_left_first
 		,is_indirectly_binary_left_foldable< ranges::range_value_t< t_range >, ranges::iterator_t< t_range > > t_function
 	>
 	requires constructible_from< ranges::range_value_t< t_range >, ranges::range_reference_t< t_range > >
-	constexpr auto operator ( ) ( t_range&& range, t_function function ) const { return ( *this )( ranges::begin( range ), ranges::end( range ), ref( function ) ); }
+	constexpr auto operator ( ) ( t_range&& range, t_function function ) const
+	{ return ( *this )( ranges::begin( range ), ranges::end( range ), ref( function ) ); }
 };
 inline constexpr auto fold_left_first = __fold_left_first{ };
 

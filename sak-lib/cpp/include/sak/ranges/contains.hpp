@@ -41,12 +41,14 @@ struct __contains
 {
 	template< input_range t_range, class t_value >
 	requires( ::std::equality_comparable_with< range_reference_t< t_range >, t_value > )
-	constexpr auto operator ( ) ( t_range&& range, const t_value& value ) const -> bool { return std_contains( ::std::forward< t_range >( range ), value ); }
+	constexpr auto operator ( ) ( t_range&& range, const t_value& value ) const -> bool
+	{ return std_contains( ::std::forward< t_range >( range ), value ); }
 
 	//	true if the range contains any of the braced-list values: contains( range, { "foo", "bar" } )
 	template< input_range t_range, class t_value >
 	requires( ::std::equality_comparable_with< range_reference_t< t_range >, t_value > )
-	constexpr auto operator ( ) ( t_range&& range, ::std::initializer_list< t_value > values ) const -> bool { return any_of( ::std::forward< t_range >( range ), bind_front( std_contains, values ) ); }
+	constexpr auto operator ( ) ( t_range&& range, ::std::initializer_list< t_value > values ) const -> bool
+	{ return any_of( ::std::forward< t_range >( range ), bind_front( std_contains, values ) ); }
 
 	//	true if the associative container holds the key ( prefers member contains, falls back to find )
 	template< typename t_container >

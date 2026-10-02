@@ -115,7 +115,8 @@ struct __line_to_closure : ::std::ranges::range_adaptor_closure< __line_to_closu
 {
 	t_point m_end;
 	constexpr explicit __line_to_closure( t_point end ) : m_end( end ) { }
-	constexpr auto operator ( ) ( t_point start ) const { return line_view< t_point >( start, m_end ); }
+	constexpr auto operator ( ) ( t_point start ) const
+	{ return line_view< t_point >( start, m_end ); }
 };
 
 

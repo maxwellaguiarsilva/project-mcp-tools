@@ -41,7 +41,7 @@ __using( ::std::ranges::
 
 
 //	unary niebloid closures: scalar overload plus range overload (element-wise transform)
-//	range bitor niebloid routes natively via range_adaptor_closure
+//	range | niebloid routes natively via range_adaptor_closure
 //	a_constraint narrows the scalar element type ( is_value keeps ranges on the range overload )
 #define __935812590_unary_custom( a_name, a_alias, a_expr, a_constraint ) \
 struct __sak_##a_name : range_adaptor_closure< __sak_##a_name > \
@@ -60,11 +60,12 @@ inline constexpr auto a_alias = __sak_##a_name{ };
 
 
 //	n-ary niebloid closures: chunk pattern (adaptor object plus nested closure)
-//	range bitor name( bound... ) routes natively via the nested range_adaptor_closure
+//	range | name( bound... ) routes natively via the nested range_adaptor_closure
 //	the a_scalar_overload chunk carries the scalar call: expression first, parameters after
 //	each parameter is a constrained placeholder ( is_value keeps ranges on the range overload )
 //	a_arity is the scalar parameter count; the range overload binds a_arity - 1 trailing values
-#define __935812590_scalar_overload( a_expression, ... ) constexpr auto operator ( ) ( __VA_ARGS__ ) const noexcept { return a_expression; }
+#define __935812590_scalar_overload( a_expression, ... ) constexpr auto operator ( ) ( __VA_ARGS__ ) const noexcept \
+{ return a_expression; }
 
 
 #define __935812590_nary_custom( a_name, a_alias, a_arity, a_scalar_overload ) \
@@ -73,7 +74,8 @@ struct __sak_##a_name \
 	struct __sak_bind_back_factory \
 	{ \
 		template< typename... t_bound > \
-		constexpr auto operator ( ) ( t_bound&&... bound ) const { return bind_back( __sak_##a_name{ }, ::std::forward< t_bound >( bound )... ); } \
+		constexpr auto operator ( ) ( t_bound&&... bound ) const \
+		{ return bind_back( __sak_##a_name{ }, ::std::forward< t_bound >( bound )... ); } \
 	}; \
 	template< typename... t_bound > \
 	struct closure : range_adaptor_closure< closure< t_bound... > > \
@@ -81,15 +83,18 @@ struct __sak_##a_name \
 		::std::tuple< t_bound... > m_bound; \
 		constexpr explicit closure( t_bound... bound ) : m_bound( bound... ) { } \
 		template< viewable_range t_range > \
-		constexpr auto operator ( ) ( t_range&& range ) const { return lazy_transform( ::std::forward< t_range >( range ), ::std::apply( __sak_bind_back_factory{ }, m_bound ) ); } \
+		constexpr auto operator ( ) ( t_range&& range ) const \
+		{ return lazy_transform( ::std::forward< t_range >( range ), ::std::apply( __sak_bind_back_factory{ }, m_bound ) ); } \
 	}; \
 	__935812590_scalar_overload a_scalar_overload; \
 	template< viewable_range t_range, typename... t_bound > \
 		requires ( sizeof...( t_bound ) == a_arity - 1 ) \
-	constexpr auto operator ( ) ( t_range&& range, t_bound... bound ) const { return lazy_transform( ::std::forward< t_range >( range ), bind_back( __sak_##a_name{ }, bound... ) ); } \
+	constexpr auto operator ( ) ( t_range&& range, t_bound... bound ) const \
+	{ return lazy_transform( ::std::forward< t_range >( range ), bind_back( __sak_##a_name{ }, bound... ) ); } \
 	template< typename... t_bound > \
 		requires ( sizeof...( t_bound ) == a_arity - 1 ) \
-	constexpr auto operator ( ) ( t_bound... bound ) const { return closure< t_bound... >{ bound... }; } \
+	constexpr auto operator ( ) ( t_bound... bound ) const \
+	{ return closure< t_bound... >{ bound... }; } \
 }; \
 inline constexpr auto sak_##a_name = __sak_##a_name{ }; \
 inline constexpr auto a_alias = __sak_##a_name{ };
@@ -105,7 +110,8 @@ inline constexpr auto a_alias = __sak_##a_name{ };
 struct __sak_##a_name \
 { \
 	constexpr auto operator ( ) ( auto first, auto second ) const noexcept { return a_expr; } \
-	constexpr auto operator ( ) ( const auto& range ) const noexcept { return ::std::ranges::a_name( range ); } \
+	constexpr auto operator ( ) ( const auto& range ) const noexcept \
+	{ return ::std::ranges::a_name( range ); } \
 }; \
 inline constexpr auto sak_##a_name = __sak_##a_name{ }; \
 inline constexpr auto a_alias = __sak_##a_name{ };
@@ -188,7 +194,8 @@ __use_macro( __935812590_unary_std
 //	min and max also sit here: their range overload reduces via ::std::ranges
 struct __sak_sum
 {
-	constexpr auto operator ( ) ( const auto& list ) const noexcept { return fold_left( list, 0, plus ); }
+	constexpr auto operator ( ) ( const auto& list ) const noexcept
+	{ return fold_left( list, 0, plus ); }
 };
 inline constexpr auto sum = __sak_sum{ };
 

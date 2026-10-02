@@ -27,7 +27,8 @@ __using( ::std::views::, iota )
 struct __count_to
 {
 	template< ::std::integral t_integer >
-	constexpr auto operator ( ) ( const t_integer bound ) const { return iota( static_cast< t_integer >( 0 ), bound ); }
+	constexpr auto operator ( ) ( const t_integer bound ) const
+	{ return iota( static_cast< t_integer >( 0 ), bound ); }
 };
 
 inline constexpr auto count_to = __count_to{ };

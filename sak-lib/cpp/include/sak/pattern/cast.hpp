@@ -27,10 +27,12 @@ template< typename t_target >
 struct __cast : range_adaptor_closure< __cast< t_target > >
 {
 	template< is_value t_source >
-	constexpr auto operator ( ) ( t_source&& value ) const noexcept -> t_target { return static_cast< t_target >( ::std::forward< t_source >( value ) ); }
+	constexpr auto operator ( ) ( t_source&& value ) const noexcept -> t_target
+	{ return static_cast< t_target >( ::std::forward< t_source >( value ) ); }
 
 	template< input_range t_range >
-	constexpr auto operator ( ) ( t_range&& range ) const { return lazy_transform( ::std::forward< t_range >( range ), *this ); }
+	constexpr auto operator ( ) ( t_range&& range ) const
+	{ return lazy_transform( ::std::forward< t_range >( range ), *this ); }
 };
 
 

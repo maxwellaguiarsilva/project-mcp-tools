@@ -37,7 +37,8 @@ struct geometry
 	template< typename t_value, int index >
 	struct __axis : range_adaptor_closure< __axis< t_value, index > >
 	{
-		constexpr auto operator ( ) ( const t_value& value ) const noexcept -> typename t_value::value_type { return value[ index ]; }
+		constexpr auto operator ( ) ( const t_value& value ) const noexcept -> typename t_value::value_type
+		{ return value[ index ]; }
 	};
 
 	static constexpr auto left		=	__axis<	position	,0	>{ };
