@@ -215,6 +215,20 @@ __use_macro( __935812590_nary_custom
 )
 
 
+//	--------------------------------------------------
+//	approximate equality: true when the two values differ by less than epsilon
+//	the gap is folded through absolute so the caller needs no ordering assumption
+//	--------------------------------------------------
+struct __close
+{
+	template< typename t_value >
+	constexpr auto operator ( ) ( const t_value first, const t_value second, const t_value epsilon ) const noexcept -> bool
+	{ return absolute( first - second ) < epsilon; }
+};
+
+inline constexpr auto close = __close{ };
+
+
 #undef __935812590_scalar_overload
 #undef __935812590_nary_custom
 #undef __935812590_binary_std
@@ -225,9 +239,6 @@ __use_macro( __935812590_nary_custom
 
 
 } }
-
-
-#include <sak/math/close.hpp>
 
 
 #endif
