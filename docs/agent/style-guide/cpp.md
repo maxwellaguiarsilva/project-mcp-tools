@@ -286,6 +286,15 @@ const auto& listener		=	*m_renderer_listener;
 const auto& label_position	=	listener.label_position;
 ```
 
+## RAII Unique Pointer `[llm]` #raii-unique-ptr
+<!-- llm-rule: id=raii_unique_ptr, complexity=medium -->
+
+- RAII wrapper classes managing resource lifecycles must encapsulate the resource and its state within an inner `impl` struct held via a `unique_ptr<impl>` member named `m_handle`, adhering to the handle-body idiom and the rule of zero.
+- Resource acquisition, initialization, invariant validation, cleanup on failure, and release must reside exclusively within the private nested `impl` constructor and destructor.
+- The outer wrapper class destructor must be defaulted (`= default`).
+- Copy and move operations or macros must not be declared explicitly; rely strictly on transitivity through `unique_ptr` to delete copy operations and generate move operations automatically.
+- Accessors and methods operating on the resource must verify `m_handle` validity using `ensure` to guard against use-after-move, and must not be marked `noexcept`.
+
 ## Increment `[llm]`
 <!-- llm-rule: id=increment, complexity=low -->
 
