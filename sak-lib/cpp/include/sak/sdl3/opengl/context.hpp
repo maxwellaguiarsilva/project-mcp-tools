@@ -20,7 +20,7 @@ namespace opengl {
 
 
 __using( ::sak::, ensure )
-__using( ::std::, shared_ptr, make_shared )
+__using( ::std::, make_shared, make_unique, shared_ptr, unique_ptr )
 
 
 class context
@@ -31,10 +31,11 @@ public:
 	template< typename t_loader >
 		requires loader_for< t_loader, loader_type >
 	explicit context( window& application_window, t_loader load, const attributes& = attributes{ } )
-		: m_id( SDL_GL_CreateContext( application_window.id( ) ) )
+		:m_handle( make_unique< handle >( ) )
 	{
-		ensure( m_id not_eq nullptr, "failed to create opengl context" );
-		ensure( load( function_pointer( ) ), "failed to load opengl functions" );
+		m_handle->m_id	=	SDL_GL_CreateContext( application_window.id( ) );
+		ensure( m_handle->m_id not_eq nullptr, "failed to create opengl context" );
+		ensure( load( &SDL_GL_GetProcAddress ), "failed to load opengl functions" );
 
 		m_viewport_listener = make_shared< viewport_listener >( );
 		application_window.listeners( ) += m_viewport_listener;
@@ -46,11 +47,7 @@ public:
 		: context( application_window, t_loader{ }, gl_attributes )
 	{ }
 
-	~context( ) noexcept { SDL_GL_DestroyContext( m_id ); }
-
-	delete_copy_move_ctc( context )
-
-	auto id( ) const noexcept -> SDL_GLContext { return m_id; }
+	auto id( ) const noexcept -> SDL_GLContext { return m_handle->m_id; }
 	auto function_pointer( ) const noexcept -> loader_type { return &SDL_GL_GetProcAddress; }
 
 private:
@@ -66,7 +63,14 @@ private:
 		}
 	};
 
-	SDL_GLContext					m_id{ nullptr };
+	struct handle
+	{
+		~handle( ) noexcept { SDL_GL_DestroyContext( m_id ); }
+
+		SDL_GLContext	m_id{ nullptr };
+	};
+
+	unique_ptr< handle >			m_handle;
 	shared_ptr< viewport_listener >	m_viewport_listener;
 };
 

@@ -18,7 +18,7 @@ namespace sak {
 namespace sdl3 {
 
 
-__using( ::std::, shared_ptr, string )
+__using( ::std::, make_unique, shared_ptr, string, unique_ptr )
 __using( ::sak::, ensure )
 __using( ::sak::pattern::, bitmask, dispatcher, listener_registry )
 
@@ -27,10 +27,10 @@ __using( ::sak::pattern::, bitmask, dispatcher, listener_registry )
 auto a_name( ) const noexcept -> geometry::a_type									\
 {																					\
 	int window_##a_first = 0, window_##a_second = 0;								\
-	SDL_GetWindow##a_sdl( m_id, &window_##a_first, &window_##a_second );			\
+	SDL_GetWindow##a_sdl( m_handle->m_id, &window_##a_first, &window_##a_second );			\
 	return	{ window_##a_first, window_##a_second };								\
 }																					\
-auto a_name( const geometry::a_type& a_value ) -> void { SDL_SetWindow##a_sdl( m_id, a_first( a_value ), a_second( a_value ) ); }
+auto a_name( const geometry::a_type& a_value ) -> void { SDL_SetWindow##a_sdl( m_handle->m_id, a_first( a_value ), a_second( a_value ) ); }
 
 
 class window
@@ -89,15 +89,15 @@ public:
 	{ }
 
 	window( const string& title, const geometry::size& size, const window_flags flags = window_flags{ } )
-		: m_id( create_window( title, size, flags ) )
-		, m_display( SDL_GetDisplayForWindow( m_id ) )
+		:m_handle( make_unique< handle >( ) )
 	{
-		SDL_SetPointerProperty( SDL_GetWindowProperties( m_id ), "sak.sdl3.window", this );
+		m_handle->m_id	=	SDL_CreateWindow( title.c_str( ), width( size ), height( size ), flags );
+		ensure( m_handle->m_id not_eq nullptr, "failed to create sdl window" );
+
+		m_display = ::sak::sdl3::display( SDL_GetDisplayForWindow( m_handle->m_id ) );
+
+		SDL_SetPointerProperty( SDL_GetWindowProperties( m_handle->m_id ), "sak.sdl3.window", this );
 	}
-
-	~window( ) noexcept { SDL_DestroyWindow( m_id ); }
-
-	delete_copy_move_ctc( window )
 
 	class listener
 	{
@@ -166,16 +166,16 @@ public:
 		}
 	}
 
-	auto id( ) const noexcept -> SDL_Window* { return m_id; }
+	auto id( ) const noexcept -> SDL_Window* { return m_handle->m_id; }
 	auto display( ) const noexcept -> const ::sak::sdl3::display& { return m_display; }
-	auto swap( ) const noexcept -> void { SDL_GL_SwapWindow( m_id ); }
-	auto title( ) const -> string { return SDL_GetWindowTitle( m_id ); }
-	auto title( const string& title ) -> void { SDL_SetWindowTitle( m_id, title.c_str( ) ); }
+	auto swap( ) const noexcept -> void { SDL_GL_SwapWindow( m_handle->m_id ); }
+	auto title( ) const -> string { return SDL_GetWindowTitle( m_handle->m_id ); }
+	auto title( const string& title ) -> void { SDL_SetWindowTitle( m_handle->m_id, title.c_str( ) ); }
 
 	auto pixel_size( ) const noexcept -> geometry::size
 	{
 		int window_width = 0, window_height = 0;
-		SDL_GetWindowSizeInPixels( m_id, &window_width, &window_height );
+		SDL_GetWindowSizeInPixels( m_handle->m_id, &window_width, &window_height );
 		return	{ window_width, window_height };
 	}
 
@@ -186,27 +186,26 @@ public:
 		,(	position		,Position		,position	,left	,top	)
 	)
 
-	auto show( ) -> void { SDL_ShowWindow( m_id ); }
-	auto hide( ) -> void { SDL_HideWindow( m_id ); }
-	auto raise( ) -> void { SDL_RaiseWindow( m_id ); }
-	auto maximize( ) -> void { SDL_MaximizeWindow( m_id ); }
-	auto minimize( ) -> void { SDL_MinimizeWindow( m_id ); }
-	auto restore( ) -> void { SDL_RestoreWindow( m_id ); }
-	auto fullscreen( ) const noexcept -> bool { return ( SDL_GetWindowFlags( m_id ) & SDL_WINDOW_FULLSCREEN ) not_eq 0; }
-	auto fullscreen( const bool is_fullscreen ) -> void { SDL_SetWindowFullscreen( m_id, is_fullscreen ); }
+	auto show( ) -> void { SDL_ShowWindow( m_handle->m_id ); }
+	auto hide( ) -> void { SDL_HideWindow( m_handle->m_id ); }
+	auto raise( ) -> void { SDL_RaiseWindow( m_handle->m_id ); }
+	auto maximize( ) -> void { SDL_MaximizeWindow( m_handle->m_id ); }
+	auto minimize( ) -> void { SDL_MinimizeWindow( m_handle->m_id ); }
+	auto restore( ) -> void { SDL_RestoreWindow( m_handle->m_id ); }
+	auto fullscreen( ) const noexcept -> bool { return ( SDL_GetWindowFlags( m_handle->m_id ) & SDL_WINDOW_FULLSCREEN ) not_eq 0; }
+	auto fullscreen( const bool is_fullscreen ) -> void { SDL_SetWindowFullscreen( m_handle->m_id, is_fullscreen ); }
 	auto toggle_fullscreen( ) -> void { fullscreen( not fullscreen( ) ); }
-	auto sync( ) -> void { SDL_SyncWindow( m_id ); }
+	auto sync( ) -> void { SDL_SyncWindow( m_handle->m_id ); }
 
 private:
-	static auto create_window( const string& title, const geometry::size& size, const window_flags flags ) -> SDL_Window*
+	struct handle
 	{
-		auto*	created_window	=	SDL_CreateWindow( title.c_str( ), width( size ), height( size ), flags );
-		ensure( created_window not_eq nullptr, "failed to create sdl window" );
-		return	created_window;
-	}
+		~handle( ) noexcept { SDL_DestroyWindow( m_id ); }
 
-	//	todo: integrate application::poll routing for "sak.sdl3.window" property lookup
-	SDL_Window*				m_id{ nullptr };
+		SDL_Window*	m_id{ nullptr };
+	};
+
+	unique_ptr< handle >	m_handle;
 	::sak::sdl3::display	m_display;
 	dispatcher< listener >	m_dispatcher;
 };

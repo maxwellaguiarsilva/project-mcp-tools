@@ -28,8 +28,6 @@ public:
 		: m_id( display_id )
 	{ }
 
-	delete_copy_move_ctc( display )
-
 	auto id( ) const noexcept -> SDL_DisplayID { return m_id; }
 
 	auto size( ) const noexcept -> geometry::size

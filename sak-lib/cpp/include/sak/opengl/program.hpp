@@ -27,34 +27,35 @@ class program
 {
 public:
 	explicit program( const t_range& shaders )
+		:m_handle( make_unique< handle >( ) )
 	{
-		const GLuint id = gl_create_program( );
+		m_handle->m_id	=	gl_create_program( );
 		for( const shader& current_shader : shaders )
-			gl_attach_shader( id, current_shader.id( ) );
+			gl_attach_shader( m_handle->m_id, current_shader.id( ) );
 
-		gl_link_program( id );
+		gl_link_program( m_handle->m_id );
 
 		int success = 0;
-		gl_get_program_iv( id, GL_LINK_STATUS, &success );
+		gl_get_program_iv( m_handle->m_id, GL_LINK_STATUS, &success );
 		if( not success )
 		{
-			const string info_log = fetch_log( gl_get_program_info_log, id );
-			gl_delete_program( id );
+			const string info_log = fetch_log( gl_get_program_info_log, m_handle->m_id );
 			throw	runtime_error( info_log );
 		}
-
-		m_id	=	id;
 	}
 
-	~program( ) noexcept { gl_delete_program( m_id ); }
-
-	delete_copy_move_ctc( program )
-
-	auto use( ) const noexcept -> void { gl_use_program( m_id ); }
-	auto id( ) const noexcept -> GLuint { return m_id; }
+	auto use( ) const noexcept -> void { gl_use_program( m_handle->m_id ); }
+	auto id( ) const noexcept -> GLuint { return m_handle->m_id; }
 
 private:
-	GLuint	m_id{ 0 };
+	struct handle
+	{
+		~handle( ) noexcept { gl_delete_program( m_id ); }
+
+		GLuint	m_id{ 0 };
+	};
+
+	unique_ptr< handle > m_handle;
 };
 
 
@@ -62,5 +63,3 @@ private:
 
 
 #endif
-
-

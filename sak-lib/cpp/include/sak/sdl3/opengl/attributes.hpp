@@ -21,7 +21,7 @@ namespace opengl {
 
 
 __using( ::sak::, byte, ensure, is_castable_enum )
-__using( ::std::, pair, string )
+__using( ::std::, make_unique, pair, string, unique_ptr )
 
 
 #define __924217115_set_value_attribute( attribute_type, value_type, error_message )	\
@@ -93,11 +93,11 @@ public:
 		,lose_context		=	SDL_GL_CONTEXT_RESET_LOSE_CONTEXT
 	};
 
-	explicit attributes( const profile gl_profile = core, const version gl_version = version{ 4, 6 } ) { set( gl_profile, gl_version ); }
-
-	~attributes( ) noexcept { SDL_GL_ResetAttributes( ); }
-
-	delete_copy_move_ctc( attributes )
+	explicit attributes( const profile gl_profile = core, const version gl_version = version{ 4, 6 } )
+		:m_handle( make_unique< handle >( ) )
+	{
+		set( gl_profile, gl_version );
+	}
 
 	auto set( const profile attribute, const version context_version ) -> void
 	{
@@ -116,12 +116,19 @@ public:
 	)
 
 private:
+	struct handle
+	{
+		~handle( ) noexcept { SDL_GL_ResetAttributes( ); }
+	};
+
 	template< typename attribute >
 	auto raw_set( const attribute gl_attribute, const int value, const string& error_message ) -> void
 		requires is_castable_enum< attribute, SDL_GLAttr >
 	{
 		ensure( SDL_GL_SetAttribute( static_cast< SDL_GLAttr >( gl_attribute ), value ), error_message );
 	}
+
+	unique_ptr< handle > m_handle;
 };
 
 

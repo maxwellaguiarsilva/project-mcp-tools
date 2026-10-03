@@ -18,7 +18,7 @@ namespace sdl3 {
 
 __using( ::sak::math::, between )
 __using( ::sak::pattern::, bitmask, dispatcher, listener_registry )
-__using( ::std::, function, initializer_list, same_as, shared_ptr )
+__using( ::std::, function, initializer_list, make_unique, same_as, shared_ptr, unique_ptr )
 
 
 class application
@@ -40,8 +40,11 @@ public:
 	using	init_flags	=	bitmask< flag >;
 
 	explicit application( const init_flags flags = init_flags{ video } )
-		: m_flags( flags )
-	{ ensure( SDL_Init( m_flags ), SDL_GetError( ) ); }
+		:m_handle( make_unique< handle >( ) )
+		,m_flags( flags )
+	{
+		ensure( SDL_Init( flags ), SDL_GetError( ) );
+	}
 
 	explicit application( const initializer_list< flag > flags )
 		: application( init_flags{ flags } )
@@ -52,10 +55,6 @@ public:
 	explicit application( const t_flags... flags )
 		: application( init_flags{ flags... } )
 	{ }
-
-	~application( ) noexcept { SDL_Quit( ); }
-
-	delete_copy_move_ctc( application )
 
 	auto flags( ) const noexcept -> const init_flags& { return m_flags; }
 
@@ -111,6 +110,12 @@ public:
 	auto quit( ) noexcept -> void { m_is_running = false; }
 
 private:
+	struct handle
+	{
+		~handle( ) noexcept { SDL_Quit( ); }
+	};
+
+	unique_ptr< handle >	m_handle;
 	init_flags				m_flags;
 	dispatcher< listener >	m_dispatcher;
 	bool					m_is_running{ true };
