@@ -23,7 +23,6 @@ __using( ::std::
 	,ifstream
 	,istreambuf_iterator
 	,ofstream
-	,optional
 	,streamsize
 	,string
 	,string_view
@@ -35,8 +34,6 @@ __using( ::sak::, ensure )
 class text_file final : public file
 {
 public:
-	using	optional_content	=	optional< string >;
-
 	explicit text_file( path_type source_path )
 		:file( ::std::move( source_path ) )
 	{
@@ -45,9 +42,9 @@ public:
 	use_default_dtc( text_file );
 	use_default_copy_move_ctc( text_file );
 
-	auto content( ) const noexcept -> const optional_content& { return m_content; }
+	auto content( ) const noexcept -> const string& { return m_content; }
 
-	auto read( ) -> const optional_content&
+	auto read( ) -> const string&
 	{
 		if( exists( ) )
 		{
@@ -79,7 +76,7 @@ public:
 	}
 
 private:
-	optional_content	m_content;
+	string	m_content;
 };
 
 
