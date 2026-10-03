@@ -21,16 +21,8 @@ namespace sak {
 namespace fso {
 
 
-__using( ::std::
-	,error_code
-	,optional
-	,string
-)
-__using( ::std::chrono::
-	,clock_cast
-	,nanoseconds
-	,system_clock
-)
+__using( ::std::, error_code, optional, string )
+__using( ::std::chrono::, clock_cast, nanoseconds, system_clock )
 __using( ::std::filesystem::, last_write_time )
 
 
