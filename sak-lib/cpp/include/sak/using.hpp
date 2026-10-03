@@ -44,6 +44,11 @@
 #include <sak/expand64/using_alias.hpp>
 
 
+//	strip the protective parentheses used to carry commas across macro arguments
+//	it must be variadic, otherwise the inner commas would split its own invocation
+#define __unparenthesize( ... ) __VA_ARGS__
+
+
 #endif
 
 

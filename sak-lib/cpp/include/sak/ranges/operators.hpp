@@ -33,19 +33,47 @@ __using( ::sak::math::
 )
 
 
-//	element-wise operators for containers (non-view ranges): eager result
-//	scalar concept and eager return type are the only axes that vary per family
-#define __781083963_eager( a_operator, a_operation, a_scalar, a_return ) \
-template< is_container t_left, is_container t_right > \
-requires( is_same_decayed< t_left, t_right > ) \
-constexpr auto operator a_operator ( t_left&& left, t_right&& right ) -> a_return \
-{ return zip_transform( a_operation, all( left ), all( right ) ) | to; } \
-template< is_container t_left, a_scalar t_scalar > \
-constexpr auto operator a_operator ( t_left&& left, t_scalar right ) -> a_return \
-{ return zip_transform( a_operation, all( left ), repeat( right ) ) | to; } \
-template< is_container t_left, a_scalar t_scalar > \
-constexpr auto operator a_operator ( t_scalar left, t_left&& right ) -> a_return \
-{ return zip_transform( a_operation, repeat( left ), all( right ) ) | to; }
+//	emit a complete zip overload: template header, requires, signature and body
+#define __781083963_overload( a_requires, a_return, a_tail, a_template, a_operator, a_params, a_zip ) \
+template< __unparenthesize a_template > \
+a_requires \
+constexpr auto operator a_operator ( __unparenthesize a_params ) a_return \
+{ return zip_transform( __unparenthesize a_zip ) a_tail; }
+
+
+//	element-wise operators, containers materialize and views stay lazy, one shared body
+//	scalar concept, materialization and forwarding are the only axes per overload
+#define __781083963_binary( a_operator, a_operation, a_scalar, a_return ) \
+__781083963_overload( requires( is_same_decayed< t_left, t_right > ), -> a_return, | to \
+	,( is_container t_left, is_container t_right ) \
+	,a_operator	,( t_left&& left, t_right&& right ) \
+	,( a_operation, all( left ), all( right ) ) \
+) \
+__781083963_overload( ,-> a_return, | to \
+	,( is_container t_left, a_scalar t_scalar ) \
+	,a_operator	,( t_left&& left, t_scalar right ) \
+	,( a_operation, all( left ), repeat( right ) ) \
+) \
+__781083963_overload( ,-> a_return, | to \
+	,( is_container t_left, a_scalar t_scalar ) \
+	,a_operator	,( t_scalar left, t_left&& right ) \
+	,( a_operation, repeat( left ), all( right ) ) \
+) \
+__781083963_overload( requires( any_is_view< t_left, t_right > ),, \
+	,( viewable_range t_left, viewable_range t_right ) \
+	,a_operator	,( t_left&& left, t_right&& right ) \
+	,( a_operation, all( ::std::forward< t_left >( left ) ), all( ::std::forward< t_right >( right ) ) ) \
+) \
+__781083963_overload( ,, \
+	,( is_view t_left, a_scalar t_scalar ) \
+	,a_operator	,( t_left&& left, t_scalar right ) \
+	,( a_operation, all( ::std::forward< t_left >( left ) ), repeat( right ) ) \
+) \
+__781083963_overload( ,, \
+	,( is_view t_left, a_scalar t_scalar ) \
+	,a_operator	,( t_scalar left, t_left&& right ) \
+	,( a_operation, repeat( left ), all( ::std::forward< t_left >( right ) ) ) \
+)
 
 
 #define __781083963_compound( a_operator, a_operation, a_scalar, ... ) \
@@ -58,20 +86,6 @@ constexpr auto operator a_operator##= ( t_left& left, t_scalar right ) noexcept 
 { return eager_transform( left, repeat( right ), left.begin( ), a_operation ), left; }
 
 
-//	element-wise operators for views (at least one operand is a view): lazy result
-#define __781083963_lazy( a_operator, a_operation, a_scalar, ... ) \
-template< viewable_range t_left, viewable_range t_right > \
-requires( any_is_view< t_left, t_right > ) \
-constexpr auto operator a_operator ( t_left&& left, t_right&& right ) \
-{ return zip_transform( a_operation, all( ::std::forward< t_left >( left ) ), all( ::std::forward< t_right >( right ) ) ); } \
-template< is_view t_left, a_scalar t_scalar > \
-constexpr auto operator a_operator ( t_left&& left, t_scalar right ) \
-{ return zip_transform( a_operation, all( ::std::forward< t_left >( left ) ), repeat( right ) ); } \
-template< is_view t_left, a_scalar t_scalar > \
-constexpr auto operator a_operator ( t_scalar left, t_left&& right ) \
-{ return zip_transform( a_operation, repeat( left ), all( ::std::forward< t_left >( right ) ) ); }
-
-
 __use_macro_list(
 	(
 		 (	+	,plus		,is_arithmetic	,remove_cvref_t< t_left >	)
@@ -80,9 +94,8 @@ __use_macro_list(
 		,(	/	,divides	,is_arithmetic	,remove_cvref_t< t_left >	)
 		,(	%	,modulus	,is_arithmetic	,remove_cvref_t< t_left >	)
 	)
-	,__781083963_eager
+	,__781083963_binary
 	,__781083963_compound
-	,__781083963_lazy
 )
 
 
@@ -95,9 +108,8 @@ __use_macro_list(
 		,(	<<	,shift_left	,is_integral	,remove_cvref_t< t_left >	)
 		,(	>>	,shift_right	,is_integral	,remove_cvref_t< t_left >	)
 	)
-	,__781083963_eager
+	,__781083963_binary
 	,__781083963_compound
-	,__781083963_lazy
 )
 
 
@@ -112,8 +124,7 @@ __use_macro_list(
 		,(	> 	,greater		,is_value	,vector< bool >	)
 		,(	>=	,greater_equal	,is_value	,vector< bool >	)
 	)
-	,__781083963_eager
-	,__781083963_lazy
+	,__781083963_binary
 )
 
 
@@ -123,14 +134,13 @@ __use_macro_list(
 		 (	and	,logical_and	,is_value	,vector< bool >	)
 		,(	or	,logical_or		,is_value	,vector< bool >	)
 	)
-	,__781083963_eager
-	,__781083963_lazy
+	,__781083963_binary
 )
 
 
-#undef __781083963_eager
+#undef __781083963_overload
+#undef __781083963_binary
 #undef __781083963_compound
-#undef __781083963_lazy
 
 
 //	unary containers stay eager, views stay lazy without materialization,
