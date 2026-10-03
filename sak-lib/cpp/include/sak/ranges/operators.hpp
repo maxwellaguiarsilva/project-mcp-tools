@@ -87,25 +87,17 @@ constexpr auto operator a_operator##= ( t_left& left, t_scalar right ) noexcept 
 
 
 __use_macro_list(
-	(
-		 (	+	,plus		,is_arithmetic	,remove_cvref_t< t_left >	)
-		,(	-	,minus		,is_arithmetic	,remove_cvref_t< t_left >	)
-		,(	*	,multiplies	,is_arithmetic	,remove_cvref_t< t_left >	)
-		,(	/	,divides	,is_arithmetic	,remove_cvref_t< t_left >	)
-		,(	%	,modulus	,is_arithmetic	,remove_cvref_t< t_left >	)
-	)
-	,__781083963_binary
-	,__781083963_compound
-)
-
-
-//	bitwise and shift scalars are narrowed to integral, container pairs stay as-is
-__use_macro_list(
-	(
-		 (	&	,bit_and	,is_integral	,remove_cvref_t< t_left >	)
-		,(	|	,bit_or		,is_integral	,remove_cvref_t< t_left >	)
-		,(	^	,bit_xor	,is_integral	,remove_cvref_t< t_left >	)
-		,(	<<	,shift_left	,is_integral	,remove_cvref_t< t_left >	)
+	(	//	rule-exception: local style consistency
+		 (	+	,plus			,is_arithmetic	,remove_cvref_t< t_left >	)
+		,(	-	,minus			,is_arithmetic	,remove_cvref_t< t_left >	)
+		,(	*	,multiplies		,is_arithmetic	,remove_cvref_t< t_left >	)
+		,(	/	,divides		,is_arithmetic	,remove_cvref_t< t_left >	)
+		,(	%	,modulus		,is_arithmetic	,remove_cvref_t< t_left >	)
+		//	bitwise and shift scalars are narrowed to integral, container pairs stay as-is
+		,(	&	,bit_and		,is_integral	,remove_cvref_t< t_left >	)
+		,(	|	,bit_or			,is_integral	,remove_cvref_t< t_left >	)
+		,(	^	,bit_xor		,is_integral	,remove_cvref_t< t_left >	)
+		,(	<<	,shift_left		,is_integral	,remove_cvref_t< t_left >	)
 		,(	>>	,shift_right	,is_integral	,remove_cvref_t< t_left >	)
 	)
 	,__781083963_binary
@@ -115,26 +107,16 @@ __use_macro_list(
 
 //	comparison and logical results are bool per element, so they materialize into vector of bool,
 //	reusing the same container would deduce the wrong value type
-__use_macro_list(
-	(	//	rule-exception: local style consistency
-		 (	!=	,not_equal_to	,is_value	,vector< bool >	)
-		,(	==	,equal_to		,is_value	,vector< bool >	)
-		,(	< 	,less			,is_value	,vector< bool >	)
-		,(	<=	,less_equal		,is_value	,vector< bool >	)
-		,(	> 	,greater		,is_value	,vector< bool >	)
-		,(	>=	,greater_equal	,is_value	,vector< bool >	)
-	)
-	,__781083963_binary
-)
-
-
-//	element-wise logical combination, no short-circuit: every element pair is always evaluated
-__use_macro_list(
-	(
-		 (	and	,logical_and	,is_value	,vector< bool >	)
-		,(	or	,logical_or		,is_value	,vector< bool >	)
-	)
-	,__781083963_binary
+__use_macro( __781083963_binary	//	rule-exception: local style consistency
+	,(	!=	,not_equal_to	,is_value	,vector< bool >	)
+	,(	==	,equal_to		,is_value	,vector< bool >	)
+	,(	< 	,less			,is_value	,vector< bool >	)
+	,(	<=	,less_equal		,is_value	,vector< bool >	)
+	,(	> 	,greater		,is_value	,vector< bool >	)
+	,(	>=	,greater_equal	,is_value	,vector< bool >	)
+	//	element-wise logical combination, no short-circuit: every element pair is always evaluated
+	,(	&&	,logical_and	,is_value	,vector< bool >	)
+	,(	||	,logical_or		,is_value	,vector< bool >	)
 )
 
 
