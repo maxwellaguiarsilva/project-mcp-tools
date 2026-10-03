@@ -60,5 +60,8 @@ Folds a range using the first element as the initial value. Returns `std::option
 | `enumerate.hpp` | `enumerate` | `std::views::enumerate` | Zips a range with an index starting from 0 ( or custom start ) |
 | `cartesian_product.hpp` | `cartesian_product` | `std::views::cartesian_product` | Cartesian product of two ranges, returns pairs |
 | `rotated.hpp` | `rotated` | *( no direct STL equivalent )* | Circular rotation of a range by an offset; uses concat + drop/take |
+| `regex_matches.hpp` | `regex_matches` | `std::regex_iterator` ( wrapped as a view ) | Lazy view of the `std::smatch` results of applying a `std::regex` to a range's characters |
 
 **`rotated` details:** Implements circular rotation via `concat( range, range ) | drop( offset % length ) | take( length )`. The default `| rotated` ( no args ) rotates by 1. Exposes a closure for `| rotated( offset )`.
+
+**`regex_matches` details:** A niebloid modeled on `rotated`/`enumerate` that stores the pattern by `const regex&` in its nested closure. `some_range | regex_matches( pattern )` yields a lazy `std::ranges::subrange` over `std::regex_iterator`, i.e. the `std::smatch` results of applying `pattern` to the range's characters; the direct form `regex_matches( range, pattern )` is also provided. It is not `constexpr` because `std::regex` is runtime, and it returns the same match type as `std::sregex_iterator`.

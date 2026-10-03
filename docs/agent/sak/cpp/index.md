@@ -78,6 +78,7 @@ include/sak/
       enumerate.hpp           # Zip range with index
       cartesian_product.hpp   # Cartesian product of two ranges
       rotated.hpp             # Circular range rotation
+      regex_matches.hpp       # Lazy std::smatch view over std::regex_iterator
 
   geometry/
     concepts.hpp              # is_point concept
