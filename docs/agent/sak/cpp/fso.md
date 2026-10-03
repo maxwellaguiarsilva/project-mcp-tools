@@ -18,7 +18,6 @@ Declared in `include/sak/fso/file.hpp`. `file` wraps a `std::filesystem::path` a
 ```cpp
 using	path_type		=	::std::filesystem::path;
 using	time_point		=	system_clock::time_point;
-using	optional_time	=	optional< time_point >;
 ```
 
 ### Construction and Mutation
@@ -46,14 +45,14 @@ explicit file( path_type source_path );
 | Accessor | Type |
 |---|---|
 | `exists( )` | `bool` |
-| `modified_at( )` | `const optional_time&` |
-| `created_at( )` | `const optional_time&` |
+| `modified_at( )` | `const time_point&` |
+| `created_at( )` | `const time_point&` |
 
-Both timestamps are `std::optional< std::chrono::system_clock::time_point >` and are empty when the file does not exist. `modified_at` and `created_at` are reset to empty at the start of every `refresh( )`.
+Both timestamps are `std::chrono::system_clock::time_point`. When the file does not exist they hold a default-constructed `time_point` ( the epoch ), and the consumer is responsible for checking `exists( )` before consuming them.
 
 ### `refresh( )` and `path( path_type )`
 
-`refresh( )` is virtual and recomputes the metadata. It sets `exists`, then, when the file exists, reads `modified_at` and `created_at`:
+`refresh( )` is virtual and recomputes the metadata. It sets `exists` and assigns a default-constructed `time_point` to both `modified_at` and `created_at`, then, when the file exists, reads the real timestamps:
 
 ```cpp
 virtual auto refresh( ) -> void;
@@ -76,11 +75,13 @@ Declared in `include/sak/fso/text_file.hpp`. `text_file final` derives publicly 
 
 ### Content and `read( )`
 
-`content( )` returns `const optional< string >&`. `read( )` ( re )loads the content when the file exists and returns the same optional reference:
+`content( )` returns `const string&`. `read( )` ( re )loads the content when the file exists and returns the same string reference:
 
 ```cpp
-auto read( ) -> const optional_content&;
+auto read( ) -> const string&;
 ```
+
+When the file does not exist, `read( )` leaves `m_content` as-is, which is a default-constructed empty `string` until a write populates it.
 
 When the file exists but cannot be opened, `read( )` reports the failure through `sak::ensure` with the message `text_file: unable to read file: <path>`.
 
@@ -106,14 +107,14 @@ auto write( const string_view new_content ) -> string;
 auto main( ) -> int
 {
 	__using( ::std::, println )
-	__using( ::sak::, exit_success )
+	__using( ::sak::, exit_success, ensure )
 	__using( ::sak::fso::, text_file )
 
 	text_file note( "notes/hello.txt" );
 	note.write( "hello, world\n" );
 
-	if( const auto& content = note.content( ); content )
-		println( "content: {}", content.value( ) );
+	ensure( note.exists( ), "note must exist after write" );
+	println( "content: {}", note.content( ) );
 
 	return	exit_success;
 }
@@ -123,4 +124,4 @@ auto main( ) -> int
 
 ## Tests
 
-The grouped test `tests/sak/test_sak_fso.cpp` exercises `file` and `text_file` together. It verifies that a freshly constructed `text_file` has no metadata or content, that `write( )` returns the created-file message, that the written content round-trips, that the derived components ( `name`, `extension`, `folder`, `base`, `path` ) are correct, that a plain `file` reads the same path metadata, and that a missing file reports no `exists` and no `modified_at`.
+The grouped test `tests/sak/test_sak_fso.cpp` exercises `file` and `text_file` together. It performs the timestamp checks in an `exists( )`-gated way, comparing against the default-constructed `time_point` sentinel. It verifies that a freshly constructed `text_file` does not exist and exposes that sentinel through both `modified_at` and `created_at` while its content is empty, that `write( )` returns the created-file message and then makes the file exist with round-tripping content and non-default timestamps, that the derived components ( `name`, `extension`, `folder`, `base`, `path` ) are correct, that a plain `file` reads the same path metadata, and that a missing file reports no `exists` and the default `time_point` sentinel for `modified_at`.
