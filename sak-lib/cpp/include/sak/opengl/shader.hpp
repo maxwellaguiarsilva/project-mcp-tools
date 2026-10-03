@@ -16,7 +16,8 @@ namespace sak {
 namespace opengl {
 
 
-__using( ::std::, runtime_error, string )
+__using( ::std::, make_unique, runtime_error, string, unique_ptr )
+__using( ::sak::, ensure )
 __using( ::sak::opengl::, fetch_log )
 
 
@@ -35,32 +36,41 @@ public:
 	using	enum	type;
 
 	shader( const string& source, const type shader_type = vertex )
+		:m_handle( make_unique< impl >( source, shader_type ) )
+	{ }
+
+	auto id( ) const -> GLuint
 	{
-		const GLuint id = gl_create_shader( static_cast< GLenum >( shader_type ) );
-		const char* const source_cstr = source.c_str( );
-		gl_shader_source( id, 1, &source_cstr, nullptr );
-		gl_compile_shader( id );
-
-		int success = 0;
-		gl_get_shader_iv( id, GL_COMPILE_STATUS, &success );
-		if( not success )
-		{
-			const string info_log = fetch_log( gl_get_shader_info_log, id );
-			gl_delete_shader( id );
-			throw	runtime_error( info_log );
-		}
-
-		m_id	=	id;
+		ensure( m_handle not_eq nullptr, "shader used after move" );
+		return	m_handle->m_id;
 	}
 
-	~shader( ) noexcept { gl_delete_shader( m_id ); }
-
-	delete_copy_move_ctc( shader )
-
-	auto id( ) const noexcept -> GLuint { return m_id; }
-
 private:
-	GLuint	m_id{ 0 };
+	struct impl
+	{
+		explicit impl( const string& source, const type shader_type )
+			:m_id( gl_create_shader( static_cast< GLenum >( shader_type ) ) )
+		{
+			const char* const source_cstr = source.c_str( );
+			gl_shader_source( m_id, 1, &source_cstr, nullptr );
+			gl_compile_shader( m_id );
+
+			int success = 0;
+			gl_get_shader_iv( m_id, GL_COMPILE_STATUS, &success );
+			if( not success )
+			{
+				const string info_log = fetch_log( gl_get_shader_info_log, m_id );
+				gl_delete_shader( m_id );
+				throw	runtime_error( info_log );
+			}
+		}
+
+		~impl( ) noexcept { gl_delete_shader( m_id ); }
+
+		GLuint	m_id{ 0 };
+	};
+
+	unique_ptr< impl > m_handle;
 };
 
 
