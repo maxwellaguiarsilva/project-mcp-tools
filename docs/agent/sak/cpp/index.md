@@ -62,7 +62,7 @@ include/sak/
     dispatcher.hpp            # Observer pattern ( event dispatcher )
     tupled.hpp                # Tuple adaptor for multi-arg functions
     value_or.hpp              # Safe map/sequence lookup with default fallback
-    to_number.hpp             # String-to-number parsing with fallback
+    parse.hpp                 # Text-to-number parsing ( scalar and range, optional fallback )
     bitmask.hpp               # Scoped-enum bit flag wrapper
 
   ranges/
@@ -96,6 +96,6 @@ The documentation is distributed across one file per module directory under `inc
 - [Core Infrastructure](core.md) — `using`, `default_ctc_dtc`, `ensure`, `concepts`, `sak.hpp`.
 - [`sak/fso/`](fso.md) — file-system objects: `file` and `text_file`.
 - [`sak/math/`](math.md) — arithmetic operations, math functions, math concepts, vector math.
-- [`sak/pattern/`](pattern.md) — design patterns: dispatcher, tupled, value_or, to_number, bitmask.
+- [`sak/pattern/`](pattern.md) — design patterns: dispatcher, tupled, value_or, parse, bitmask.
 - [`sak/ranges/`](ranges.md) — range utilities and views.
 - [`sak/geometry/`](geometry.md) — geometry primitives and the `point` core class.

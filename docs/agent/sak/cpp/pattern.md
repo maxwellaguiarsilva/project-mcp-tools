@@ -32,13 +32,19 @@ auto val = value_or( my_map, key, default_value );
 auto item = value_or( my_vector, index, default_value );
 ```
 
-## `to_number.hpp` — String Parsing
+## `parse.hpp` — Text Parsing
 
-Niebloid that parses a `std::string` into a numeric type using `std::from_chars`, returning a caller-supplied default when parsing fails:
+Generalized niebloid that parses text into numbers using `std::from_chars`, requiring whole consumption. It handles a single text token with a direct call, or a piped scalar, or a range of text elements element-wise; the fallback is optional, and when absent an invalid input yields the target's zero value:
 
 ```cpp
-auto val = to_number( text, 42 );
+int value = parse( string{ "42" }, 0 );
+int value = text | parse;
+int value = text | parse( 0 );
+vector< int > list = text_list | parse;
+array< byte, 3 > list = text_raw | parse( byte{ 9 } );
 ```
+
+Range materialization reuses `sak::ranges::to` and element-wise application reuses `sak::ranges::lazy_transform`; every path funnels through the shared `__parse_scalar` primitive over a `string_view`.
 
 ---
 
