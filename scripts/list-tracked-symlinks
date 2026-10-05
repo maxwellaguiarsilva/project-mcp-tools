@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+declare -A targets
+base_path="$(realpath ".")"
+
+while IFS= read -r link; do
+    [[ -n "$link" ]] || continue
+    resolved="$(realpath -m "$link")"
+    targets["$link"]="$resolved"
+done < <(git ls-files -s | { grep "^120000" || true; } | cut -f2)
+
+for key in "${!targets[@]}"; do
+    if [[ "${targets[$key]}" == "$base_path" || "${targets[$key]}" == "$base_path"/* ]]; then
+        unset "targets[$key]"
+    fi
+done
+
+[[ "${#targets[@]}" -eq 0 ]] && exit 0
+
+max_len=0
+for key in "${!targets[@]}"; do
+    if (( ${#key} > max_len )); then
+        max_len=${#key}
+    fi
+done
+width=$((max_len + 1))
+
+while IFS= read -r key; do
+    printf "%-${width}s%s\n" "$key" "$(realpath -m --relative-to="$base_path" "${targets[$key]}")"
+done < <(printf '%s\n' "${!targets[@]}" | sort)

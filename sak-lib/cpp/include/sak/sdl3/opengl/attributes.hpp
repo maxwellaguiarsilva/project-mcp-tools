@@ -94,7 +94,7 @@ public:
 	};
 
 	explicit attributes( const profile gl_profile = core, const version gl_version = version{ 4, 6 } )
-		:m_handle( make_unique< handle >( ) )
+		:m_raii( make_unique< raii_destructor >( ) )
 	{
 		set( gl_profile, gl_version );
 	}
@@ -116,9 +116,9 @@ public:
 	)
 
 private:
-	struct handle
+	struct raii_destructor
 	{
-		~handle( ) noexcept { SDL_GL_ResetAttributes( ); }
+		~raii_destructor( ) noexcept { SDL_GL_ResetAttributes( ); }
 	};
 
 	template< typename attribute >
@@ -128,7 +128,7 @@ private:
 		ensure( SDL_GL_SetAttribute( static_cast< SDL_GLAttr >( gl_attribute ), value ), error_message );
 	}
 
-	unique_ptr< handle > m_handle;
+	unique_ptr< raii_destructor > m_raii;
 };
 
 

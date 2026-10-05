@@ -289,10 +289,10 @@ const auto& label_position	=	listener.label_position;
 ## RAII Unique Pointer `[llm]` #raii-unique-ptr
 <!-- llm-rule: id=raii_unique_ptr, complexity=medium -->
 
-- RAII wrapper classes managing resource lifecycles must hold the state required to release the resource in a nested `handle` struct reached through a `unique_ptr< handle >` member named `m_handle`, adhering to the handle-body idiom and the rule of zero.
-- Resource acquisition, initialization, invariant validation, and cleanup on failure must reside in the outer wrapper constructor, which constructs `m_handle` first so the release state is armed before acquisition begins.
-- The nested `handle` struct must contain exclusively the resource identifier state that its destructor needs to release the resource, plus that destructor. When the destructor needs no state, `handle` has no data members and only a destructor.
-- The nested `handle` struct must not declare an acquisition constructor, and must not be named `impl`.
+- RAII wrapper classes managing resource lifecycles must hold the state required to release the resource in a nested `raii_destructor` struct reached through a `unique_ptr< raii_destructor >` member named `m_raii`, adhering to the handle-body idiom and the rule of zero.
+- Resource acquisition, initialization, invariant validation, and cleanup on failure must reside in the outer wrapper constructor, which constructs `m_raii` first so the release state is armed before acquisition begins.
+- The nested `raii_destructor` struct must contain exclusively the resource identifier state that its destructor needs to release the resource, plus that destructor. When the destructor needs no state, `raii_destructor` has no data members and only a destructor.
+- The nested `raii_destructor` struct must not declare an acquisition constructor, and must not be named `impl`.
 - The outer wrapper class destructor must be defaulted (`= default`).
 - Copy and move operations or macros must not be declared explicitly; rely strictly on transitivity through `unique_ptr` to delete copy operations and generate move operations automatically.
 

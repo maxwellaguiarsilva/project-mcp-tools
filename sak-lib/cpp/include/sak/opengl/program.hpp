@@ -27,35 +27,35 @@ class program
 {
 public:
 	explicit program( const t_range& shaders )
-		:m_handle( make_unique< handle >( ) )
+		:m_raii( make_unique< raii_destructor >( ) )
 	{
-		m_handle->m_id	=	gl_create_program( );
+		m_raii->m_id	=	gl_create_program( );
 		for( const shader& current_shader : shaders )
-			gl_attach_shader( m_handle->m_id, current_shader.id( ) );
+			gl_attach_shader( m_raii->m_id, current_shader.id( ) );
 
-		gl_link_program( m_handle->m_id );
+		gl_link_program( m_raii->m_id );
 
 		int success = 0;
-		gl_get_program_iv( m_handle->m_id, GL_LINK_STATUS, &success );
+		gl_get_program_iv( m_raii->m_id, GL_LINK_STATUS, &success );
 		if( not success )
 		{
-			const string info_log = fetch_log( gl_get_program_info_log, m_handle->m_id );
+			const string info_log = fetch_log( gl_get_program_info_log, m_raii->m_id );
 			throw	runtime_error( info_log );
 		}
 	}
 
-	auto use( ) const noexcept -> void { gl_use_program( m_handle->m_id ); }
-	auto id( ) const noexcept -> GLuint { return m_handle->m_id; }
+	auto use( ) const noexcept -> void { gl_use_program( m_raii->m_id ); }
+	auto id( ) const noexcept -> GLuint { return m_raii->m_id; }
 
 private:
-	struct handle
+	struct raii_destructor
 	{
-		~handle( ) noexcept { gl_delete_program( m_id ); }
+		~raii_destructor( ) noexcept { gl_delete_program( m_id ); }
 
 		GLuint	m_id{ 0 };
 	};
 
-	unique_ptr< handle > m_handle;
+	unique_ptr< raii_destructor > m_raii;
 };
 
 
@@ -63,3 +63,5 @@ private:
 
 
 #endif
+
+

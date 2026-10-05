@@ -36,34 +36,34 @@ public:
 	}
 
 	audio( ) noexcept
-		:m_handle( make_unique< handle >( ) )
+		:m_raii( make_unique< raii_destructor >( ) )
 	{ }
 
 	explicit audio( const SDL_AudioSpec& spec )
-		:m_handle( make_unique< handle >( ) )
+		:m_raii( make_unique< raii_destructor >( ) )
 	{
-		m_handle->m_stream	=	SDL_OpenAudioDeviceStream( SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec, nullptr, nullptr );
-		ensure( m_handle->m_stream not_eq nullptr, SDL_GetError( ) );
+		m_raii->m_stream	=	SDL_OpenAudioDeviceStream( SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec, nullptr, nullptr );
+		ensure( m_raii->m_stream not_eq nullptr, SDL_GetError( ) );
 	}
 
-	auto resume( ) noexcept -> void { SDL_ResumeAudioStreamDevice( m_handle->m_stream ); }
-	auto pause( ) noexcept -> void { SDL_PauseAudioStreamDevice( m_handle->m_stream ); }
-	auto paused( ) const noexcept -> bool { return SDL_AudioStreamDevicePaused( m_handle->m_stream ); }
-	auto pitch( float ratio ) noexcept -> void { SDL_SetAudioStreamFrequencyRatio( m_handle->m_stream, ratio ); }
-	auto gain( float gain ) noexcept -> void { SDL_SetAudioStreamGain( m_handle->m_stream, gain ); }
-	auto push( const vector< byte >& samples ) noexcept -> void { SDL_PutAudioStreamData( m_handle->m_stream, samples.data( ), samples.size( ) ); }
-	auto queued( ) const noexcept -> int { return SDL_GetAudioStreamQueued( m_handle->m_stream ); }
+	auto resume( ) noexcept -> void { SDL_ResumeAudioStreamDevice( m_raii->m_stream ); }
+	auto pause( ) noexcept -> void { SDL_PauseAudioStreamDevice( m_raii->m_stream ); }
+	auto paused( ) const noexcept -> bool { return SDL_AudioStreamDevicePaused( m_raii->m_stream ); }
+	auto pitch( float ratio ) noexcept -> void { SDL_SetAudioStreamFrequencyRatio( m_raii->m_stream, ratio ); }
+	auto gain( float gain ) noexcept -> void { SDL_SetAudioStreamGain( m_raii->m_stream, gain ); }
+	auto push( const vector< byte >& samples ) noexcept -> void { SDL_PutAudioStreamData( m_raii->m_stream, samples.data( ), samples.size( ) ); }
+	auto queued( ) const noexcept -> int { return SDL_GetAudioStreamQueued( m_raii->m_stream ); }
 
 private:
-	struct handle
+	struct raii_destructor
 	{
-		~handle( ) noexcept
+		~raii_destructor( ) noexcept
 		{ if( m_stream not_eq nullptr ) SDL_DestroyAudioStream( m_stream ); }
 
 		SDL_AudioStream*	m_stream{ nullptr };
 	};
 
-	unique_ptr< handle > m_handle;
+	unique_ptr< raii_destructor > m_raii;
 };
 
 

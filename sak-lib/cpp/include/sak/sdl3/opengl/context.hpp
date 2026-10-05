@@ -31,10 +31,10 @@ public:
 	template< typename t_loader >
 		requires loader_for< t_loader, loader_type >
 	explicit context( window& application_window, t_loader load, const attributes& = attributes{ } )
-		:m_handle( make_unique< handle >( ) )
+		:m_raii( make_unique< raii_destructor >( ) )
 	{
-		m_handle->m_id	=	SDL_GL_CreateContext( application_window.id( ) );
-		ensure( m_handle->m_id not_eq nullptr, "failed to create opengl context" );
+		m_raii->m_id	=	SDL_GL_CreateContext( application_window.id( ) );
+		ensure( m_raii->m_id not_eq nullptr, "failed to create opengl context" );
 		ensure( load( &SDL_GL_GetProcAddress ), "failed to load opengl functions" );
 
 		m_viewport_listener = make_shared< viewport_listener >( );
@@ -47,7 +47,7 @@ public:
 		: context( application_window, t_loader{ }, gl_attributes )
 	{ }
 
-	auto id( ) const noexcept -> SDL_GLContext { return m_handle->m_id; }
+	auto id( ) const noexcept -> SDL_GLContext { return m_raii->m_id; }
 	auto function_pointer( ) const noexcept -> loader_type { return &SDL_GL_GetProcAddress; }
 
 private:
@@ -63,14 +63,14 @@ private:
 		}
 	};
 
-	struct handle
+	struct raii_destructor
 	{
-		~handle( ) noexcept { SDL_GL_DestroyContext( m_id ); }
+		~raii_destructor( ) noexcept { SDL_GL_DestroyContext( m_id ); }
 
 		SDL_GLContext	m_id{ nullptr };
 	};
 
-	unique_ptr< handle >			m_handle;
+	unique_ptr< raii_destructor >			m_raii;
 	shared_ptr< viewport_listener >	m_viewport_listener;
 };
 

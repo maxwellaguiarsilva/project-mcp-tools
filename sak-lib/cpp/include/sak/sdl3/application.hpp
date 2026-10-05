@@ -40,7 +40,7 @@ public:
 	using	init_flags	=	bitmask< flag >;
 
 	explicit application( const init_flags flags = init_flags{ video } )
-		:m_handle( make_unique< handle >( ) )
+		:m_raii( make_unique< raii_destructor >( ) )
 		,m_flags( flags )
 	{
 		ensure( SDL_Init( flags ), SDL_GetError( ) );
@@ -110,12 +110,12 @@ public:
 	auto quit( ) noexcept -> void { m_is_running = false; }
 
 private:
-	struct handle
+	struct raii_destructor
 	{
-		~handle( ) noexcept { SDL_Quit( ); }
+		~raii_destructor( ) noexcept { SDL_Quit( ); }
 	};
 
-	unique_ptr< handle >	m_handle;
+	unique_ptr< raii_destructor >	m_raii;
 	init_flags				m_flags;
 	dispatcher< listener >	m_dispatcher;
 	bool					m_is_running{ true };
