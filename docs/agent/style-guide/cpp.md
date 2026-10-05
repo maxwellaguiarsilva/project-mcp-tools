@@ -292,6 +292,7 @@ const auto& label_position	=	listener.label_position;
 - RAII wrapper classes managing resource lifecycles must hold the state required to release the resource in a nested `raii_destructor` struct reached through a `unique_ptr< raii_destructor >` member named `m_raii`, adhering to the handle-body idiom and the rule of zero.
 - Resource acquisition, initialization, invariant validation, and cleanup on failure must reside in the outer wrapper constructor, which constructs `m_raii` first so the release state is armed before acquisition begins.
 - The nested `raii_destructor` struct must contain exclusively the resource identifier state that its destructor needs to release the resource, plus that destructor. When the destructor needs no state, `raii_destructor` has no data members and only a destructor.
+- The resource getter and setter must be declared in the outer wrapper class, never in the nested `raii_destructor`; the arrow operator must not be used to reach the resource except inside the getter and setter.
 - The nested `raii_destructor` struct must not declare an acquisition constructor, and must not be named `impl`.
 - The outer wrapper class destructor must be defaulted (`= default`).
 - Copy and move operations or macros must not be declared explicitly; rely strictly on transitivity through `unique_ptr` to delete copy operations and generate move operations automatically.
