@@ -20,14 +20,56 @@ namespace sak::ranges {
 //	--------------------------------------------------
 __using( ::std::
 	,array
+	,constructible_from
+	,convertible_to
+	,from_range_t
 	,size_t
 )
 __using( ::std::ranges::
-	,viewable_range
 	,copy
+	,input_range
 	,range_adaptor_closure
+	,range_reference_t
+	,range_value_t
+	,view
+	,viewable_range
 )
 //	--------------------------------------------------
+
+
+//	true when std::ranges::to can materialize a range into the target type
+//	directly (constructible from the range, directly or via from_range_t, or insertable)
+//	or by recursively materializing each element, mirroring std::ranges::to
+template< typename t_target, typename t_range >
+struct __toable;
+
+//	in the recursive path the target is a range whose elements are not convertible
+//	to its value type, so every element must itself be materializable
+template< typename t_target, typename t_range, bool = input_range< t_target > >
+struct __toable_element { static constexpr bool value = false; };
+
+template< typename t_target, typename t_range >
+struct __toable_element< t_target, t_range, true >
+{
+	static constexpr bool value =
+		not convertible_to< range_reference_t< t_range >, range_value_t< t_target > >
+		and	__toable< range_value_t< t_target >, range_reference_t< t_range > >::value;
+};
+
+template< typename t_target, typename t_range >
+struct __toable
+{
+	static constexpr bool value = not view< t_target > and	(
+			constructible_from< t_target, from_range_t, t_range >
+		or	constructible_from< t_target, t_range >
+		or	requires( t_target& target, range_reference_t< t_range > value )
+			{ target.insert( target.end( ), value ); }
+		or	__toable_element< t_target, t_range >::value
+	);
+};
+
+template< typename t_target, typename t_range >
+concept is_toable = __toable< t_target, t_range >::value;
 
 
 //	universal materializer: range | to -> proxy that converts to any target
@@ -40,7 +82,7 @@ template< typename t_target >
 struct __to_impl
 {
 	template< viewable_range t_range >
-		requires( is_class< t_target > or is_union< t_target > )
+		requires( ( is_class< t_target > or is_union< t_target > ) and is_toable< t_target, t_range > )
 	static constexpr auto apply( t_range&& range )
 	{ return ::std::ranges::to< t_target >( ::std::forward< t_range >( range ) ); }
 };
