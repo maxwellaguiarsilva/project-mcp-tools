@@ -27,10 +27,10 @@ __using( ::sak::pattern::, bitmask, dispatcher, listener_registry )
 auto a_name( ) const noexcept -> geometry::a_type									\
 {																					\
 	int window_##a_first = 0, window_##a_second = 0;								\
-	SDL_GetWindow##a_sdl( m_raii->m_id, &window_##a_first, &window_##a_second );			\
+	SDL_GetWindow##a_sdl( id( ), &window_##a_first, &window_##a_second );			\
 	return	{ window_##a_first, window_##a_second };								\
 }																					\
-auto a_name( const geometry::a_type& a_value ) -> void { SDL_SetWindow##a_sdl( m_raii->m_id, a_first( a_value ), a_second( a_value ) ); }
+auto a_name( const geometry::a_type& a_value ) -> void { SDL_SetWindow##a_sdl( id( ), a_first( a_value ), a_second( a_value ) ); }
 
 
 class window
@@ -91,12 +91,12 @@ public:
 	window( const string& title, const geometry::size& size, const window_flags flags = window_flags{ } )
 		:m_raii( make_unique< raii_destructor >( ) )
 	{
-		m_raii->m_id	=	SDL_CreateWindow( title.c_str( ), width( size ), height( size ), flags );
-		ensure( m_raii->m_id not_eq nullptr, "failed to create sdl window" );
+		id( SDL_CreateWindow( title.c_str( ), width( size ), height( size ), flags ) );
+		ensure( id( ) not_eq nullptr, "failed to create sdl window" );
 
-		m_display = ::sak::sdl3::display( SDL_GetDisplayForWindow( m_raii->m_id ) );
+		m_display = ::sak::sdl3::display( SDL_GetDisplayForWindow( id( ) ) );
 
-		SDL_SetPointerProperty( SDL_GetWindowProperties( m_raii->m_id ), "sak.sdl3.window", this );
+		SDL_SetPointerProperty( SDL_GetWindowProperties( id( ) ), "sak.sdl3.window", this );
 	}
 
 	class listener
@@ -168,14 +168,14 @@ public:
 
 	auto id( ) const noexcept -> SDL_Window* { return m_raii->m_id; }
 	auto display( ) const noexcept -> const ::sak::sdl3::display& { return m_display; }
-	auto swap( ) const noexcept -> void { SDL_GL_SwapWindow( m_raii->m_id ); }
-	auto title( ) const -> string { return SDL_GetWindowTitle( m_raii->m_id ); }
-	auto title( const string& title ) -> void { SDL_SetWindowTitle( m_raii->m_id, title.c_str( ) ); }
+	auto swap( ) const noexcept -> void { SDL_GL_SwapWindow( id( ) ); }
+	auto title( ) const -> string { return SDL_GetWindowTitle( id( ) ); }
+	auto title( const string& title ) -> void { SDL_SetWindowTitle( id( ), title.c_str( ) ); }
 
 	auto pixel_size( ) const noexcept -> geometry::size
 	{
 		int window_width = 0, window_height = 0;
-		SDL_GetWindowSizeInPixels( m_raii->m_id, &window_width, &window_height );
+		SDL_GetWindowSizeInPixels( id( ), &window_width, &window_height );
 		return	{ window_width, window_height };
 	}
 
@@ -186,18 +186,20 @@ public:
 		,(	position		,Position		,position	,left	,top	)
 	)
 
-	auto show( ) -> void { SDL_ShowWindow( m_raii->m_id ); }
-	auto hide( ) -> void { SDL_HideWindow( m_raii->m_id ); }
-	auto raise( ) -> void { SDL_RaiseWindow( m_raii->m_id ); }
-	auto maximize( ) -> void { SDL_MaximizeWindow( m_raii->m_id ); }
-	auto minimize( ) -> void { SDL_MinimizeWindow( m_raii->m_id ); }
-	auto restore( ) -> void { SDL_RestoreWindow( m_raii->m_id ); }
-	auto fullscreen( ) const noexcept -> bool { return ( SDL_GetWindowFlags( m_raii->m_id ) & SDL_WINDOW_FULLSCREEN ) not_eq 0; }
-	auto fullscreen( const bool is_fullscreen ) -> void { SDL_SetWindowFullscreen( m_raii->m_id, is_fullscreen ); }
+	auto show( ) -> void { SDL_ShowWindow( id( ) ); }
+	auto hide( ) -> void { SDL_HideWindow( id( ) ); }
+	auto raise( ) -> void { SDL_RaiseWindow( id( ) ); }
+	auto maximize( ) -> void { SDL_MaximizeWindow( id( ) ); }
+	auto minimize( ) -> void { SDL_MinimizeWindow( id( ) ); }
+	auto restore( ) -> void { SDL_RestoreWindow( id( ) ); }
+	auto fullscreen( ) const noexcept -> bool { return ( SDL_GetWindowFlags( id( ) ) & SDL_WINDOW_FULLSCREEN ) not_eq 0; }
+	auto fullscreen( const bool is_fullscreen ) -> void { SDL_SetWindowFullscreen( id( ), is_fullscreen ); }
 	auto toggle_fullscreen( ) -> void { fullscreen( not fullscreen( ) ); }
-	auto sync( ) -> void { SDL_SyncWindow( m_raii->m_id ); }
+	auto sync( ) -> void { SDL_SyncWindow( id( ) ); }
 
 private:
+	auto id( SDL_Window* value ) noexcept -> void { m_raii->m_id = value; }
+
 	struct raii_destructor
 	{
 		~raii_destructor( ) noexcept { SDL_DestroyWindow( m_id ); }

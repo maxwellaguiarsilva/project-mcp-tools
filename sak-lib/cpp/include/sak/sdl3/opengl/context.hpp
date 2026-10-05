@@ -33,8 +33,8 @@ public:
 	explicit context( window& application_window, t_loader load, const attributes& = attributes{ } )
 		:m_raii( make_unique< raii_destructor >( ) )
 	{
-		m_raii->m_id	=	SDL_GL_CreateContext( application_window.id( ) );
-		ensure( m_raii->m_id not_eq nullptr, "failed to create opengl context" );
+		id( SDL_GL_CreateContext( application_window.id( ) ) );
+		ensure( id( ) not_eq nullptr, "failed to create opengl context" );
 		ensure( load( &SDL_GL_GetProcAddress ), "failed to load opengl functions" );
 
 		m_viewport_listener = make_shared< viewport_listener >( );
@@ -51,6 +51,8 @@ public:
 	auto function_pointer( ) const noexcept -> loader_type { return &SDL_GL_GetProcAddress; }
 
 private:
+	auto id( SDL_GLContext value ) noexcept -> void { m_raii->m_id = value; }
+
 	class viewport_listener final : public window::listener
 	{
 	public:
