@@ -9,8 +9,11 @@
 #define header_guard_025953311
 
 
-#include <sak/sak.hpp>
 #include <regex>
+#include <utility>
+#include <vector>
+#include <sak/ranges/transform.hpp>
+#include <sak/sak.hpp>
 
 
 namespace sak::ranges::views {
@@ -20,6 +23,8 @@ namespace sak::ranges::views {
 __using( ::std::
 	,regex
 	,regex_iterator
+	,string
+	,vector
 )
 __using( ::std::ranges::
 	,range_adaptor_closure
@@ -29,6 +34,7 @@ __using( ::std::ranges::
 	,begin
 	,end
 )
+__using( ::sak::ranges::, lazy_transform )
 //	--------------------------------------------------
 
 
@@ -57,6 +63,34 @@ struct __regex_matches : range_adaptor_closure< __regex_matches >
 };
 
 inline constexpr auto regex_matches = __regex_matches{ };
+
+
+//	opt-in lossy projection, collapses each match to its whole-match string
+struct __match_strings : range_adaptor_closure< __match_strings >
+{
+	template< viewable_range t_range >
+	constexpr auto operator ( ) ( t_range&& range ) const noexcept
+	{
+		return	::std::forward< t_range >( range )
+			|	lazy_transform( [ ]( const auto& match ) { return match.str( ); } );
+	}
+};
+
+inline constexpr auto match_strings = __match_strings{ };
+
+
+//	opt-in lossy projection, collapses each match to all capture groups as strings
+struct __match_groups : range_adaptor_closure< __match_groups >
+{
+	template< viewable_range t_range >
+	constexpr auto operator ( ) ( t_range&& range ) const noexcept
+	{
+		return	::std::forward< t_range >( range )
+			|	lazy_transform( [ ]( const auto& match ) { return vector< string >( match.begin( ), match.end( ) ); } );
+	}
+};
+
+inline constexpr auto match_groups = __match_groups{ };
 
 
 }
