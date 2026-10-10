@@ -10,7 +10,7 @@
 
 
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from lib.project_file import line_break, triple_line_break
 
@@ -27,7 +27,7 @@ class rule:
     pattern: str
     replacement: str
     message: str
-    ignore_pattern: str = None
+    ignore_pattern: list[ str ] = field( default_factory = list )
     flags: int = 0
     line_filter: object = None
     ignore_hashtag: str = None
@@ -64,22 +64,19 @@ class base_verifier:
             for r in rules.values( ):
                 if r.ignore_hashtag and r.ignore_hashtag in body:
                     continue
-                pattern = f"({r.ignore_pattern})|({r.pattern})" if r.ignore_pattern else r.pattern
-                
                 def sub_func( match ):
-                    if r.ignore_pattern and match.group( 1 ):
+                    match_start = match.start( )
+                    line_start = body.rfind( line_break, 0, match_start ) + 1
+                    line_end = body.find( line_break, match_start )
+                    if line_end == -1:
+                        line_end = len( body )
+                    line_content = body[ line_start:line_end ]
+                    
+                    if any( re.search( ignore, line_content ) for ignore in r.ignore_pattern ):
                         return  match.group( 0 )
                     
-                    if r.line_filter:
-                        match_start = match.start( )
-                        line_start = body.rfind( line_break, 0, match_start ) + 1
-                        line_end = body.find( line_break, match_start )
-                        if line_end == -1:
-                            line_end = len( body )
-                        line_content = body[ line_start:line_end ]
-                        
-                        if not r.line_filter( line_content ):
-                            return  match.group( 0 )
+                    if r.line_filter and not r.line_filter( line_content ):
+                        return  match.group( 0 )
                     
                     replacement = match.expand( r.replacement )
                     if match.group( 0 ) != replacement or r.replacement == r"\g<0>":
@@ -88,7 +85,7 @@ class base_verifier:
                         violations.append( f"line {line_no}: [{kind}] {match.expand( r.message )}" )
                     return  replacement
                 
-                body = re.sub( pattern, sub_func, body, flags = r.flags )
+                body = re.sub( r.pattern, sub_func, body, flags = r.flags )
 
             new_content = f"{header}{triple_line_break}{body.strip( line_break )}{triple_line_break}"
             

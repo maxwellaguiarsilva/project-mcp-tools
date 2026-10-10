@@ -54,11 +54,11 @@ class cpp_verifier( base_verifier ):
     @property
     def string_comment_ignore_pattern( self ):
         patterns = cpp_project_config[ "language" ][ "patterns" ]
-        return  (
-             f"{patterns[ 'string-comment-ignore' ]}"
-             f"|{patterns[ 'reflection-splice-ignore' ]}"
-             f"|{patterns[ 'attribute-ignore' ]}"
-        )
+        return  [
+             patterns[ 'string-comment-ignore' ]
+            ,patterns[ 'reflection-splice-ignore' ]
+            ,patterns[ 'attribute-ignore' ]
+        ]
 
     @property
     def rules( self ):

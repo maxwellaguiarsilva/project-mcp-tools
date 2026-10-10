@@ -55,7 +55,7 @@ All actual business and domain logic must live in domain-specific subdirectories
 
 ### Verifier Classes
 
-Verifier classes must extend `base_verifier` from `lib/base_verifier.py`. Override `string_comment_ignore_pattern` and `rules`. Do not redefine module-level constants already defined in `base_verifier` (e.g., `re_line_break`).
+Verifier classes must extend `base_verifier` from `lib/base_verifier.py`. Override `string_comment_ignore_pattern` (returns a list of regex strings) and `rules`. Do not redefine module-level constants already defined in `base_verifier` (e.g., `re_line_break`).
 
 ### Project Models
 
