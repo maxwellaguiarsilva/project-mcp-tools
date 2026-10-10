@@ -52,7 +52,7 @@ def cpp_return_filter( line: str ) -> bool:
 
 class cpp_verifier( base_verifier ):
     @property
-    def string_comment_ignore_pattern( self ):
+    def language_ignore_pattern( self ):
         patterns = cpp_project_config[ "language" ][ "patterns" ]
         return  [
              patterns[ 'string-comment-ignore' ]
@@ -62,7 +62,7 @@ class cpp_verifier( base_verifier ):
 
     @property
     def rules( self ):
-        ignore = self.string_comment_ignore_pattern
+        ignore = self.language_ignore_pattern
         return  super( ).rules | {
              "consecutive_newlines": rule(
                  re_consecutive_newlines

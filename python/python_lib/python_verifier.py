@@ -59,12 +59,12 @@ def python_comment_filter( line: str ) -> bool:
 
 class python_verifier( base_verifier ):
     @property
-    def string_comment_ignore_pattern( self ):
+    def language_ignore_pattern( self ):
         return  [ python_project_config[ "language" ][ "patterns" ][ "string-comment-ignore" ] ]
 
     @property
     def rules( self ):
-        ignore = self.string_comment_ignore_pattern
+        ignore = self.language_ignore_pattern
         return  super( ).rules | {
              "return_spacing": rule(
                  r"^(\s*return) +(\S)"

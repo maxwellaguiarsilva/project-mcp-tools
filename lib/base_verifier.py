@@ -40,12 +40,12 @@ class base_verifier:
         self.flg_auto_fix = flg_auto_fix
 
     @property
-    def string_comment_ignore_pattern( self ):
-        raise   NotImplementedError( "string_comment_ignore_pattern must be implemented in subclasses" )
+    def language_ignore_pattern( self ):
+        raise   NotImplementedError( "language_ignore_pattern must be implemented in subclasses" )
 
     @property
     def rules( self ):
-        ignore = self.string_comment_ignore_pattern
+        ignore = self.language_ignore_pattern
         return  {
              "open_space": rule( re_open_space, r"\g<char> ", r"missing space after '\g<char>'", ignore_pattern = ignore )
             ,"close_space": rule( re_close_space, r" \g<char>", r"missing space before '\g<char>'", ignore_pattern = ignore )
