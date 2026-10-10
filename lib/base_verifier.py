@@ -30,6 +30,7 @@ class rule:
     ignore_pattern: str = None
     flags: int = 0
     line_filter: object = None
+    ignore_hashtag: str = None
 
 
 class base_verifier:
@@ -60,9 +61,8 @@ class base_verifier:
             body = item.body
             line_offset = ( header + triple_line_break ).count( line_break )
 
-            flg_ignore_helpers = "#ignore-helpers-rule" in body
-            for key, r in rules.items( ):
-                if flg_ignore_helpers and key.startswith( "helper_" ):
+            for r in rules.values( ):
+                if r.ignore_hashtag and r.ignore_hashtag in body:
                     continue
                 pattern = f"({r.ignore_pattern})|({r.pattern})" if r.ignore_pattern else r.pattern
                 

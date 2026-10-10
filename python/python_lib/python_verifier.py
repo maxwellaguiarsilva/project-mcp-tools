@@ -130,30 +130,35 @@ class python_verifier( base_verifier ):
                 ,r"\g<0>"
                 ,"use ensure( expr, msg ) instead of assert"
                 ,ignore_pattern = ignore
+                ,ignore_hashtag = "#ignore-helpers-rule"
             )
             ,"helper_cpu_count": rule(
                  r"\bos\.cpu_count\(\s*\)"
                 ,r"\g<0>"
                 ,"use get_cpu_count( ) instead of os.cpu_count( )"
                 ,ignore_pattern = ignore
+                ,ignore_hashtag = "#ignore-helpers-rule"
             )
             ,"helper_json_dumps": rule(
                  r"\bjson\.dumps\("
                 ,r"\g<0>"
                 ,"use to_json( data ) instead of json.dumps"
                 ,ignore_pattern = ignore
+                ,ignore_hashtag = "#ignore-helpers-rule"
             )
             ,"helper_subprocess_run": rule(
                  r"\bsubprocess\.run\("
                 ,r"\g<0>"
                 ,"use create_process( ... ) instead of subprocess.run"
                 ,ignore_pattern = ignore
+                ,ignore_hashtag = "#ignore-helpers-rule"
             )
             ,"helper_removeprefix": rule(
                  r"\.removeprefix\("
                 ,r"\g<0>"
                 ,"use remove_string_prefix( text, prefix )"
                 ,ignore_pattern = ignore
+                ,ignore_hashtag = "#ignore-helpers-rule"
             )
         }
 
