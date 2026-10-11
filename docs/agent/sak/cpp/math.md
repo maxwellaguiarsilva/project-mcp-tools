@@ -22,6 +22,7 @@ Every unary/binary/ternary Niebloid offers two forms:
 | `is_odd( value )` | Not even ( integral only ) |
 | `sign( value )` | Signum: returns -1, 0, or 1 |
  | `is_multiple( first, second )` | `first % second == 0` ( integral only ) |
+ | `bit_of( first, second )` | Bit number `second` of `first`: `( first >> second ) & 1` ( integral only ) |
  | `between( value, low, high )` | Checks `low ≤ value ≤ high` |
  | `clamp( value, low, high )` | Clamp between bounds |
  | `sum( range )` | `fold_left( range, 0, plus )` |
@@ -37,7 +38,7 @@ These exist so they can be used in range pipelines ( e.g., `range | square_root`
 
 **Descriptive aliases:** Each custom and std wrapper also exports a descriptive alias alongside the `sak_< name >` symbol: `absolute` ( abs ), `arccosine`, `arcsine`, `arctangent`, `ceiling`, `cosine`, `exponential`, `round_down`, `natural_logarithm`, `logarithm_base_two`, `round_to_nearest`, `sine`, `square_root` ( sqrt ), `tangent`, `hyperbolic_tangent`, `truncate`, `arctangent2` ( atan2 ), `power` ( pow ).
 
-**Constraint narrowing:** The concept in each macro invocation narrows the scalar overload. `abs`, `negate`, `square` accept any non-range value ( `is_value` ); `sign`, `square_root` and the `<cmath>` wrappers accept any arithmetic type; `is_even`, `is_odd`, `is_multiple` are restricted to integral types. This keeps range operands routed to the element-wise overload instead of the scalar one.
+**Constraint narrowing:** The concept in each macro invocation narrows the scalar overload. `abs`, `negate`, `square` accept any non-range value ( `is_value` ); `sign`, `square_root` and the `<cmath>` wrappers accept any arithmetic type; `is_even`, `is_odd`, `is_multiple`, `bit_of` are restricted to integral types. This keeps range operands routed to the element-wise overload instead of the scalar one.
 
 ## `concepts.hpp` — Math Concepts
 

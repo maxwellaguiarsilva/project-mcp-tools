@@ -150,6 +150,7 @@ __use_macro( __935812590_nary_custom
 	,(	pow			,power			,2	,( ( ::std::pow( first, second ) ), is_arithmetic auto first, is_arithmetic auto second )	)
 	,(	shift_left	,shift_left		,2	,( ( first << second ), is_integral auto first, is_integral auto second )					)
 	,(	shift_right	,shift_right	,2	,( ( first >> second ), is_integral auto first, is_integral auto second )					)
+	,(	bit_of		,bit_of			,2	,( ( bit_and( shift_right( first, second ), 1 ) ), is_integral auto first, is_integral auto second )	)
 )
 
 
