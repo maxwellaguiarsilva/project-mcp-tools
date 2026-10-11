@@ -57,6 +57,7 @@ class base_verifier:
         
         for item in self.model.get_files( self.files ):
             violations = [ ]
+            reported_lines = set( )
             header = item.expected_license_header.strip( line_break )
             body = item.body
             line_offset = ( header + triple_line_break ).count( line_break )
@@ -81,8 +82,10 @@ class base_verifier:
                     replacement = match.expand( r.replacement )
                     if match.group( 0 ) != replacement or r.replacement == r"\g<0>":
                         line_no = line_offset + body.count( line_break, 0, match.start( ) ) + 1
-                        kind = "warning-only" if r.replacement == r"\g<0>" else "autofix-done"
-                        violations.append( f"line {line_no}: [{kind}] {match.expand( r.message )}" )
+                        if line_no not in reported_lines:
+                            reported_lines.add( line_no )
+                            kind = "warning-only" if r.replacement == r"\g<0>" else "autofix-done"
+                            violations.append( f"line {line_no}: [{kind}] {match.expand( r.message )}" )
                     return  replacement
                 
                 body = re.sub( r.pattern, sub_func, body, flags = r.flags )

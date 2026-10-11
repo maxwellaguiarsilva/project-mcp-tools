@@ -63,6 +63,7 @@ class cpp_verifier( base_verifier ):
     @property
     def rules( self ):
         ignore = self.language_ignore_pattern
+        comment_ignore = [ cpp_project_config[ "language" ][ "patterns" ][ "string-literal-ignore" ] ]
         return  super( ).rules | {
              "consecutive_newlines": rule(
                  re_consecutive_newlines
@@ -106,22 +107,26 @@ class cpp_verifier( base_verifier ):
                   re_comment_tab_before
                  ,sub_comment
                  ,"comment '//' must be preceded by a tab"
+                 ,ignore_pattern = comment_ignore
              )
             ,"comment_tab_after": rule(
                   re_comment_tab_after
                  ,sub_comment
                  ,"comment '//' must be followed by a tab"
+                 ,ignore_pattern = comment_ignore
              )
             ,"comment_lowercase": rule(
                   re_comment_lowercase
                  ,sub_comment
                  ,"comment text must be 100% lowercase"
+                 ,ignore_pattern = comment_ignore
                  ,flags = re.MULTILINE
              )
             ,"comment_no_period": rule(
                   re_comment_no_period
                  ,sub_comment
                  ,"comment text must not end with a period"
+                 ,ignore_pattern = comment_ignore
                  ,flags = re.MULTILINE
              )
             ,"using_repeat": rule(

@@ -21,6 +21,11 @@ from tools.folder_scanner import scan_folder
 from sak.common import ensure, ensure_list, to_json, from_json, create_process, value_or, get_process_text
 
 
+mcp_instructions = """project-mcp-tools can expose python functions annotated with @tool to be invoked via mcp, cli or api and all tools run in their own subprocess
+so any change made to them can be consumed without restarting the server, never tell the user to restart the server to see these changes
+"""
+
+
 class tool_manager:
     def __init__( self, name: str, path_manager ):
         self._name = name
@@ -70,7 +75,10 @@ class tool_manager:
 
     def run_mcp( self ):
         sys.argv = [ sys.argv[ 0 ] ]
-        self._mcp = _FastMCP( self._name )
+        self._mcp = _FastMCP(
+             self._name
+            ,instructions = mcp_instructions
+        )
         for name, tool_info_obj in self._registry.items( ):
             self._add_mcp_tool( name, tool_info_obj )
         self._mcp.run( )

@@ -64,6 +64,7 @@ cpp_project_config = {
         ,"comment-string":  "//\t"
         ,"patterns": {
              "string-comment-ignore": r"//.*|/\*[\s\S]*?\*/|\"(?:\\.|[^\"\\])*\"|'(?:\\.|[^'\\])*'"
+            ,"string-literal-ignore": r"\"(?:\\.|[^\"\\])*//(?:\\.|[^\"\\])*\"|'(?:\\.|[^'\\])*//(?:\\.|[^'\\])*'"
             ,"reflection-splice-ignore": r"\[:[\s\S]*?:\]"
             ,"attribute-ignore": r"\[\[[\s\S]*?\]\]"
         }
