@@ -274,6 +274,11 @@ auto autopilot( ) const noexcept -> bool { return m_autopilot; }
 auto autopilot( const bool enable ) noexcept -> void { m_autopilot = enable; }
 ```
 
+## Accessor Grouping `[llm]`
+<!-- llm-rule: id=accessor_grouping, complexity=medium -->
+
+The getter and setter of the same property are an atomic pair and are never separated. A simple accessor is a getter whose one-line body is a bare `return m_member;` with no computation, or a setter whose one-line body is a bare `m_member = value;` with no formula and no derived-state recomputation. Simple accessors occupy a contiguous block with no blank line between them. Any definition that is not a simple accessor breaks the block and is separated from it by exactly one blank line; the atomic pair moves together. Only contiguity and blank-line separation are governed — the position of the block in the class is free. Beyond accessors this is a soft heuristic: group what is alike or of the same responsibility, and do not scatter similar things.
+
 ## Indirection `[llm]`
 <!-- llm-rule: id=indirection, complexity=medium -->
 
@@ -312,6 +317,11 @@ The common comment rules apply. Additionally:
 //	a comment that does not contain any capital letters or periods at the end of the sentence
 //	it has a tab \t after // and only one sentence per line
 ```
+
+## Design Coupling `[llm]`
+<!-- llm-rule: id=design_coupling, complexity=medium -->
+
+A class is bound by the purpose it declares in its own name. No part of it — identifier names or code — may carry anything that belongs to a special case of its consumers. Contaminating is knowing the concept, not receiving the value: data passed in is not coupling, while types and identifiers that name the concept are. A class that declares itself specific in its own name is honest about the coupling and does not violate the rule; the violation is a generic class carrying a concept that only its particular consumer understands. Classes commonly emerge from a use case, and when extracted into an abstraction they must not carry anything that is not generic to the abstraction. The test is a hypothetical consumer from another domain: a concept inside the class that such a consumer could not understand is contamination.
 
 ## Modernity, Composition, and the `sak` Library `[llm]`
 <!-- llm-rule: id=modernity, complexity=high use-dedicated-sub-agent=true -->
