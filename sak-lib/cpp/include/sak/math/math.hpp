@@ -10,6 +10,7 @@
 
 
 #include <cmath>
+#include <numbers>
 #include <sak/math/error.hpp>
 #include <sak/ranges/transform.hpp>
 
