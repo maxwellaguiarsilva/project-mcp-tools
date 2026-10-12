@@ -232,9 +232,14 @@ auto main( ) -> int
 ## Console Output `[llm]`
 <!-- llm-rule: id=console_output, complexity=low -->
 
-Use `std::println` for all console output. Direct iostream usage (`std::cout`, `std::cerr`, `std::endl`, and `<<` operators) is forbidden in test and application code.
+Use `std::println` instead of direct iostream usage in test and application code:
 
-For error output, route through `stderr` via `println( stderr, "..." )`.
+| instead of | use |
+|---|---|
+| `std::cout` | `println( ... )` |
+| `std::cerr` | `println( stderr, ... )` |
+| `std::endl` | the line break `println` already emits |
+| `operator<<` | `println` format placeholders |
 
 ```cpp
 //	correct
