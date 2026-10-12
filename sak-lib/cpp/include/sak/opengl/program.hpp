@@ -16,13 +16,7 @@ namespace sak {
 namespace opengl {
 
 
-__using( ::sak::opengl::, fetch_log, shader )
-__using( ::std::, convertible_to, runtime_error, string )
-__using( ::std::ranges::, input_range, range_reference_t )
-
-
-template< input_range t_range >
-requires convertible_to< range_reference_t< t_range >, const shader& >
+template< is_shader_range t_range >
 class program
 {
 public:
@@ -45,9 +39,9 @@ public:
 	}
 
 	auto use( ) const noexcept -> void { gl_use_program( id( ) ); }
-	auto id( ) const noexcept -> GLuint { return m_raii->m_id; }
 
 private:
+	auto id( ) const noexcept -> GLuint { return m_raii->m_id; }
 	auto id( const GLuint value ) noexcept -> void { m_raii->m_id = value; }
 
 	struct raii_destructor

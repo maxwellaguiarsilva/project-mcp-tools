@@ -16,7 +16,7 @@ namespace sak {
 namespace opengl {
 
 
-using	::std::string;
+__using( ::std::, string )
 
 
 //	fetches a complete info log by doubling the buffer until the whole log fits

@@ -18,7 +18,7 @@ namespace sak {
 
 
 //	--------------------------------------------------
-using	::sak::pattern::tupled;
+__using( ::sak::pattern::, tupled )
 __using( ::sak::, is_callable )
 //	--------------------------------------------------
 __using( ::std::
@@ -111,8 +111,8 @@ public:
 	constexpr point( t_range&& range, t_first first, t_remaining... remaining )
 		: super_type{ }
 	{
-		using	::std::ranges::copy;
-		using	::std::views::take;
+		__using( ::std::ranges::, copy )
+		__using( ::std::views::, take )
 		constexpr auto remaining_count = sizeof...( t_remaining ) + 1;
 		constexpr auto prefix_size = num_dimensions - remaining_count;
 		copy( ::std::forward< t_range >( range ) | take( prefix_size ), super_type::begin( ) );
@@ -135,7 +135,7 @@ public:
 	constexpr explicit point( const point< t_other_scalar, other_dimensions >& other )
 		: super_type{ }
 	{
-		using	::std::ranges::copy;
+		__using( ::std::ranges::, copy )
 		copy( other | take( num_dimensions ), super_type::begin( ) );
 	}
 
@@ -149,8 +149,8 @@ public:
 	template< is_callable< t_scalar, t_scalar > t_operation >
 	constexpr auto is_all( const point& other, const t_operation& operation ) const noexcept -> bool
 	{
-		using	::std::views::zip;
-		using	::std::ranges::all_of;
+		__using( ::std::views::, zip )
+		__using( ::std::ranges::, all_of )
 		return	all_of( zip( *this, other ), tupled( operation ) );
 	}
 	constexpr auto operator == ( const point& other ) const noexcept -> bool { return is_all( other, equal_to ); }

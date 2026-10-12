@@ -16,8 +16,23 @@ namespace sak {
 namespace opengl {
 
 
-__using( ::std::, make_unique, runtime_error, string, unique_ptr )
-__using( ::sak::opengl::, fetch_log )
+__using( ::std::
+	,convertible_to
+	,make_unique
+	,runtime_error
+	,string
+	,unique_ptr
+)
+__using( ::std::ranges::, input_range, range_reference_t )
+
+
+class shader;
+
+template< typename t_range >
+concept is_shader_range = input_range< t_range > and convertible_to<
+	 range_reference_t< t_range >
+	,const shader&
+>;
 
 
 class shader
@@ -52,9 +67,11 @@ public:
 		}
 	}
 
-	auto id( ) const noexcept -> GLuint { return m_raii->m_id; }
-
 private:
+	template< is_shader_range t_range >
+	friend class program;
+
+	auto id( ) const noexcept -> GLuint { return m_raii->m_id; }
 	auto id( const GLuint value ) noexcept -> void { m_raii->m_id = value; }
 
 	struct raii_destructor

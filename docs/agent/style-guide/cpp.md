@@ -49,12 +49,12 @@ Namespaces are declared as `namespace name {` on the same line, with **no extra 
 ## `using` and `__using` `[llm]`
 <!-- llm-rule: id=using, complexity=medium use-dedicated-sub-agent=true -->
 
-Avoid the scope operator `::` at usage sites. Bring symbols in with `using` (single symbol, tab after the keyword) or the `__using` macro from `sak/using.hpp` (multiple symbols from the same prefix). `using namespace` is forbidden.
+Avoid the scope operator `::` at usage sites. The macros from `sak/using.hpp` are the standard for the cases they were created for, including importing a single symbol. This section does not cover `using` forms that those macros do not provide. Each `__using` invocation takes one prefix followed by the names imported from it. `using namespace` is forbidden.
 
 ```cpp
 //	correct: single symbol
-using	::std::to_string;
-using	::sak::to_lower_case;
+__using( ::std::, to_string )
+__using( ::sak::, to_lower_case )
 ```
 
 The `__using` macro accepts up to 64 parameters. With four or fewer symbols they may remain on the same line; with more than four, each symbol goes on its own line, adhering to the "Comma rule":
@@ -214,7 +214,7 @@ auto renderer::color( const byte color ) noexcept -> void { m_color = color; }
 
 <!-- llm-rule: id=termination, complexity=medium -->
 
-Always exit the program by returning an exit code from the `main` function. Use `exit_success` and `exit_failure` from `sak/ensure.hpp` (brought in via `using` or `__using`) as the return values.
+Always exit the program by returning an exit code from the `main` function. Use `exit_success` and `exit_failure` from `sak/ensure.hpp` (brought in via `__using`) as the return values.
 Calling `std::exit()` (or `std::quick_exit()`, `std::abort()`) is strictly forbidden, as it bypasses the destruction of automatic (stack-allocated) objects, leading to resource leaks.
 
 ```cpp
@@ -299,8 +299,7 @@ const auto& label_position	=	listener.label_position;
 - The nested `raii_destructor` struct must contain exclusively the resource identifier state that its destructor needs to release the resource, plus that destructor. When the destructor needs no state, `raii_destructor` has no data members and only a destructor.
 - The resource getter and setter must be declared in the outer wrapper class, never in the nested `raii_destructor`; the arrow operator must not be used to reach the resource except inside the getter and setter.
 - The nested `raii_destructor` struct must not declare an acquisition constructor, and must not be named `impl`.
-- The outer wrapper class destructor must be defaulted (`= default`).
-- Copy and move operations or macros must not be declared explicitly; rely strictly on transitivity through `unique_ptr` to delete copy operations and generate move operations automatically.
+- The outer wrapper class must not explicitly declare its copy constructor, move constructor, copy assignment operator, move assignment operator, or destructor, directly or through a macro, following the rule of zero: the copy operations are implicitly deleted and the move operations are implicitly generated, both through the transitivity of the `m_raii` `unique_ptr` member, which is move-only. The outer wrapper's resource-acquiring constructor is not one of these special member functions and is not restricted by this rule.
 
 ## Increment `[llm]`
 <!-- llm-rule: id=increment, complexity=low -->

@@ -15,9 +15,9 @@
 namespace sak {
 
 
-using	::std::string;
-using	::sak::ranges::eager_transform;
-using	::sak::math::between;
+__using( ::std::, string )
+__using( ::sak::ranges::, eager_transform )
+__using( ::sak::math::, between )
 
 
 constexpr char delta_case	=	( 'a' - 'A' );
