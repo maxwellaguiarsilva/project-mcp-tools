@@ -22,9 +22,9 @@ __using( ::std::
 	,is_integral_v
 	,same_as
 )
-__using( ::std::ranges::
-	,size
-)
+__using( ::std::ranges::, size, input_range )
+__using( ::sak::ranges::, is_view )
+
 template< typename t_arithmetic >
 concept is_arithmetic = is_arithmetic_v< t_arithmetic >;
 
@@ -33,20 +33,20 @@ concept is_integral = is_integral_v< t_integral >;
 
 //	single value, not a range: routes ranges to the element-wise overload instead of the scalar one
 template< typename t_value >
-concept is_value	=	not ::std::ranges::input_range< t_value >;
+concept is_value	=	not input_range< t_value >;
 
 template< typename t_number >
 concept is_number	=	is_arithmetic< t_number > and not same_as< t_number, bool >;
 
 //	fixed-size tuples are verified at compile time, lazy views are trusted
 template< typename t_vector >
-concept is_doublet	=	( not ::sak::ranges::is_view< t_vector > ) and requires( const t_vector& vector ) { requires size( vector ) == 2; };
+concept is_doublet	=	( not is_view< t_vector > ) and requires( const t_vector& vector ) { requires size( vector ) == 2; };
 
 template< typename t_vector >
-concept is_triplet	=	( not ::sak::ranges::is_view< t_vector > ) and requires( const t_vector& vector ) { requires size( vector ) == 3; };
+concept is_triplet	=	( not is_view< t_vector > ) and requires( const t_vector& vector ) { requires size( vector ) == 3; };
 
 template< typename t_vector >
-concept is_crossable	=	is_doublet< t_vector > or is_triplet< t_vector > or ::sak::ranges::is_view< t_vector >;
+concept is_crossable	=	is_doublet< t_vector > or is_triplet< t_vector > or is_view< t_vector >;
 
 
 } }
