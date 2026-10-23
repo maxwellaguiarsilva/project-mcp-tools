@@ -10,7 +10,6 @@
 
 
 #include <sak/pattern/bitmask.hpp>
-#include <sak/pattern/dispatcher.hpp>
 #include <sak/sdl3/display.hpp>
 
 
@@ -23,7 +22,7 @@ __using( ::sak::, ensure )
 __using( ::sak::pattern::, bitmask, dispatcher, listener_registry )
 
 
-#define __631680322_window_geometry( a_name, a_sdl, a_type, a_first, a_second )	\
+#define __631680322_window_geometry( a_name, a_sdl, a_type, a_first, a_second )		\
 auto a_name( ) const noexcept -> geometry::a_type									\
 {																					\
 	int window_##a_first = 0, window_##a_second = 0;								\
@@ -130,27 +129,26 @@ public:
 	{
 		switch( event.type )
 		{
-			case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
+			case	SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
 				m_dispatcher.dispatch< ^^listener::pixel_resize >( geometry::size{ event.data1, event.data2 } );
 				break;
-			case SDL_EVENT_WINDOW_RESIZED:
+			case	SDL_EVENT_WINDOW_RESIZED:
 				m_dispatcher.dispatch< ^^listener::resize >( geometry::size{ event.data1, event.data2 } );
 				break;
-			case SDL_EVENT_WINDOW_MOVED:
+			case	SDL_EVENT_WINDOW_MOVED:
 				m_dispatcher.dispatch< ^^listener::move >( geometry::position{ event.data1, event.data2 } );
 				break;
 
-			case SDL_EVENT_WINDOW_SHOWN:			m_dispatcher.dispatch< ^^listener::show >( );			break;
-			case SDL_EVENT_WINDOW_HIDDEN:			m_dispatcher.dispatch< ^^listener::hide >( );			break;
-			case SDL_EVENT_WINDOW_MINIMIZED:		m_dispatcher.dispatch< ^^listener::minimize >( );		break;
-			case SDL_EVENT_WINDOW_MAXIMIZED:		m_dispatcher.dispatch< ^^listener::maximize >( );		break;
-			case SDL_EVENT_WINDOW_RESTORED:			m_dispatcher.dispatch< ^^listener::restore >( );		break;
-			case SDL_EVENT_WINDOW_CLOSE_REQUESTED:	m_dispatcher.dispatch< ^^listener::close_requested >( );	break;
-			case SDL_EVENT_WINDOW_FOCUS_GAINED:		m_dispatcher.dispatch< ^^listener::focus_gained >( );	break;
-			case SDL_EVENT_WINDOW_FOCUS_LOST:		m_dispatcher.dispatch< ^^listener::focus_lost >( );		break;
+			case	SDL_EVENT_WINDOW_SHOWN:				m_dispatcher.dispatch< ^^listener::show >( );				break;
+			case	SDL_EVENT_WINDOW_HIDDEN:			m_dispatcher.dispatch< ^^listener::hide >( );				break;
+			case	SDL_EVENT_WINDOW_MINIMIZED:			m_dispatcher.dispatch< ^^listener::minimize >( );			break;
+			case	SDL_EVENT_WINDOW_MAXIMIZED:			m_dispatcher.dispatch< ^^listener::maximize >( );			break;
+			case	SDL_EVENT_WINDOW_RESTORED:			m_dispatcher.dispatch< ^^listener::restore >( );			break;
+			case	SDL_EVENT_WINDOW_CLOSE_REQUESTED:	m_dispatcher.dispatch< ^^listener::close_requested >( );	break;
+			case	SDL_EVENT_WINDOW_FOCUS_GAINED:		m_dispatcher.dispatch< ^^listener::focus_gained >( );		break;
+			case	SDL_EVENT_WINDOW_FOCUS_LOST:		m_dispatcher.dispatch< ^^listener::focus_lost >( );			break;
 
-			default:
-				break;
+			default:	break;
 		}
 	}
 
@@ -158,11 +156,10 @@ public:
 	{
 		switch( event.type )
 		{
-			case SDL_EVENT_KEY_DOWN:	m_dispatcher.dispatch< ^^listener::key_down >( event );	break;
-			case SDL_EVENT_KEY_UP:		m_dispatcher.dispatch< ^^listener::key_up >( event );		break;
+			case	SDL_EVENT_KEY_DOWN:	m_dispatcher.dispatch< ^^listener::key_down >( event );	break;
+			case	SDL_EVENT_KEY_UP:	m_dispatcher.dispatch< ^^listener::key_up >( event );	break;
 
-			default:
-				break;
+			default:	break;
 		}
 	}
 
