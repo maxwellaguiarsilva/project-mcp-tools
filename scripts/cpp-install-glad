@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 uv --quiet --directory "../project-mcp-tools" run glad --out-path "$( pwd )" --api="gl:core=4.6" --extensions="" c --header-only --loader
 
