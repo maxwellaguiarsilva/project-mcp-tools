@@ -97,7 +97,7 @@ uv run cli --target-project ../my-host-project git_quick_upload --message "your 
 |------|-----------|-------------|
 | `git_discard_changes` | `() -> str` | Discards all uncommitted changes and removes untracked files. Reverts to HEAD |
 | `git_pull_submodules` | `() -> str` | Updates every submodule to the latest remote commit (requires clean submodules); the pointer bump is left uncommitted |
-| `git_quick_upload` | `(message: str) -> str` | Performs `git pull`, `git add .`, `git commit -m <message>`, and `git push` |
+| `git_quick_upload` | `(message: str, project_name: str \| None = None) -> str` | Performs `git pull`, `git add .`, `git commit -m <message>`, and `git push` on the current target project; when `project_name` is given, runs the same commands on the sibling project with that name (resolved next to the target root) |
 
 ### Python
 

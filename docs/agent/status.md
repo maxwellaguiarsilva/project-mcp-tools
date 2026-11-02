@@ -2,6 +2,25 @@
 
 ---
 
+## Current Task
+
+### Add optional `project_name` to `git_quick_upload`
+
+**Goal:** Allow the quick upload to redirect its git commands to a sibling
+project by name instead of only operating on the current target project.
+
+**Status:** Completed.
+
+- `git/quick_upload.py` — thin `@tool()` facade with signature
+  `quick_upload( message: str, project_name: str | None = None ) -> str`
+- `git/git_lib/upload.py` — new module exposing
+  `perform_upload( message: str, project_name: str | None = None ) -> str`;
+  resolves `project_name` as a sibling of the target root, validates it with
+  `ensure`, and calls `os.chdir` before the git commands
+- `README.md` — updated the Git tool table row for `git_quick_upload`
+
+---
+
 ## Previous Task
 
 ### Implement missing regex rules in `cpp_code_verifier`
