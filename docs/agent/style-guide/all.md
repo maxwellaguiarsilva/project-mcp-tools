@@ -28,6 +28,17 @@ getFilePath( )
 
 ---
 
+## Shared Prefix and Suffix `[llm]`
+<!-- llm-rule: id=shared_name_cluster, complexity=medium use-dedicated-sub-agent=true -->
+
+A group of identifiers that repeat the same prefix or the same suffix points to a concept that no type owns. The repeated term is the concept, and the remainder of each identifier is what distinguishes one use from another. Model the repeated term once as a type when it denotes a value with its own semantics, or as an object when it denotes state shared by several operations, and let the type carry the name so each identifier states only its distinction.
+
+The abstraction holds when the type carries the operations of the concept: construction, access, and the transformations that only that concept performs. A term that survives as a plain string, passed around and re-checked at each call site, indicates that the type exists only in the names.
+
+The rule applies wherever the language allows the organization. A construct that the language cannot model as a type stays outside its reach because the language does not provide the organization, not because the construct carries an exemption of its own.
+
+---
+
 ## Comments `[llm]`
 <!-- llm-rule: id=comments, complexity=low -->
 
