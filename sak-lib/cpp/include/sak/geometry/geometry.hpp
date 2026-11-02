@@ -32,6 +32,7 @@ struct geometry
 	using	point		=	t_point;
 	using	size		=	t_point;
 	using	position	=	t_point;
+	using	velocity	=	t_point;
 	using	color		=	::sak::point< float, 4 >;
 	using	scalar		=	typename t_point::value_type;
 
@@ -51,6 +52,8 @@ struct geometry
 	static constexpr auto green		=	__axis<	color		,1	>{ };
 	static constexpr auto blue		=	__axis<	color		,2	>{ };
 	static constexpr auto alpha		=	__axis<	color		,3	>{ };
+
+	static constexpr point	zero{ };
 
 	class has_position
 	{
