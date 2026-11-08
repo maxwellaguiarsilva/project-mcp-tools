@@ -49,6 +49,7 @@ Every unary/binary/ternary Niebloid offers two forms:
 | Name | Purpose |
 |------|---------|
 | `sum( range )` | `fold_left( range, 0, plus )` |
+| `product( range )` | `fold_left( range, 1, multiplies )` |
 | `min( first, second )` / `min( range )` | Minimum, binary or over a range |
 | `max( first, second )` / `max( range )` | Maximum, binary or over a range |
 
