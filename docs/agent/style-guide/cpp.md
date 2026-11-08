@@ -172,7 +172,7 @@ Use the keyword forms: `and`, `or`, `not`, `not_eq`. The symbol forms `&&`, `||`
 ```cpp
 //	correct
 if( main_upper not_eq copy_upper or main_lower not_eq copy_lower )
-if( not bounds_start.is_inside( position ) )
+if( not is_inside_of( bounds_start, position ) )
 ```
 
 The pipe operator `|` used in ranges pipelines is exempt and must **not** be replaced by `bitor`:

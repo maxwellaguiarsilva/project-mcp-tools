@@ -57,9 +57,17 @@ Points are ranges, so piping is routed by the STL to `sak::ranges::to`:
 |-----------|----------|
 | `range \| to` | Converts any range to a `point< t_scalar, N >` ( target deduced at the assignment site ) |
 
-### Pending Extraction
+### Point Operations
 
-- `is_all`, `is_inside`, `length` and `product` are being moved out of the class into niebloids, so their member form is intentionally undocumented. The target shape is recorded in `docs/agent/analyses/renderer/point-niebloids.md` of the `draft-point` project.
+The predicates are free niebloids in flat `namespace sak` inside `point.hpp`, and the reductions belong to `sak::math`:
+
+- `operator ==` is the only operation declared on the class. It compares coordinate pairs and returns a single `bool` by delegating to `is_equal( *this, other )`, and it takes precedence over the element-wise `==` generated in `sak::ranges`.
+- `is_all( left, right, operation )` applies the operation to every zipped coordinate pair and folds the results with `all_of`.
+- `is_inside_of( inner, outer )` binds `less_equal` through `is_all`.
+- `is_equal( left, right )` binds `equal_to` through `is_all`.
+- The norm and the coordinate product are reductions, so they are `sak::math::length( vector )` in `include/sak/math/vector.hpp` and `sak::math::product( list )` in `include/sak/math/math.hpp`.
+- None of these operations indexes a dimension; every one consumes its operands as ranges.
+- The names `is_inside_of` and `is_equal` keep the free predicates distinct from the `geometry::rectangle::is_inside` member and from `std::equal_to` at call sites.
 
 ### Concept & Type Traits
 
