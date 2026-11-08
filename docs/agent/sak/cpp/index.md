@@ -8,90 +8,23 @@ The core of this project is the `sak` library ( Swiss Army Knife ). It is design
 
 ---
 
-## Documentation Freshness Check
-
-To validate whether this documentation is outdated, compare the mtime of this file ( `docs/agent/sak/cpp/index.md` ) against the mtime of the most recently modified file under `include/sak/` ( recursive ):
-
-```bash
-# 1. Find the most recent file under include/sak and get its datetime
-date -r "$( find -L include/sak -type f -printf '%T@ %p\n' | sort -n | tail -1 | cut -f2- -d' ' )" '+%Y-%m-%d %H:%M:%S'
-
-# 2. Get this file's datetime in the same format
-date -r docs/agent/sak/cpp/index.md '+%Y-%m-%d %H:%M:%S'
-```
-
-If the most recent header mtime is newer than this file's mtime, the documentation is outdated. In that case, **request the user's permission before updating this documentation**.
-
----
-
-## Range Pipeline Modernization ( C++26 )
-
-Historically, the `sak` library contained a parallel range-pipeline infrastructure built during the Termux ( Android ) era, when the NDK libstdc++ lacked `std::ranges::to`, range adaptor closures, and `std::views::enumerate`. That infrastructure relied on a greedy `sak::operator|` and a `to_point` materialization proxy.
-
-That era is **fully retired**. The project now runs on Arch Linux with GCC 16 and complete C++23/C++26 standard library support. The migration ( see `docs/agent/architecture/range-pipeline-cpp26.md` ) replaced the legacy pipe operators with native C++23 `range_adaptor_closure` objects, and `to_point` was deleted in favor of the universal materializer `sak::ranges::to`.
-
-- **`sak::ranges::to`** replaces `to_point`. It is a native range adaptor closure that defers the target type to the assignment site via a templated implicit conversion operator, keeping pipelines dimension-agnostic ( `point | sin | to` instead of `point | sin | to_point` ).
-- **Niebloids inherit from `std::ranges::range_adaptor_closure`**, so `range | sak::math::sin` resolves natively through the STL `operator|`.
-- **`sak::point` is a first-class range consumer** via a `std::from_range_t` constructor, so `std::ranges::to< t_target >( )` works natively.
-- **No `sak::operator|` free overloads remain.** ADL pollution and the historical `ambiguous overload` errors are eliminated by construction.
-
----
-
 ## Directory Structure
 
-```
-include/sak/
-  sak.hpp                     # Main header aggregator
-  using.hpp                   # __using / __use_macro / __use_macro_list variadic macros
-  default_ctc_dtc.hpp         # Copy/move/dtor macro utilities
-  ensure.hpp                  # Runtime assertion utility
-  concepts.hpp                # is_callable / is_tuple / is_class / is_union / is_enum / is_castable_enum / is_same_decayed concepts
-  string.hpp                  # String case conversion
-
-  fso/
-    file.hpp                  # File-system object with derived components and metadata
-    text_file.hpp             # Text file with read/write content
-
-  math/
-    math.hpp                  # Arithmetic functors, math niebloids
-    concepts.hpp              # is_value / is_arithmetic / is_integral / is_number / is_crossable concepts
-    error.hpp                 # Math error codes and exception type
-    vector.hpp                # Vector math ( length, normalize, cross, rotate )
-
-  pattern/
-    dispatcher.hpp            # Observer pattern ( event dispatcher )
-    tupled.hpp                # Tuple adaptor for multi-arg functions
-    value_or.hpp              # Safe map/sequence lookup with default fallback
-    parse.hpp                 # Text-to-number parsing ( scalar and range, optional fallback )
-    bitmask.hpp               # Scoped-enum bit flag wrapper
-
-  ranges/
-    to.hpp                    # Universal materializer closure ( replaces to_point )
-    operators.hpp             # Element-wise +,-,*,/,% for containers and views
-    concepts.hpp              # is_view / is_resizable / is_string_like / is_container / any_is_view / is_indirectly_binary_left_foldable
-    contains.hpp              # Range containment with braced-list overload
-    count_to.hpp              # Integer range [ 0, bound )
-    transform.hpp             # eager_transform / lazy_transform aliases
-    chunk.hpp                 # Split range into fixed-size subranges
-    fold_left_first.hpp       # Fold-left using first element as initial
-    views/
-      enumerate.hpp           # Zip range with index
-      cartesian_product.hpp   # Cartesian product of two ranges
-      rotated.hpp             # Circular range rotation
-      regex_matches.hpp       # Lazy std::smatch view over std::regex_iterator
-
-  geometry/
-    concepts.hpp              # is_point concept
-    point.hpp                 # N-dimensional point ( core class )
-    geometry.hpp              # Line/Rectangle composite types
-    line_view.hpp             # Bresenham line iterator view
-```
+- Root headers: `sak.hpp` (aggregator), `using.hpp` (the `__using` macro families), `ensure.hpp`, `concepts.hpp`, `default_ctc_dtc.hpp`, `format.hpp`, `string.hpp`.
+- `expand64/` — generated expansion families consumed by `using.hpp`.
+- `meta/` — `override.hpp`.
+- `fso/` — `file.hpp`, `text_file.hpp`.
+- `math/` — `math.hpp`, `vector.hpp`, `concepts.hpp`, `error.hpp`.
+- `pattern/` — `dispatcher.hpp`, `tupled.hpp`, `value_or.hpp`, `parse.hpp`, `bitmask.hpp`, `cast.hpp`, `enum.hpp`.
+- `ranges/` — `to.hpp`, `operators.hpp`, `concepts.hpp`, `contains.hpp`, `count_to.hpp`, `fold_left_first.hpp`, `index_of.hpp`, `transform.hpp`, `chunk.hpp`.
+- `ranges/views/` — `enumerate.hpp`, `cartesian_product.hpp`, `reversed.hpp`, `rotated.hpp`, `regex_matches.hpp`.
+- `geometry/` — `point.hpp`, `geometry.hpp`, `line_view.hpp`, `concepts.hpp`.
+- `opengl/` — `opengl.hpp`, `shader.hpp`, `program.hpp`, `vertex_array.hpp`, `fetch_log.hpp`, `glad/`.
+- `sdl3/` — `application.hpp`, `window.hpp`, `display.hpp`, `audio.hpp`, `opengl/`.
 
 ---
 
 ## Modules
-
-The documentation is distributed across one file per module directory under `include/sak/`:
 
 - [Core Infrastructure](core.md) — `using`, `default_ctc_dtc`, `ensure`, `concepts`, `sak.hpp`.
 - [`sak/fso/`](fso.md) — file-system objects: `file` and `text_file`.
@@ -99,3 +32,5 @@ The documentation is distributed across one file per module directory under `inc
 - [`sak/pattern/`](pattern.md) — design patterns: dispatcher, tupled, value_or, parse, bitmask.
 - [`sak/ranges/`](ranges.md) — range utilities and views.
 - [`sak/geometry/`](geometry.md) — geometry primitives and the `point` core class.
+
+- **Pending:** `format.hpp`, `string.hpp`, `opengl/`, `sdl3/`, `meta/` and `expand64/` have no dedicated document. The OpenGL and SDL3 coverage lives in the analysis tree at `docs/agent/analyses/opengl/` and `docs/agent/analyses/sdl3/`.
