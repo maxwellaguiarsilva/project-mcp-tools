@@ -202,6 +202,15 @@ struct __sak_sum
 inline constexpr auto sum = __sak_sum{ };
 
 
+//	range product: fold a range into a single scalar by multiplication
+struct __product
+{
+	constexpr auto operator ( ) ( const auto& list ) const noexcept
+	{ return fold_left( list, 1, multiplies ); }
+};
+inline constexpr auto product = __product{ };
+
+
 __use_macro( __935812590_binary_range_scalar
 	,(	min	,min	,first < second ? first : second	)
 	,(	max	,max	,first > second ? first : second	)

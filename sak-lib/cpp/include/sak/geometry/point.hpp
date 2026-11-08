@@ -19,7 +19,6 @@ namespace sak {
 
 //	--------------------------------------------------
 __using( ::sak::pattern::, tupled )
-__using( ::sak::, is_callable )
 //	--------------------------------------------------
 __using( ::std::
 	,array
@@ -36,13 +35,10 @@ __using( ::std::ranges::
 	,viewable_range
 )
 __using( ::sak::math::
-	,multiplies
 	,equal_to
 	,less_equal
 	,greater_equal
 	,is_arithmetic
-	,fold_left
-	,length
 	,operator*
 	,operator+
 	,operator-
@@ -60,6 +56,38 @@ __using( ::sak::math::
 template< is_arithmetic t_scalar, size_t num_dimensions >
 requires	( num_dimensions > 1 )
 class point;
+
+
+//	predicate fold across two coordinate ranges: every paired element satisfies the operation
+struct __is_all
+{
+	template< input_range t_left, input_range t_right, typename t_operation >
+	constexpr auto operator ( ) ( t_left&& left, t_right&& right, const t_operation& operation ) const noexcept -> bool
+	{
+		__using( ::std::views::, zip )
+		__using( ::std::ranges::, all_of )
+		return	all_of( zip( left, right ), tupled( operation ) );
+	}
+};
+inline constexpr auto is_all = __is_all{ };
+
+
+//	coordinate-wise containment: every coordinate of inner is at most the matching coordinate of outer
+struct __is_inside_of
+{
+	constexpr auto operator ( ) ( const auto& inner, const auto& outer ) const noexcept -> bool
+	{ return is_all( inner, outer, less_equal ); }
+};
+inline constexpr auto is_inside_of = __is_inside_of{ };
+
+
+//	coordinate-wise equality
+struct __is_equal
+{
+	constexpr auto operator ( ) ( const auto& left, const auto& right ) const noexcept -> bool
+	{ return is_all( left, right, equal_to ); }
+};
+inline constexpr auto is_equal = __is_equal{ };
 
 
 template< is_arithmetic t_scalar = int, size_t num_dimensions = 2 >
@@ -146,17 +174,7 @@ public:
 		copy( ::std::forward< t_range >( range ), super_type::begin( ) );
 	}
 
-	template< is_callable< t_scalar, t_scalar > t_operation >
-	constexpr auto is_all( const point& other, const t_operation& operation ) const noexcept -> bool
-	{
-		__using( ::std::views::, zip )
-		__using( ::std::ranges::, all_of )
-		return	all_of( zip( *this, other ), tupled( operation ) );
-	}
-	constexpr auto operator == ( const point& other ) const noexcept -> bool { return is_all( other, equal_to ); }
-	constexpr auto is_inside( const point& other ) const noexcept -> bool { return is_all( other, less_equal ); }
-	constexpr auto length( ) const noexcept -> t_scalar { return ::sak::math::length( *this ); }
-	constexpr auto product( ) const noexcept -> t_scalar { return fold_left( *this, 1, multiplies ); }
+	constexpr auto operator == ( const point& other ) const noexcept -> bool { return is_equal( *this, other ); }
 
 };
 
