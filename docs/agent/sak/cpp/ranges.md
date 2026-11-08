@@ -2,7 +2,7 @@
 
 ## `to.hpp` — Universal Materializer
 
-**Active consumption core.** `sak::ranges::to` replaces the retired `to_point`. It is a native `range_adaptor_closure` that produces a proxy holding the range; the proxy converts to *any* target type at the assignment site via a templated implicit conversion operator.
+`sak::ranges::to` is a native `range_adaptor_closure` that produces a proxy holding the range; the proxy converts to *any* target type at the assignment site via a templated implicit conversion operator.
 
 ```cpp
 point | sin | to      // -> sak::point ( dimension-agnostic )
@@ -19,10 +19,13 @@ The proxy deduces its target from the left-hand side of the assignment ( `point 
 
 ## `operators.hpp` — Element-wise Operators
 
-Provides `+`, `-`, `*`, `/`, `%` ( and their compound `+=`, `-=`, etc. ) for ranges, with the behavioral intent that containers produce eager results, views produce lazy results, and strings stay standard. The constraints are now expressed through `is_container` / `any_is_view` / `is_same_decayed`:
-- **Containers** ( `is_container`: non-view, non-string-like ): eager result via `std::ranges::transform` into a new container. The container-container overloads additionally require `is_same_decayed< t_left, t_right >`.
-- **Views** ( the lazy overloads use `viewable_range` plus `any_is_view`, i.e. at least one operand is a view; the view-scalar and scalar-view forms require `is_view` ): lazy result via `std::views::zip_transform`.
-- Also provides unary negation for containers, constrained by `is_container`.
+Element-wise operators for ranges, generated from one macro per operator family, with the behavioral intent that containers produce eager results, views produce lazy results, and strings stay standard:
+- **Binary operators**, six overloads each: container with container ( materialized through `| to`, requiring `is_same_decayed` ), container with scalar and scalar with container ( the scalar broadcast through `repeat` ), plus the three lazy view forms built on `zip_transform` that skip materialization.
+- **Binary scalar domain:** `+`, `-`, `*`, `/`, `%` accept any arithmetic scalar; `&`, `|`, `^`, `<<`, `>>` narrow the scalar operand to integral.
+- **Compound assignment:** `+=`, `-=`, `*=`, `/=`, `%=`, `&=`, `|=`, `^=`, `<<=`, `>>=`, two overloads each, mutating in place through `eager_transform` and returning a reference to the left operand.
+- **Comparison and logical operators:** `!=`, `==`, `<`, `<=`, `>`, `>=`, `&&`, `||` reuse the binary generator but materialize into `std::vector< bool >`, because the element result is `bool`. The logical forms do not short-circuit.
+- **Unary operators:** `-`, `+`, `~`, `not` have an eager form for containers materializing through `| to`, and a lazy form for views. `not` materializes into `std::vector< bool >`.
+- **Prefix increment and decrement:** `++` and `--` act per element; containers mutate in place, views stay lazy. Postfix forms exist only for containers, which snapshot the previous value.
 
 ## `concepts.hpp` — Range Concepts
 
@@ -53,12 +56,17 @@ Splits a range into subranges of a given size via a closure object. Returns a vi
 
 Folds a range using the first element as the initial value. Returns `std::optional< t_value >` ( empty if range is empty ). Provides both iterator/sentinel and range overloads.
 
+## `index_of.hpp` — Element Position
+
+Niebloid `index_of( range, value )` returning `std::optional< std::size_t >` with the position of the first element equal to the value, empty when absent. The pipe form `range | index_of( value )` binds the value in a nested `range_adaptor_closure`.
+
 ## Views ( `views/` directory )
 
 | File | Name | STL Equivalent | Purpose |
 |------|------|---------------|---------|
 | `enumerate.hpp` | `enumerate` | `std::views::enumerate` | Zips a range with an index starting from 0 ( or custom start ) |
 | `cartesian_product.hpp` | `cartesian_product` | `std::views::cartesian_product` | Cartesian product of two ranges, returns pairs |
+| `reversed.hpp` | `reversed` | `std::views::reverse` | Closure form of the STL reverse view |
 | `rotated.hpp` | `rotated` | *( no direct STL equivalent )* | Circular rotation of a range by an offset; uses concat + drop/take |
 | `regex_matches.hpp` | `regex_matches` | `std::regex_iterator` ( wrapped as a view ) | Lazy view of the `std::smatch` results of applying a `std::regex` to a range's characters |
 

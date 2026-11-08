@@ -10,25 +10,49 @@ Every unary/binary/ternary Niebloid offers two forms:
 
 **Arithmetic functors** ( thin wrappers re-exported from `std` ):
 - `plus`, `minus`, `multiplies`, `divides`, `modulus`
-- `equal_to`, `less_equal`, `greater_equal`
+- `bit_and`, `bit_or`, `bit_xor`, `bit_not`
+- `equal_to`, `not_equal_to`, `less`, `less_equal`, `greater`, `greater_equal`
 
-**Custom Niebloids:**
+**Binary Niebloids:**
+
 | Name | Purpose |
 |------|---------|
-| `abs( value )` | Absolute value |
+| `atan2( first, second )` / `arctangent2` | Two-argument arctangent |
+| `pow( first, second )` / `power` | Exponentiation |
+| `is_multiple( first, second )` | `first % second == 0` ( integral only ) |
+| `logical_and( first, second )` / `logical_or` | Non-short-circuit logical combination |
+| `shift_left( first, second )` / `shift_right` | Bit shifts ( integral only ) |
+| `bit_of( first, second )` | Bit number `second` of `first`: `( first >> second ) & 1` ( integral only ) |
+
+**Unary Niebloids:**
+
+| Name | Purpose |
+|------|---------|
+| `abs( value )` / `absolute` | Absolute value |
 | `negate( value )` | Negation |
 | `square( value )` | `value * value` |
-| `is_even( value )` | Multiple of 2 ( integral only ) |
-| `is_odd( value )` | Not even ( integral only ) |
+| `decrement( value )` / `increment( value )` | Pre-decrement and pre-increment of the value |
+| `identity( value )` | Returns the value unchanged |
+| `logical_not( value )` | Logical negation |
+| `is_even( value )` / `is_odd( value )` | Multiples of 2 ( integral only ) |
 | `sign( value )` | Signum: returns -1, 0, or 1 |
- | `is_multiple( first, second )` | `first % second == 0` ( integral only ) |
- | `bit_of( first, second )` | Bit number `second` of `first`: `( first >> second ) & 1` ( integral only ) |
- | `between( value, low, high )` | Checks `low ≤ value ≤ high` |
- | `clamp( value, low, high )` | Clamp between bounds |
- | `sum( range )` | `fold_left( range, 0, plus )` |
- | `dot( first, second )` | `sum( first * second )` element-wise dot product; `dot( vector )` = `sum( vector * vector )` |
- | `min( first, second )` / `min( range )` | Minimum ( binary or over range via `std::ranges::min` ) |
- | `max( first, second )` / `max( range )` | Maximum ( binary or over range via `std::ranges::max` ) |
+
+**Ternary Niebloids:**
+
+| Name | Purpose |
+|------|---------|
+| `between( value, low, high )` | Checks `low ≤ value ≤ high` |
+| `clamp( value, low, high )` | Clamp between bounds |
+
+**Reductions:**
+
+| Name | Purpose |
+|------|---------|
+| `sum( range )` | `fold_left( range, 0, plus )` |
+| `min( first, second )` / `min( range )` | Minimum, binary or over a range |
+| `max( first, second )` / `max( range )` | Maximum, binary or over a range |
+
+**Approximate equality:** `close( first, second, epsilon )` is true when the two values differ by less than `epsilon`, computed through `absolute` so no ordering assumption is needed.
 
 **Math function Niebloids** ( macro-generated wrappers over `<cmath>` ):
 - Unary: `acos`, `asin`, `atan`, `ceil`, `cos`, `exp`, `floor`, `log`, `log2`, `round`, `sin`, `sqrt`, `tan`, `tanh`, `trunc`
@@ -47,8 +71,9 @@ Defines the concepts used to constrain the Niebloids:
 - `is_integral< t_integral >` — alias for `std::is_integral_v`
 - `is_value< t_value >` — `not std::ranges::input_range< t_value >`; routes ranges to the element-wise overload instead of the scalar one
 - `is_number< t_number >` — arithmetic and not `bool`
-- `is_triplet< t_vector >` — a fixed-size range with exactly 3 elements ( compile-time check )
-- `is_crossable< t_vector >` — `is_triplet` or a lazy view ( trusted for size )
+- `is_doublet< t_vector >` — a non-view range with exactly 2 elements ( compile-time check )
+- `is_triplet< t_vector >` — a non-view range with exactly 3 elements ( compile-time check )
+- `is_crossable< t_vector >` — a doublet, a triplet, or a lazy view ( trusted for size )
 
 ## `error.hpp` — Math Error Codes
 
@@ -58,7 +83,8 @@ Defines the concepts used to constrain the Niebloids:
 ## `vector.hpp` — Vector Math
 
 Dimension-agnostic vector operations built on top of `math.hpp` and `ranges/operators.hpp`:
-- `length( vector )` — Euclidean norm: `square_root( sum( vector * vector ) )`
+- `dot( first, second )` — element-wise product summed; `dot( vector )` is the squared norm
+- `length( vector )` — Euclidean norm: `square_root( dot( vector ) )`
 - `vector | normalize` — unit vector in the same direction ( direct-application closure )
-- `cross( left, right )` / `left | cross( right )` — cross product via cyclic permutation, 3-element vectors only ( `is_crossable` )
+- `cross( left, right )` / `left | cross( right )` — cross product via cyclic permutation over `rotated`, for `is_crossable` operands
 - `vector | rotate( axis, angle )` — Rodrigues rotation around an axis by an angle
