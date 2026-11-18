@@ -35,7 +35,6 @@ __using( ::std::
 	,size_t
 	,smatch
 	,string
-	,string_view
 	,unique_ptr
 	,vector
 )
@@ -51,11 +50,34 @@ __using( ::std::meta::
 )
 __using( ::std::ranges::, input_range, range_reference_t )
 __using( ::std::regex_constants::, ECMAScript, multiline )
-__using( ::std::views::, join_with, keys, transform )
+__using( ::std::views::, transform )
 __using( ::sak::, ensure )
 __using( ::sak::fso::, text_file )
 __using( ::sak::ranges::, contains, to )
 __using( ::sak::ranges::views::, regex_matches )
+
+
+//	raw bodies of a combined glsl file keyed by the section name of their marker pair
+using	glsl_sections	=	map< string, string >;
+
+
+//	split a glsl source on its named section marker pairs while rejecting a repeated section
+auto split_glsl_sections( const string& source ) -> glsl_sections
+{
+	const vector< pair< string, string > > bodies = source
+		|	regex_matches( regex( "^//\\t(\\w+)-shader[\\r\\n]([\\s\\S]*?)^//\\t\\1-shader", ECMAScript | multiline ) )
+		|	transform( [ ]( const smatch& match ) { return pair{ match[ 1 ].str( ), match[ 2 ].str( ) }; } )
+		|	to;
+
+	glsl_sections sections;
+	for( const auto& [ name, body ] : bodies )
+	{
+		ensure( not contains( sections, name ), "duplicate glsl section: " + name );
+		sections.emplace( name, body );
+	}
+	ensure( not sections.empty( ), "no glsl section found" );
+	return	sections;
+}
 
 
 class shader;
@@ -123,22 +145,13 @@ public:
 			template for( constexpr auto enumerator : define_static_array( enumerators_of( ^^type ) ) )
 				kind_by_name.emplace( string( identifier_of( enumerator ) ), [: enumerator :] );
 
-			const string alternation = kind_by_name | keys | join_with( string_view{ "|" } ) | to;
-			const string expression = "^//\\t(" + alternation + ")-shader[\\r\\n]([\\s\\S]*?)^//\\t\\1-shader";
-			const vector< pair< string, string > > sections = file.content( )
-				|	regex_matches( regex( expression, ECMAScript | multiline ) )
-				|	transform( [ ]( const smatch& match ) { return pair{ match[ 1 ].str( ), match[ 2 ].str( ) }; } )
-				|	to;
-
 			table shaders;
-			for( const auto& [ section_name, body ] : sections )
+			for( const auto& [ section_name, body ] : split_glsl_sections( file.content( ) ) )
 			{
+				ensure( contains( kind_by_name, section_name ), "unknown shader section: " + section_name + " in " + name );
 				const type kind = kind_by_name.at( section_name );
-				ensure( not contains( shaders, kind ), "duplicate shader section: " + section_name + " in " + name );
 				shaders.try_emplace( kind, body, kind );
 			}
-
-			ensure( not shaders.empty( ), "no shader section found in shader file: " + name );
 			return	shaders;
 		}
 
