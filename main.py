@@ -55,16 +55,16 @@ if __name__ == "__main__":
         manager = _setup_manager( )
         tool_name = value_or( remaining, 0, "list-tools" )
         try:
-            result = manager.execute_tool( tool_name, from_json( sys.stdin.read( ) ) )
-            print( result )
+            print( manager.execute_tool( tool_name, from_json( sys.stdin.read( ) ) ) )
         except Exception as e:
             print( str( e ), file = sys.stderr )
             sys.exit( 1 )
     else:
-        print( """please use "uv run" to consume this project:""" )
-        print( "  uv run mcp-server" )
-        print( "  uv run api" )
-        print( "  uv run cli" )
+        print( """please use "uv run" to consume this project:\n"""
+            "  uv run mcp-server\n"
+            "  uv run api\n"
+            "  uv run cli\n"
+        )
         sys.exit( 1 )
 
 
