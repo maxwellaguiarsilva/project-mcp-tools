@@ -57,29 +57,6 @@ __using( ::sak::ranges::, contains, to )
 __using( ::sak::ranges::views::, regex_matches )
 
 
-//	raw bodies of a combined glsl file keyed by the section name of their marker pair
-using	glsl_sections	=	map< string, string >;
-
-
-//	split a glsl source on its named section marker pairs while rejecting a repeated section
-auto split_glsl_sections( const string& source ) -> glsl_sections
-{
-	const vector< pair< string, string > > bodies = source
-		|	regex_matches( regex( "^//\\t(\\w+)-shader[\\r\\n]([\\s\\S]*?)^//\\t\\1-shader", ECMAScript | multiline ) )
-		|	transform( [ ]( const smatch& match ) { return pair{ match[ 1 ].str( ), match[ 2 ].str( ) }; } )
-		|	to;
-
-	glsl_sections sections;
-	for( const auto& [ name, body ] : bodies )
-	{
-		ensure( not contains( sections, name ), "duplicate glsl section: " + name );
-		sections.emplace( name, body );
-	}
-	ensure( not sections.empty( ), "no glsl section found" );
-	return	sections;
-}
-
-
 class shader;
 
 
@@ -122,41 +99,72 @@ public:
 	using	enum	type;
 	using	table	=	map< type, shader >;
 
-	//	combined glsl files are split on marker lines and compiled once per name
+	//	shader source file whose combined content is split into named sections editable by consumers
+	class file : public text_file
+	{
+	public:
+		using	sections	=	map< string, string >;
+
+		explicit file( path_type source_path )
+			:text_file( ::std::move( source_path ) )
+		{
+			ensure( exists( ), "unable to read shader file: " + path( ).string( ) );
+			m_sections = split( content( ) );
+		}
+
+		auto bodies( ) const noexcept -> const sections& { return m_sections; }
+		auto bodies( ) noexcept -> sections& { return m_sections; }
+
+	private:
+		//	split a source on its named section marker pairs while rejecting a repeated section
+		static auto split( const string& source ) -> sections
+		{
+			const vector< pair< string, string > > bodies = source
+				|	regex_matches( regex( "^//\\t(\\w+)-shader[\\r\\n]([\\s\\S]*?)^//\\t\\1-shader", ECMAScript | multiline ) )
+				|	transform( [ ]( const smatch& match ) { return pair{ match[ 1 ].str( ), match[ 2 ].str( ) }; } )
+				|	to;
+
+			sections split_sections;
+			for( const auto& [ name, body ] : bodies )
+			{
+				ensure( not contains( split_sections, name ), "duplicate shader section: " + name );
+				split_sections.emplace( name, body );
+			}
+			ensure( not split_sections.empty( ), "no shader section found" );
+			return	split_sections;
+		}
+
+		sections	m_sections;
+	};
+
+	//	compiled shaders of one shader file keyed by the kind named in its section
 	class loader
 	{
 	public:
-		explicit loader( const string& base_path = "data/shader" ) :m_base_path( base_path ) { }
+		explicit loader( const file& source )
+			:m_shaders( load( source ) )
+		{ }
 
-		auto operator[ ]( const string& name ) -> const table&
-		{
-			if( not m_cache.contains( name ) )
-				m_cache.emplace( name, load( name ) );
-			return	m_cache.at( name );
-		}
+		auto shaders( ) const noexcept -> const table& { return m_shaders; }
 
 	private:
-		auto load( const string& name ) const -> table
+		static auto load( const file& source ) -> table
 		{
-			text_file file( m_base_path + "/" + name + ".glsl" );
-			ensure( file.exists( ), "unable to read shader file: " + name );
-
 			map< string, type > kind_by_name;
 			template for( constexpr auto enumerator : define_static_array( enumerators_of( ^^type ) ) )
 				kind_by_name.emplace( string( identifier_of( enumerator ) ), [: enumerator :] );
 
 			table shaders;
-			for( const auto& [ section_name, body ] : split_glsl_sections( file.content( ) ) )
+			for( const auto& [ name, body ] : source.bodies( ) )
 			{
-				ensure( contains( kind_by_name, section_name ), "unknown shader section: " + section_name + " in " + name );
-				const type kind = kind_by_name.at( section_name );
+				ensure( contains( kind_by_name, name ), "unknown shader section: " + name + " in " + source.path( ).string( ) );
+				const type kind = kind_by_name.at( name );
 				shaders.try_emplace( kind, body, kind );
 			}
 			return	shaders;
 		}
 
-		string m_base_path;
-		map< string, table > m_cache;
+		table	m_shaders;
 	};
 
 	//	raii shader storage buffer owning a heap array of packed payloads; binding is a separate explicit step
