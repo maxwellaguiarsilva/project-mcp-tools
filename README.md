@@ -86,7 +86,7 @@ uv run cli --target-project ../my-host-project git_quick_upload --message "your 
 
 | Tool | Signature | Description |
 |------|-----------|-------------|
-| `create_image` | `(description: str, file_name: str \| None = None) -> str` | Generates an image using Gemini (model `gemini-3.1-flash-lite-image`) from the given text description. Saves to `resources/images/` |
+| `create_image` | `(description: str, file_name: str \| None = None, images: list[str] \| None = None) -> str` | Generates an image using Gemini (model `gemini-3.1-flash-lite-image`) from the given text description, optionally guided by reference images resolved inside the target project. Saves to `resources/images/` |
 | `describe_image` | `(image_path: str, description: str) -> str` | Interprets an image from the target project using Gemini vision (fixed model `gemini-flash-lite-latest`) for models without vision capability. `image_path` is relative to the target project |
 | `debug` | `() -> str` | Returns environment debugging information (cwd, paths, env vars) |
 | `get_random_number` | `(start: int = 1, end: int = 100) -> str` | Returns a random number between start and end |

@@ -28,6 +28,37 @@ def _detect_image_format( data: bytes ) -> str:
         return  "png"
 
 
+def _mime_type( format_name: str ) -> str:
+    return  {
+         "png": "image/png"
+        ,"jpg": "image/jpeg"
+        ,"webp": "image/webp"
+        ,"gif": "image/gif"
+    }[ format_name ]
+
+
+def _resolve_image_path( image_path: str ) -> str:
+    target_root = os.environ.get( "PROJECT_MCP_TARGET_ROOT", os.getcwd( ) )
+    return  os.path.join( target_root, image_path ) if not os.path.isabs( image_path ) else image_path
+
+
+def _build_input( description: str, images: list[ str ] | None ) -> str | list[ dict ]:
+    if not images:
+        return  description
+    contents: list[ dict ] = [ { "type": "text", "text": description } ]
+    for image_path in images:
+        absolute_path = _resolve_image_path( image_path )
+        ensure( os.path.isfile( absolute_path ), f"image not found in the target project: {image_path}" )
+        with open( absolute_path, "rb" ) as file:
+            image_data = file.read( )
+        contents.append( {
+             "type": "image"
+            ,"data": base64.b64encode( image_data ).decode( "ascii" )
+            ,"mime_type": _mime_type( _detect_image_format( image_data ) )
+        } )
+    return  contents
+
+
 def _to_kebab_case( name: str ) -> str:
     name = name.lower( )
     name = re.sub( r"[^a-z0-9]+", "-", name )
@@ -48,7 +79,7 @@ def _next_image_name( directory: str ) -> str:
     return  f"image-{max_counter + 1:06d}"
 
 
-def generate_image( description: str, file_name: str | None = None ) -> str:
+def generate_image( description: str, file_name: str | None = None, images: list[ str ] | None = None ) -> str:
     images_dir = os.path.join( "resources", "images" )
     os.makedirs( images_dir, exist_ok = True )
 
@@ -70,7 +101,7 @@ def generate_image( description: str, file_name: str | None = None ) -> str:
 
     interaction = client.interactions.create(
          model="models/gemini-3.1-flash-lite-image"
-        ,input=description
+        ,input=_build_input( description, images )
         ,generation_config=generation_config
         ,response_modalities=[ "image" ]
     )
