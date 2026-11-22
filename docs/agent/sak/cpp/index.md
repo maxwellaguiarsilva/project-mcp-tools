@@ -12,7 +12,7 @@ The core of this project is the `sak` library ( Swiss Army Knife ). It is design
 
 - Root headers: `sak.hpp` (aggregator), `using.hpp` (the `__using` macro families), `ensure.hpp`, `concepts.hpp`, `default_ctc_dtc.hpp`, `format.hpp`, `string.hpp`.
 - `expand64/` — generated expansion families consumed by `using.hpp`.
-- `meta/` — `override.hpp`, `enum.hpp`: compile-time overriding and enum reflection.
+- `meta/` — `meta.hpp`: compile-time virtual method, enumerator, and padding-free layout reflection.
 - `fso/` — `file.hpp`, `text_file.hpp`.
 - `math/` — `math.hpp`, `vector.hpp`, `concepts.hpp`, `error.hpp`.
 - `pattern/` — `dispatcher.hpp`, `tupled.hpp`, `value_or.hpp`, `parse.hpp`, `bitmask.hpp`, `cast.hpp`, `enum.hpp`.
@@ -28,7 +28,7 @@ The core of this project is the `sak` library ( Swiss Army Knife ). It is design
 
 - [Core Infrastructure](core.md) — `using`, `default_ctc_dtc`, `ensure`, `concepts`, `sak.hpp`.
 - [`sak/fso/`](fso.md) — file-system objects: `file` and `text_file`.
-- [`sak/meta/`](meta.md) — compile-time reflection: virtual method override model and enum name/value reflection.
+- [`sak/meta/`](meta.md) — compile-time reflection: virtual method override model, enum name/value reflection, and padding-free layout.
 - [`sak/math/`](math.md) — arithmetic operations, math functions, math concepts, vector math.
 - [`sak/pattern/`](pattern.md) — design patterns: dispatcher, tupled, value_or, parse, bitmask.
 - [`sak/ranges/`](ranges.md) — range utilities and views.

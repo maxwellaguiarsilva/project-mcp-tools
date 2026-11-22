@@ -1,17 +1,16 @@
 # `sak/meta/` — Compile-Time Reflection
 
-Header-only, domain-agnostic helpers built on `std::meta`. The folder answers two reflection questions that consumers would otherwise encode as hand-written tables: which virtual methods an interface declares and an implementation overrides, and which enumerator a name denotes. Both headers are pure reflection plus splices, carry no hardware or business dependency, and leave the meaning of the reflected data to the consumer. The folder has no aggregator header; a translation unit includes the individual header it needs.
+Header-only, domain-independent reflection built on `std::meta`, answering three questions that consumers would otherwise encode as hand-written tables: which virtual methods an interface declares and an implementation overrides, which enumerator a name denotes, and whether a type has a padding-free byte image. Every declaration is pure reflection plus splices, carries no hardware or business dependency, and leaves the meaning of the reflected data to the consumer. `meta.hpp` is the single header of the folder, and a translation unit includes it directly.
 
 | Header | Subject |
 |---|---|
-| `override.hpp` | virtual method reflection: method enumeration, override detection, the `override_model` mask, and method pointers |
-| `enum.hpp` | enumerator reflection: `kind_of` maps a name to an enumerator, `name_of` maps an enumerator to its name |
+| `meta.hpp` | virtual method reflection, enumerator reflection, and padding-free layout reflection |
 
 ---
 
-## `override.hpp` — Virtual Method Reflection
+## Virtual Method Reflection
 
-Declared in `include/sak/meta/override.hpp`. Every entry point is `consteval`, so each answer is produced during compilation. Membership is read with `std::meta::members_of( ^^type, access_context::current( ) )`, which means the answer respects the access context of the point of use and never reads a member the consumer could not name.
+Declared in `include/sak/meta/meta.hpp`. Every entry point is `consteval`, so each answer is produced during compilation. Membership is read with `std::meta::members_of( ^^type, access_context::current( ) )`, which means the answer respects the access context of the point of use and never reads a member the consumer could not name.
 
 ### `virtual_methods< t_base >( )`
 
@@ -70,9 +69,9 @@ Returns `&[: t_method :]` — a real pointer to the method the `info` designates
 
 ---
 
-## `enum.hpp` — Enumerator Names
+## Enumerator Names
 
-Declared in `include/sak/meta/enum.hpp`. The header provides the two directions of one reflection over any enumeration type:
+Declared in `include/sak/meta/meta.hpp`. The header provides the two directions of one reflection over any enumeration type:
 
 ```cpp
 template< typename t_enum >
@@ -108,6 +107,30 @@ The two error messages are deliberately domain-neutral: they name the failure an
 
 ---
 
+## Padding-Free Layout
+
+Declared in `include/sak/meta/meta.hpp`. The third reflection answers whether a type has a contiguous byte image:
+
+```cpp
+consteval auto has_no_padding( const info type ) -> bool;
+template< typename t_type > concept is_flat = has_no_padding( ^^t_type ) and is_trivially_copyable_v< t_type >;
+```
+
+### `has_no_padding( const info type ) -> bool`
+
+- Reflects the non-static data members with `access_context::current( )`, so the answer respects the access context of the point of use.
+- Walks the members in declaration order, accumulating `size_of( type_of( member ) )` and comparing each accumulated offset with `offset_of( member ).bytes`.
+- A leading gap, a gap between members, or a trailing gap fails the check, and the accumulated total must equal `size_of( type )`.
+
+### `is_flat< t_type >`
+
+- Combines `has_no_padding( ^^t_type )` with `is_trivially_copyable_v< t_type >`, so the type has a contiguous byte image and no copy semantics that alter its bytes.
+- Constrains shape and copyability only; the element types of the members stay outside its reach.
+
+The header carries no hardware or serialization concept. A contiguous byte image is a fact about the type, and a consumer decides what that fact means for its own transport.
+
+---
+
 ## Tests
 
-No structured test exists for this folder: `find -L /home/maxwell/code/draft-point/tests -name "test_sak_meta*"` returns nothing, and `tests/` holds only the `adhoc/` tree. The headers reach execution through their consumers; `sak::opengl::shader::compile` exercises `kind_of` on `shader::type`, and the demo resolves a stage name through `name_of`.
+No structured test exists for this folder: `find -L /home/maxwell/code/draft-point/tests -name "test_sak_meta*"` returns nothing, and `tests/` holds only the `adhoc/` tree. The header reaches execution through its consumers; `sak::opengl::shader::compile` exercises `kind_of` on `shader::type`, the demo resolves a stage name through `name_of`, and `shader::storage_buffer` asserts `is_flat` on its payload.

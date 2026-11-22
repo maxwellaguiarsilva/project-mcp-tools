@@ -10,7 +10,7 @@
 
 
 #include <map>
-#include <sak/meta/enum.hpp>
+#include <sak/meta/meta.hpp>
 #include <sak/opengl/fetch_log.hpp>
 #include <sak/ranges/contains.hpp>
 #include <sak/ranges/views/regex_matches.hpp>
@@ -22,10 +22,8 @@ namespace opengl {
 
 __using( ::std::
 	,convertible_to
-	,is_trivially_copyable_v
 	,make_unique
 	,map
-	,ptrdiff_t
 	,regex
 	,runtime_error
 	,size_t
@@ -33,40 +31,15 @@ __using( ::std::
 	,string_view
 	,unique_ptr
 )
-__using( ::std::meta::
-	,access_context
-	,info
-	,nonstatic_data_members_of
-	,offset_of
-	,size_of
-	,type_of
-)
 __using( ::std::ranges::, input_range, range_reference_t )
 __using( ::std::regex_constants::, ECMAScript, multiline )
 __using( ::sak::, ensure )
-__using( ::sak::meta::, kind_of )
+__using( ::sak::meta::, is_flat, kind_of )
 __using( ::sak::ranges::, contains )
 __using( ::sak::ranges::views::, match_pair, regex_matches )
 
 
 class shader;
-
-
-//	a type whose bytes are a contiguous payload with no padding, matching the flat float arrays read on the gpu
-consteval auto has_no_padding( const info type ) -> bool
-{
-	ptrdiff_t offset = 0;
-	for( const auto member : nonstatic_data_members_of( type, access_context::current( ) ) )
-	{
-		if( offset_of( member ).bytes not_eq offset )
-			return	false;
-		offset += size_of( type_of( member ) );
-	}
-	return	offset == static_cast< ptrdiff_t >( size_of( type ) );
-}
-
-template< typename t_type >
-concept is_flat = has_no_padding( ^^t_type ) and is_trivially_copyable_v< t_type >;
 
 
 template< typename t_range >

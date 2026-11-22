@@ -13,7 +13,7 @@ Header-only OpenGL objects for shader compilation, program linking, and GPU buff
 
 ## `shader.hpp` — Shader and Storage Buffer
 
-Declared in `include/sak/opengl/shader.hpp`. The header defines the flat-payload concept, the section helpers, the `shader` class, and the nested `storage_buffer` template.
+Declared in `include/sak/opengl/shader.hpp`. The header imports the flat-payload concept from `sak/meta/`, and defines the section helpers, the `shader` class, and the nested `storage_buffer` template.
 
 ### `shader::type`
 
@@ -51,7 +51,7 @@ Parses a combined GLSL document into its named sections.
 
 Compiles a supplied section map into a table.
 
-- Each section name is resolved through `kind_of< type >( name )` from `sak/meta/enum.hpp`, which matches it against the enumerator identifiers of `shader::type`.
+- Each section name is resolved through `kind_of< type >( name )` from `sak/meta/meta.hpp`, which matches it against the enumerator identifiers of `shader::type`.
 - A section whose name has no enumerator is rejected with `unknown enumerator: <name>`.
 - A section whose stage is already present in the table is rejected with `duplicate shader section: <name>`.
 - Each accepted section constructs one `shader` from its body and its stage, and the shader is stored under that stage in the returned table.
@@ -78,14 +78,7 @@ An RAII owner of one OpenGL buffer plus one heap array of payloads.
 - `flush( )` uploads the payload region with one `glNamedBufferSubData` at offset `sizeof( ssbo_header )`.
 - `bind( index )` performs `glBindBufferBase` on the shader storage target. The binding index is current-context state, so binding stays a separate explicit step and the class never chooses an index on its own.
 
-### `is_flat` and `has_no_padding`
-
-```cpp
-consteval auto has_no_padding( const info type ) -> bool;
-template< typename t_type > concept is_flat = has_no_padding( ^^t_type ) and is_trivially_copyable_v< t_type >;
-```
-
-`has_no_padding` reflects the non-static data members with `access_context::current( )`, accumulates `size_of( type_of( member ) )` in declaration order, and compares each accumulated offset against `offset_of( member ).bytes`. The check passes only when the members are contiguous and the accumulated total equals `size_of( type )`.
+The padding-free payload contract lives in [`sak/meta/`](meta.md); `sak::opengl::shader::storage_buffer` only asserts `is_flat` on its payload.
 
 ---
 
@@ -126,7 +119,7 @@ The consumer pipeline is: read the document, split it into sections, edit or inj
 #include <ranges>
 #include <sak/using.hpp>
 #include <sak/fso/text_file.hpp>
-#include <sak/meta/enum.hpp>
+#include <sak/meta/meta.hpp>
 #include <sak/opengl/program.hpp>
 
 __using( ::std::, string )
