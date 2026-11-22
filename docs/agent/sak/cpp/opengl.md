@@ -127,13 +127,16 @@ Any data source produces those inputs: a file, a database, a REST endpoint, or i
 
 ## Usage
 
-The consumer pipeline is: read the document, split it into sections, edit or inject section bodies, compile the map, and link the program.
+The consumer pipeline is: read the document, split it into sections, edit or inject section bodies, compile the map, and link the program. `replace_placeholders` is application-defined and stands for the consumer's own replacement of GLSL placeholders with generated text; the figures demo implements that step as `assemble_fragment`.
 
 ```cpp
 #include <ranges>
 #include <sak/using.hpp>
 #include <sak/fso/text_file.hpp>
 #include <sak/opengl/program.hpp>
+
+//	application-defined replacement of glsl placeholders with generated text
+auto replace_placeholders( const string& source ) -> string;
 
 auto main( ) -> int
 {
@@ -146,7 +149,7 @@ auto main( ) -> int
 	auto sections = shader::split_sections( document.content( ) );
 
 	const string fragment_name( shader::name_of( shader::type::fragment ) );
-	sections.at( fragment_name ) = sections.at( fragment_name ) + "\n//\tgenerated prelude";
+	sections.at( fragment_name ) = replace_placeholders( sections.at( fragment_name ) );
 
 	const shader::table shaders = shader::compile( sections );
 	program< decltype( shaders | values ) > linked( shaders | values );
