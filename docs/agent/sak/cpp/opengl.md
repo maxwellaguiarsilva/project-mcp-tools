@@ -51,20 +51,13 @@ Parses a combined GLSL document into its named sections.
 
 Compiles a supplied section map into a table.
 
-- Each section name is resolved through `shader::kind_of( name )`, which matches it against the enumerator identifiers of `shader::type`.
-- A section whose name has no enumerator is rejected with `unknown shader section: <name>`.
+- Each section name is resolved through `kind_of< type >( name )` from `sak/meta/enum.hpp`, which matches it against the enumerator identifiers of `shader::type`.
+- A section whose name has no enumerator is rejected with `unknown enumerator: <name>`.
 - A section whose stage is already present in the table is rejected with `duplicate shader section: <name>`.
 - Each accepted section constructs one `shader` from its body and its stage, and the shader is stored under that stage in the returned table.
 - Compilation consumes finished section text only. Any rewriting of a section body happens between `split_sections` and `compile`.
 
-### `shader::kind_of` and `shader::name_of`
-
-```cpp
-static auto kind_of( const string_view name ) -> type;
-static auto name_of( const type kind ) -> string_view;
-```
-
-`kind_of` maps a section name to the enumerator that declares it, and rejects an unknown name with `unknown shader section: <name>`. `name_of` returns the enumerator identifier for a stage, and rejects an unknown value with `unknown shader kind`. Both walk `define_static_array( enumerators_of( ^^type ) )`, so the name and the stage remain two views of the same enumerator and the header keeps no repeated name table.
+The name-to-stage reflection lives in [`sak/meta/`](meta.md); the shader module consumes `kind_of` from there and keeps no name table of its own.
 
 ### `shader` construction
 
@@ -133,29 +126,33 @@ The consumer pipeline is: read the document, split it into sections, edit or inj
 #include <ranges>
 #include <sak/using.hpp>
 #include <sak/fso/text_file.hpp>
+#include <sak/meta/enum.hpp>
 #include <sak/opengl/program.hpp>
+
+__using( ::std::, string )
+__using( ::std::views::, values )
+__using( ::sak::fso::, text_file )
+__using( ::sak::meta::, name_of )
+__using( ::sak::opengl::, program, shader )
 
 //	application-defined replacement of glsl placeholders with generated text
 auto replace_placeholders( const string& source ) -> string;
 
 auto main( ) -> int
 {
-	__using( ::std::, string )
-	__using( ::std::views::, values )
-	__using( ::sak::fso::, text_file )
-	__using( ::sak::opengl::, program, shader )
+	__using( ::sak::, exit_success )
 
 	const text_file document( "data/shader/figures.glsl" );
 	auto sections = shader::split_sections( document.content( ) );
 
-	const string fragment_name( shader::name_of( shader::type::fragment ) );
+	const string fragment_name( name_of( shader::type::fragment ) );
 	sections.at( fragment_name ) = replace_placeholders( sections.at( fragment_name ) );
 
 	const shader::table shaders = shader::compile( sections );
 	program< decltype( shaders | values ) > linked( shaders | values );
 	linked.use( );
 
-	return	0;
+	return	exit_success;
 }
 ```
 

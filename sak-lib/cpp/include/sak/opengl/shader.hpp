@@ -10,8 +10,7 @@
 
 
 #include <map>
-#include <meta>
-#include <string_view>
+#include <sak/meta/enum.hpp>
 #include <sak/opengl/fetch_log.hpp>
 #include <sak/ranges/contains.hpp>
 #include <sak/ranges/views/regex_matches.hpp>
@@ -23,7 +22,6 @@ namespace opengl {
 
 __using( ::std::
 	,convertible_to
-	,define_static_array
 	,is_trivially_copyable_v
 	,make_unique
 	,map
@@ -37,8 +35,6 @@ __using( ::std::
 )
 __using( ::std::meta::
 	,access_context
-	,enumerators_of
-	,identifier_of
 	,info
 	,nonstatic_data_members_of
 	,offset_of
@@ -48,6 +44,7 @@ __using( ::std::meta::
 __using( ::std::ranges::, input_range, range_reference_t )
 __using( ::std::regex_constants::, ECMAScript, multiline )
 __using( ::sak::, ensure )
+__using( ::sak::meta::, kind_of )
 __using( ::sak::ranges::, contains )
 __using( ::sak::ranges::views::, match_pair, regex_matches )
 
@@ -95,39 +92,13 @@ public:
 	using	table	=	map< type, shader >;
 	using	sections	=	map< string, string >;
 
-	//	map a section name to the shader kind it declares
-	static auto kind_of( const string_view name ) -> type
-	{
-		type kind{ };
-		bool found = false;
-		template for( constexpr auto enumerator : define_static_array( enumerators_of( ^^type ) ) )
-			if( not found and identifier_of( enumerator ) == name )
-			{
-				kind = [: enumerator :];
-				found = true;
-			}
-		ensure( found, "unknown shader section: " + string( name ) );
-		return	kind;
-	}
-
-	//	name of a shader kind as declared by its enumerator
-	static auto name_of( const type kind ) -> string_view
-	{
-		string_view name;
-		template for( constexpr auto enumerator : define_static_array( enumerators_of( ^^type ) ) )
-			if( [: enumerator :] == kind )
-				name = identifier_of( enumerator );
-		ensure( not name.empty( ), "unknown shader kind" );
-		return	name;
-	}
-
 	//	compile every named section into a shader of the kind its name declares
 	static auto compile( const sections& sections_by_name ) -> table
 	{
 		table shaders;
 		for( const auto& [ name, body ] : sections_by_name )
 		{
-			const type kind = kind_of( name );
+			const type kind = kind_of< type >( name );
 			ensure( not contains( shaders, kind ), "duplicate shader section: " + name );
 			shaders.try_emplace( kind, body, kind );
 		}
