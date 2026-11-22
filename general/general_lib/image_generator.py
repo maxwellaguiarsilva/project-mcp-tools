@@ -79,7 +79,7 @@ def _next_image_name( directory: str ) -> str:
     return  f"image-{max_counter + 1:06d}"
 
 
-def generate_image( description: str, file_name: str | None = None, images: list[ str ] | None = None ) -> str:
+def generate_image( description: str, file_name: str | None = None, images: list[ str ] | None = None, timeout: int = 60 ) -> str:
     images_dir = os.path.join( "resources", "images" )
     os.makedirs( images_dir, exist_ok = True )
 
@@ -104,6 +104,7 @@ def generate_image( description: str, file_name: str | None = None, images: list
         ,input=_build_input( description, images )
         ,generation_config=generation_config
         ,response_modalities=[ "image" ]
+        ,timeout=timeout  #   the sdk takes seconds
     )
 
     for step in interaction.steps:

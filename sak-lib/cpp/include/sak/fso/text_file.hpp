@@ -31,7 +31,7 @@ __using( ::std::filesystem::, create_directories )
 __using( ::sak::, ensure )
 
 
-class text_file : public file
+class text_file final : public file
 {
 public:
 	explicit text_file( path_type source_path )

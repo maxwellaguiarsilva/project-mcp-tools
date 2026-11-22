@@ -32,5 +32,6 @@ The core of this project is the `sak` library ( Swiss Army Knife ). It is design
 - [`sak/pattern/`](pattern.md) — design patterns: dispatcher, tupled, value_or, parse, bitmask.
 - [`sak/ranges/`](ranges.md) — range utilities and views.
 - [`sak/geometry/`](geometry.md) — geometry primitives and the `point` core class.
+- [`sak/opengl/`](opengl.md) — shader compilation, section splitting, program linking, and the flat-float shader storage buffer.
 
-- **Pending:** `format.hpp`, `string.hpp`, `opengl/`, `sdl3/`, `meta/` and `expand64/` have no dedicated document. The OpenGL and SDL3 coverage lives in the analysis tree at `docs/agent/analyses/opengl/` and `docs/agent/analyses/sdl3/`.
+- **Pending:** `format.hpp`, `string.hpp`, `meta/` and `expand64/` have no dedicated document. The SDL3 coverage lives in the analysis tree at `docs/agent/analyses/sdl3/`.

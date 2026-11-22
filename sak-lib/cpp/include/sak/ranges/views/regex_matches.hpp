@@ -21,6 +21,7 @@ namespace sak::ranges::views {
 
 //	--------------------------------------------------
 __using( ::std::
+	,pair
 	,regex
 	,regex_iterator
 	,string
@@ -91,6 +92,20 @@ struct __match_groups : range_adaptor_closure< __match_groups >
 };
 
 inline constexpr auto match_groups = __match_groups{ };
+
+
+//	opt-in projection, collapses each match to its first two capture groups
+struct __match_pair : range_adaptor_closure< __match_pair >
+{
+	template< viewable_range t_range >
+	constexpr auto operator ( ) ( t_range&& range ) const noexcept
+	{
+		return	::std::forward< t_range >( range )
+			|	lazy_transform( [ ]( const auto& match ) { return pair{ match[ 1 ].str( ), match[ 2 ].str( ) }; } );
+	}
+};
+
+inline constexpr auto match_pair = __match_pair{ };
 
 
 }
